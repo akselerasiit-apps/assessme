@@ -91,6 +91,9 @@
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     
+    <!-- App Utilities -->
+    <script src="{{ asset('js/app-utils.js') }}"></script>
+    
     @stack('scripts')
 </body>
 </html>
