@@ -8,6 +8,8 @@ use App\Http\Controllers\Web\ReportWebController;
 use App\Http\Controllers\Web\QuestionWebController;
 use App\Http\Controllers\Web\ReviewApprovalController;
 use App\Http\Controllers\Web\BandingController;
+use App\Http\Controllers\Web\RecommendationWebController;
+use App\Http\Controllers\Web\ActionPlanWebController;
 
 // Guest Routes
 Route::middleware('guest')->group(function () {
@@ -82,6 +84,27 @@ Route::middleware(['auth'])->group(function () {
                 ->name('process-approval')
                 ->middleware('role:Super Admin|Admin');
             Route::delete('/{banding}', [BandingController::class, 'destroy'])->name('destroy');
+        });
+        
+        // Recommendations (nested under assessments)
+        Route::prefix('/{assessment}/recommendations')->name('recommendations.')->group(function () {
+            Route::get('/', [RecommendationWebController::class, 'index'])->name('index');
+            Route::get('/create', [RecommendationWebController::class, 'create'])->name('create');
+            Route::post('/', [RecommendationWebController::class, 'store'])->name('store');
+            Route::get('/generate', [RecommendationWebController::class, 'generate'])->name('generate');
+            Route::get('/{recommendation}', [RecommendationWebController::class, 'show'])->name('show');
+            Route::get('/{recommendation}/edit', [RecommendationWebController::class, 'edit'])->name('edit');
+            Route::put('/{recommendation}', [RecommendationWebController::class, 'update'])->name('update');
+            Route::delete('/{recommendation}', [RecommendationWebController::class, 'destroy'])->name('destroy');
+        });
+        
+        // Action Plans (nested under assessments)
+        Route::prefix('/{assessment}/action-plans')->name('action-plans.')->group(function () {
+            Route::get('/', [ActionPlanWebController::class, 'index'])->name('index');
+            Route::get('/timeline', [ActionPlanWebController::class, 'timeline'])->name('timeline');
+            Route::get('/progress', [ActionPlanWebController::class, 'progress'])->name('progress');
+            Route::match(['get', 'post'], '/assign', [ActionPlanWebController::class, 'assign'])->name('assign');
+            Route::post('/{recommendation}/update-progress', [ActionPlanWebController::class, 'updateProgress'])->name('update-progress');
         });
     });
     

@@ -237,12 +237,54 @@ Roadmap implementasi views yang belum ada berdasarkan alur aplikasi di Boilerpla
 
 ---
 
-### 🔄 **PHASE 8: Recommendations & Action Plans**
+### 🔄 **PHASE 8: Capability Assessment Interface** ⭐ ADVANCED UI!
+**Priority:** 🔴 HIGH (Core Assessment Feature!)  
+**Duration:** 5-6 days  
+**Files:** 6 views + controller
+
+#### 8.1 Level-Based Assessment UI
+```
+📝 Files to Create:
+├── capability/
+│   ├── assessment.blade.php   - Main assessment interface with tabs
+│   ├── level-card.blade.php   - Level card component
+│   ├── activities.blade.php   - Activities table per level
+│   ├── pbc.blade.php          - PBC (Provided By Client) tab
+│   ├── repository.blade.php   - Evidence repository tab
+│   └── summary.blade.php      - Assessment summary tab
+├── CapabilityAssessmentController.php
+└── Routes
+```
+
+#### Features:
+- ❌ GAMO selection dropdown
+- ❌ Multi-tab interface (Level/PBC/Repository/Summary)
+- ❌ Level cards visual (Level 0-5)
+- ❌ Lock/unlock level progression
+- ❌ Activities table per level
+- ❌ Management practice codes display
+- ❌ Translation column (ID/EN toggle)
+- ❌ Weight display per activity
+- ❌ Assessment rating dropdown (Not/Partially/Largely/Fully Achieved)
+- ❌ Evidence status indicator
+- ❌ Progress calculation per level
+- ❌ Real-time maturity scoring
+- ❌ Level completion validation
+- ❌ Auto-unlock next level logic
+
+**Reference:** Based on existing COBIT 2019 structure
+- gamo_capability_definitions (6 levels per GAMO)
+- gamo_questions (maturity_level links)
+- assessment_answer_capability_scores (achievement_status)
+
+---
+
+### 🔄 **PHASE 9: Recommendations & Action Plans**
 **Priority:** 🔴 HIGH  
 **Duration:** 4-5 days  
 **Files:** 7 views + controller
 
-#### 8.1 Recommendations Management
+#### 9.1 Recommendations Management
 ```
 📝 Files to Create:
 ├── recommendations/
@@ -276,7 +318,7 @@ Roadmap implementasi views yang belum ada berdasarkan alur aplikasi di Boilerpla
 
 ---
 
-### 🔄 **PHASE 9: Reporting Enhancement**
+### 🔄 **PHASE 10: Reporting Enhancement**
 **Priority:** 🟡 MEDIUM  
 **Duration:** 3-4 days  
 **Files:** 4 views
@@ -299,7 +341,7 @@ Roadmap implementasi views yang belum ada berdasarkan alur aplikasi di Boilerpla
 
 ---
 
-### 🔄 **PHASE 10: User Profile & Settings**
+### 🔄 **PHASE 11: User Profile & Settings**
 **Priority:** 🔴 HIGH  
 **Duration:** 3-4 days  
 **Files:** 9 views + controller
@@ -336,7 +378,7 @@ Roadmap implementasi views yang belum ada berdasarkan alur aplikasi di Boilerpla
 
 ---
 
-### 🔄 **PHASE 11: Authentication Enhancement**
+### 🔄 **PHASE 12: Authentication Enhancement**
 **Priority:** 🟡 MEDIUM  
 **Duration:** 2-3 days  
 **Files:** 4 views
@@ -353,12 +395,12 @@ Roadmap implementasi views yang belum ada berdasarkan alur aplikasi di Boilerpla
 
 ---
 
-### 🔄 **PHASE 12: Dashboard Enhancement**
+### 🔄 **PHASE 13: Dashboard Enhancement**
 **Priority:** 🟡 MEDIUM  
 **Duration:** 3-4 days  
 **Files:** 4 views
 
-#### 12.1 Specialized Dashboards
+#### 13.1 Specialized Dashboards
 ```
 📝 Files to Create:
 ├── dashboard/
@@ -370,12 +412,12 @@ Roadmap implementasi views yang belum ada berdasarkan alur aplikasi di Boilerpla
 
 ---
 
-### 🔄 **PHASE 13: Notification System**
+### 🔄 **PHASE 14: Notification System**
 **Priority:** 🟡 MEDIUM  
 **Duration:** 2-3 days  
 **Files:** 4 views + controller
 
-#### 13.1 Notification Center
+#### 14.1 Notification Center
 ```
 📝 Files to Create:
 ├── notifications/
@@ -389,12 +431,12 @@ Roadmap implementasi views yang belum ada berdasarkan alur aplikasi di Boilerpla
 
 ---
 
-### 🔄 **PHASE 14: System Configuration**
+### 🔄 **PHASE 15: System Configuration**
 **Priority:** 🟢 LOW  
 **Duration:** 2-3 days  
 **Files:** 4 views
 
-#### 14.1 System Settings
+#### 15.1 System Settings
 ```
 📝 Files to Create:
 ├── admin/
@@ -406,12 +448,12 @@ Roadmap implementasi views yang belum ada berdasarkan alur aplikasi di Boilerpla
 
 ---
 
-### 🔄 **PHASE 15: Audit & Compliance Enhancement**
+### 🔄 **PHASE 16: Audit & Compliance Enhancement**
 **Priority:** 🟢 LOW  
 **Duration:** 2-3 days  
 **Files:** 4 views
 
-#### 15.1 Advanced Audit
+#### 16.1 Advanced Audit
 ```
 📝 Files to Create:
 ├── audit/
@@ -423,12 +465,12 @@ Roadmap implementasi views yang belum ada berdasarkan alur aplikasi di Boilerpla
 
 ---
 
-### 🔄 **PHASE 16: Security Management**
+### 🔄 **PHASE 17: Security Management**
 **Priority:** 🟢 LOW  
 **Duration:** 2-3 days  
 **Files:** 5 views
 
-#### 16.1 Security Admin
+#### 17.1 Security Admin
 ```
 📝 Files to Create:
 ├── security/
@@ -447,25 +489,26 @@ Roadmap implementasi views yang belum ada berdasarkan alur aplikasi di Boilerpla
 | Phase | Module | Priority | Duration | Status | Progress |
 |-------|--------|----------|----------|--------|----------|
 | 0 | Master Data | ✅ Done | - | ✅ Complete | 100% |
-| 1 | Question Management | 🔴 Critical | 3-4 days | 🔄 In Progress | 0% |
+| 1 | Question Management | ✅ Done | - | ✅ Complete | 100% |
 | 2 | Assessment Setup | 🔴 High | 2-3 days | ⏳ Pending | 0% |
-| 3 | Assessment Execution | 🔴 High | 4-5 days | ⏳ Pending | 0% |
-| 4 | Evidence Management | 🔴 High | 3-4 days | ⏳ Pending | 0% |
-| 5 | Scoring & Maturity | 🟡 Medium | 3-4 days | ⏳ Pending | 0% |
-| 6 | Review & Approval | 🟡 Medium | 2-3 days | ⏳ Pending | 0% |
-| 7 | Banding Process | 🔴 High | 4-5 days | ⏳ Pending | 0% |
-| 8 | Recommendations | 🔴 High | 4-5 days | ⏳ Pending | 0% |
-| 9 | Reporting Enhancement | 🟡 Medium | 3-4 days | ⏳ Pending | 0% |
-| 10 | User Profile | 🔴 High | 3-4 days | ⏳ Pending | 0% |
-| 11 | Auth Enhancement | 🟡 Medium | 2-3 days | ⏳ Pending | 0% |
-| 12 | Dashboard Enhancement | 🟡 Medium | 3-4 days | ⏳ Pending | 0% |
-| 13 | Notification System | 🟡 Medium | 2-3 days | ⏳ Pending | 0% |
-| 14 | System Config | 🟢 Low | 2-3 days | ⏳ Pending | 0% |
-| 15 | Audit Enhancement | 🟢 Low | 2-3 days | ⏳ Pending | 0% |
-| 16 | Security Management | 🟢 Low | 2-3 days | ⏳ Pending | 0% |
+| 3 | Assessment Execution | ✅ Done | - | ✅ Complete | 100% |
+| 4 | Evidence Management | ✅ Done | - | ✅ Complete | 100% |
+| 5 | Scoring & Maturity | ✅ Done | - | ✅ Complete | 100% |
+| 6 | Review & Approval | ✅ Done | - | ✅ Complete | 100% |
+| 7 | Banding Process | ✅ Done | - | ✅ Complete | 100% |
+| 8 | Capability Assessment | 🔴 High | 5-6 days | ⏳ Pending | 0% |
+| 9 | Recommendations | 🔴 High | 4-5 days | ⏳ Pending | 0% |
+| 10 | Reporting Enhancement | 🟡 Medium | 3-4 days | ⏳ Pending | 0% |
+| 11 | User Profile | 🔴 High | 3-4 days | ⏳ Pending | 0% |
+| 12 | Auth Enhancement | 🟡 Medium | 2-3 days | ⏳ Pending | 0% |
+| 13 | Dashboard Enhancement | 🟡 Medium | 3-4 days | ⏳ Pending | 0% |
+| 14 | Notification System | 🟡 Medium | 2-3 days | ⏳ Pending | 0% |
+| 15 | System Config | 🟢 Low | 2-3 days | ⏳ Pending | 0% |
+| 16 | Audit Enhancement | 🟢 Low | 2-3 days | ⏳ Pending | 0% |
+| 17 | Security Management | 🟢 Low | 2-3 days | ⏳ Pending | 0% |
 
-**Total Duration:** ~50-60 days (8-10 weeks)  
-**Current Progress:** 33% (Master Data Complete)
+**Total Duration:** ~54-64 days (9-11 weeks)  
+**Current Progress:** 53/119 views (44.5%)
 
 ---
 

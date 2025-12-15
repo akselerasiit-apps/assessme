@@ -154,12 +154,6 @@ class AssessmentWebController extends Controller
                 ->with('error', 'Failed to create assessment: ' . $e->getMessage());
         }
     }
-            DB::rollBack();
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Failed to create assessment: ' . $e->getMessage());
-        }
-    }
 
     /**
      * Display the specified assessment

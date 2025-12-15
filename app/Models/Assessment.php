@@ -136,6 +136,14 @@ class Assessment extends Model
     }
 
     /**
+     * Get recommendations for this assessment
+     */
+    public function recommendations(): HasMany
+    {
+        return $this->hasMany(Recommendation::class);
+    }
+
+    /**
      * Scope by status
      */
     public function scopeByStatus($query, string $status)
