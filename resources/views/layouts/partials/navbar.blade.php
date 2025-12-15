@@ -1,9 +1,100 @@
 <header class="navbar navbar-expand-md d-print-none">
     <div class="container-xl">
+        <!-- Brand/Logo -->
+        <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
+            <a href="{{ route('dashboard') }}">
+                <img src="https://via.placeholder.com/110x32/206bc4/ffffff?text=COBIT" height="32" alt="COBIT Assessment" class="navbar-brand-image">
+            </a>
+        </h1>
+        
+        <!-- Mobile toggle button -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         
+        <!-- Horizontal Menu -->
+        <div class="collapse navbar-collapse" id="navbar-menu">
+            <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
+                <ul class="navbar-nav">
+                    <!-- Dashboard -->
+                    <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('dashboard') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <i class="ti ti-home"></i>
+                            </span>
+                            <span class="nav-link-title">Dashboard</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Assessments -->
+                    @canany(['view assessments', 'create assessments'])
+                    <li class="nav-item dropdown {{ request()->is('assessments*') ? 'active' : '' }}">
+                        <a class="nav-link dropdown-toggle" href="#navbar-assessments" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <i class="ti ti-clipboard-check"></i>
+                            </span>
+                            <span class="nav-link-title">Assessments</span>
+                        </a>
+                        <div class="dropdown-menu">
+                            @can('view assessments')
+                            <a class="dropdown-item {{ request()->routeIs('assessments.index') ? 'active' : '' }}" href="{{ route('assessments.index') }}">
+                                <i class="ti ti-list me-2"></i>All Assessments
+                            </a>
+                            @endcan
+                            @can('create assessments')
+                            <a class="dropdown-item {{ request()->routeIs('assessments.create') ? 'active' : '' }}" href="{{ route('assessments.create') }}">
+                                <i class="ti ti-plus me-2"></i>Create Assessment
+                            </a>
+                            @endcan
+                            <a class="dropdown-item {{ request()->routeIs('assessments.my') ? 'active' : '' }}" href="{{ route('assessments.my') }}">
+                                <i class="ti ti-user-check me-2"></i>My Assessments
+                            </a>
+                        </div>
+                    </li>
+                    @endcanany
+                    
+                    <!-- Reports -->
+                    @can('view reports')
+                    <li class="nav-item {{ request()->is('reports*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('reports.index') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <i class="ti ti-chart-bar"></i>
+                            </span>
+                            <span class="nav-link-title">Reports</span>
+                        </a>
+                    </li>
+                    @endcan
+                    
+                    <!-- Administration -->
+                    @hasanyrole('Super Admin|Admin')
+                    <li class="nav-item dropdown {{ request()->is('admin*') ? 'active' : '' }}">
+                        <a class="nav-link dropdown-toggle" href="#navbar-admin" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <i class="ti ti-settings"></i>
+                            </span>
+                            <span class="nav-link-title">Administration</span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item {{ request()->routeIs('admin.users') ? 'active' : '' }}" href="{{ route('admin.users') }}">
+                                <i class="ti ti-users me-2"></i>Users
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('admin.roles') ? 'active' : '' }}" href="{{ route('admin.roles') }}">
+                                <i class="ti ti-shield-lock me-2"></i>Roles & Permissions
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('admin.audit-logs') ? 'active' : '' }}" href="{{ route('admin.audit-logs') }}">
+                                <i class="ti ti-file-search me-2"></i>Audit Logs
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}" href="{{ route('admin.settings') }}">
+                                <i class="ti ti-adjustments me-2"></i>System Settings
+                            </a>
+                        </div>
+                    </li>
+                    @endhasanyrole
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Right side items -->
         <div class="navbar-nav flex-row order-md-last">
             <!-- Notifications -->
             <div class="nav-item dropdown d-none d-md-flex me-3">

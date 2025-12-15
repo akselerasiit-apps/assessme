@@ -211,7 +211,7 @@
             labels: ['Level 0', 'Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5'],
             datasets: [{
                 label: 'Number of Assessments',
-                data: @json(array_values($maturityDistribution ?? [0, 0, 0, 0, 0, 0])),
+                data: {{ json_encode(array_values($maturityDistribution ?? [0, 0, 0, 0, 0, 0])) }},
                 backgroundColor: '#0054a6'
             }]
         },

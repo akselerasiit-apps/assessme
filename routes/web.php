@@ -9,7 +9,7 @@ use App\Http\Controllers\Web\ReportWebController;
 // Guest Routes
 Route::middleware('guest')->group(function () {
     Route::get('/', function () {
-        return redirect()->route('login');
+        return view('welcome');
     });
     
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -59,7 +59,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
     
     // Admin Routes
-    Route::prefix('admin')->name('admin.')->middleware('role:Super Admin|Admin')->group(function () {
+    Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/users', [DashboardController::class, 'users'])->name('users');
         Route::get('/roles', [DashboardController::class, 'roles'])->name('roles');
         Route::get('/audit-logs', [DashboardController::class, 'auditLogs'])->name('audit-logs');

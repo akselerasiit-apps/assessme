@@ -30,10 +30,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
     
     <div class="page">
-        <!-- Sidebar -->
-        @include('layouts.partials.sidebar')
-        
-        <!-- Navbar -->
+        <!-- Navbar with horizontal menu -->
         @include('layouts.partials.navbar')
         
         <div class="page-wrapper">

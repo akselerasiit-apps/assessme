@@ -96,20 +96,36 @@ class FileUploadSecurityTest extends TestCase
     public function test_file_is_stored_securely(): void
     {
         Storage::fake('private');
-        $this->authenticateAs('Assessor');
+        $user = $this->authenticateAs('Assessor');
 
-        $assessment = Assessment::factory()->create();
+        $assessment = Assessment::factory()->create([
+            'created_by' => $user->id,
+            'status' => 'in_progress',
+        ]);
+        $question = \App\Models\GamoQuestion::factory()->create();
+        $answer = \App\Models\AssessmentAnswer::factory()->create([
+            'assessment_id' => $assessment->id,
+            'question_id' => $question->id,
+            'answered_by' => $user->id,
+        ]);
         $file = UploadedFile::fake()->create('secure.pdf', 1024);
 
         $response = $this->postJson('/api/evidence/upload', [
             'assessment_id' => $assessment->id,
+            'answer_id' => $answer->id,
             'file' => $file,
         ]);
 
-        if ($response->status() === 201 || $response->status() === 200) {
-            // File should be in private storage
-            Storage::disk('private')->assertExists($response->json('path') ?? 'evidence/' . $file->hashName());
-        }
+        // Assert response is successful
+        $response->assertStatus(201);
+        
+        // Verify file is stored in encrypted directory
+        $answer->refresh();
+        $this->assertNotNull($answer->evidence_file);
+        $this->assertTrue($answer->evidence_encrypted);
+        
+        // File should be in private storage with encrypted path
+        Storage::disk('private')->assertExists($answer->evidence_file);
     }
 
     /**

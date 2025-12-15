@@ -49,21 +49,25 @@ class DashboardController extends Controller
     
     public function users()
     {
+        abort_if(!auth()->user()->hasAnyRole(['Super Admin', 'Admin']), 403);
         return view('admin.users');
     }
     
     public function roles()
     {
+        abort_if(!auth()->user()->hasAnyRole(['Super Admin', 'Admin']), 403);
         return view('admin.roles');
     }
     
     public function auditLogs()
     {
+        abort_if(!auth()->user()->hasAnyRole(['Super Admin', 'Admin']), 403);
         return view('admin.audit-logs');
     }
     
     public function adminSettings()
     {
+        abort_if(!auth()->user()->hasAnyRole(['Super Admin', 'Admin']), 403);
         return view('admin.settings');
     }
 }
