@@ -49,6 +49,15 @@ Route::middleware(['auth'])->group(function () {
         // Answer questions
         Route::get('/{assessment}/answer', [AssessmentWebController::class, 'answer'])->name('answer');
         Route::post('/{assessment}/submit-answer', [AssessmentWebController::class, 'submitAnswer'])->name('submit-answer');
+        
+        // Evidence Management (nested under assessments)
+        Route::prefix('/{assessment}/evidence')->name('evidence.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Web\EvidenceWebController::class, 'index'])->name('index');
+            Route::get('/upload', [\App\Http\Controllers\Web\EvidenceWebController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Web\EvidenceWebController::class, 'store'])->name('store');
+            Route::get('/{answer}/download', [\App\Http\Controllers\Web\EvidenceWebController::class, 'download'])->name('download');
+            Route::delete('/{answer}', [\App\Http\Controllers\Web\EvidenceWebController::class, 'destroy'])->name('destroy');
+        });
     });
     
     // Reports
