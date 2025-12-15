@@ -46,6 +46,9 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{assessment}', [AssessmentWebController::class, 'update'])->name('update');
         Route::delete('/{assessment}', [AssessmentWebController::class, 'destroy'])->name('destroy');
         
+        // Progress tracking
+        Route::get('/{assessment}/progress', [\App\Http\Controllers\Web\AssessmentProgressController::class, 'show'])->name('progress');
+        
         // Answer questions
         Route::get('/{assessment}/answer', [AssessmentWebController::class, 'answer'])->name('answer');
         Route::post('/{assessment}/submit-answer', [AssessmentWebController::class, 'submitAnswer'])->name('submit-answer');
