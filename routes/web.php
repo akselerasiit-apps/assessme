@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\AssessmentWebController;
 use App\Http\Controllers\Web\ReportWebController;
+use App\Http\Controllers\Web\QuestionWebController;
 
 // Guest Routes
 Route::middleware('guest')->group(function () {
@@ -107,6 +108,18 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/{gamoObjective}', [\App\Http\Controllers\Web\GamoObjectiveWebController::class, 'update'])->name('update');
             Route::delete('/{gamoObjective}', [\App\Http\Controllers\Web\GamoObjectiveWebController::class, 'destroy'])->name('destroy');
             Route::patch('/{gamoObjective}/toggle', [\App\Http\Controllers\Web\GamoObjectiveWebController::class, 'toggleActive'])->name('toggle');
+        });
+        
+        // Question Management
+        Route::prefix('questions')->name('questions.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Web\QuestionWebController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Web\QuestionWebController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Web\QuestionWebController::class, 'store'])->name('store');
+            Route::get('/{question}', [\App\Http\Controllers\Web\QuestionWebController::class, 'show'])->name('show');
+            Route::get('/{question}/edit', [\App\Http\Controllers\Web\QuestionWebController::class, 'edit'])->name('edit');
+            Route::put('/{question}', [\App\Http\Controllers\Web\QuestionWebController::class, 'update'])->name('update');
+            Route::delete('/{question}', [\App\Http\Controllers\Web\QuestionWebController::class, 'destroy'])->name('destroy');
+            Route::patch('/{question}/toggle-active', [\App\Http\Controllers\Web\QuestionWebController::class, 'toggleActive'])->name('toggle-active');
         });
     });
 });
