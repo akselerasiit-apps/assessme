@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\AssessmentWebController;
 use App\Http\Controllers\Web\ReportWebController;
 use App\Http\Controllers\Web\QuestionWebController;
 use App\Http\Controllers\Web\ReviewApprovalController;
+use App\Http\Controllers\Web\BandingController;
 
 // Guest Routes
 Route::middleware('guest')->group(function () {
@@ -69,6 +70,19 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{score}', [\App\Http\Controllers\Web\ScoringWebController::class, 'show'])->name('show');
             Route::post('/calculate', [\App\Http\Controllers\Web\ScoringWebController::class, 'calculate'])->name('calculate');
         });
+        
+        // Banding/Appeal Process (nested under assessments)
+        Route::prefix('/{assessment}/banding')->name('banding.')->group(function () {
+            Route::get('/', [BandingController::class, 'index'])->name('index');
+            Route::get('/create', [BandingController::class, 'create'])->name('create');
+            Route::post('/', [BandingController::class, 'store'])->name('store');
+            Route::get('/{banding}', [BandingController::class, 'show'])->name('show');
+            Route::post('/{banding}/submit', [BandingController::class, 'submit'])->name('submit');
+            Route::post('/{banding}/process', [BandingController::class, 'processApproval'])
+                ->name('process-approval')
+                ->middleware('role:Super Admin|Admin');
+            Route::delete('/{banding}', [BandingController::class, 'destroy'])->name('destroy');
+        });
     });
     
     // Reports
@@ -110,6 +124,14 @@ Route::middleware(['auth'])->group(function () {
         // History
         Route::get('/{assessment}/history', [ReviewApprovalController::class, 'history'])
             ->name('history');
+    });
+    
+    // Banding/Appeal Approval Routes (Admin/Super Admin)
+    Route::prefix('banding')->name('banding.')->group(function () {
+        // Global pending approvals dashboard
+        Route::get('/pending-approval', [BandingController::class, 'pendingApproval'])
+            ->name('pending-approval')
+            ->middleware('role:Super Admin|Admin');
     });
     
     // Admin Routes

@@ -11,24 +11,26 @@ class AssessmentBanding extends Model
         'assessment_id',
         'gamo_objective_id',
         'banding_round',
-        'original_score',
-        'banded_score',
+        'initiated_by',
         'banding_reason',
-        'evidence_submitted',
-        'requested_by',
-        'reviewed_by',
+        'banding_description',
+        'old_maturity_level',
+        'new_maturity_level',
+        'old_evidence_count',
+        'new_evidence_count',
+        'additional_evidence_files',
+        'revised_answers',
         'status',
-        'reviewer_notes',
-        'requested_at',
-        'reviewed_at',
+        'approved_by',
+        'approval_notes',
     ];
 
     protected $casts = [
         'banding_round' => 'integer',
-        'original_score' => 'decimal:2',
-        'banded_score' => 'decimal:2',
-        'requested_at' => 'datetime',
-        'reviewed_at' => 'datetime',
+        'old_maturity_level' => 'decimal:2',
+        'new_maturity_level' => 'decimal:2',
+        'old_evidence_count' => 'integer',
+        'new_evidence_count' => 'integer',
     ];
 
     /**
@@ -48,19 +50,35 @@ class AssessmentBanding extends Model
     }
 
     /**
-     * Get the user who requested banding
+     * Get the user who initiated banding
      */
-    public function requester(): BelongsTo
+    public function initiatedBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'requested_by');
+        return $this->belongsTo(User::class, 'initiated_by');
     }
 
     /**
-     * Get the user who reviewed banding
+     * Alias for initiatedBy
+     */
+    public function requester(): BelongsTo
+    {
+        return $this->initiatedBy();
+    }
+
+    /**
+     * Get the user who approved/rejected banding
+     */
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    /**
+     * Alias for approvedBy
      */
     public function reviewer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'reviewed_by');
+        return $this->approvedBy();
     }
 
     /**
@@ -72,11 +90,19 @@ class AssessmentBanding extends Model
     }
 
     /**
-     * Scope pending bandings
+     * Scope submitted bandings (pending approval)
      */
-    public function scopePending($query)
+    public function scopeSubmitted($query)
     {
-        return $query->where('status', 'PENDING');
+        return $query->where('status', 'submitted');
+    }
+
+    /**
+     * Scope draft bandings
+     */
+    public function scopeDraft($query)
+    {
+        return $query->where('status', 'draft');
     }
 
     /**
@@ -84,14 +110,42 @@ class AssessmentBanding extends Model
      */
     public function isApproved(): bool
     {
-        return $this->status === 'APPROVED';
+        return $this->status === 'approved';
     }
 
     /**
-     * Get score improvement
+     * Check if banding was rejected
      */
-    public function getScoreImprovement(): float
+    public function isRejected(): bool
     {
-        return round($this->banded_score - $this->original_score, 2);
+        return $this->status === 'rejected';
+    }
+
+    /**
+     * Check if banding is pending
+     */
+    public function isPending(): bool
+    {
+        return $this->status === 'submitted';
+    }
+
+    /**
+     * Get maturity improvement
+     */
+    public function getMaturityImprovement(): ?float
+    {
+        if ($this->old_maturity_level && $this->new_maturity_level) {
+            return round($this->new_maturity_level - $this->old_maturity_level, 2);
+        }
+        return null;
+    }
+
+    /**
+     * Get evidence improvement
+     */
+    public function getEvidenceImprovement(): int
+    {
+        return ($this->new_evidence_count ?? 0) - ($this->old_evidence_count ?? 0);
     }
 }
+
