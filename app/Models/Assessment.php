@@ -52,7 +52,7 @@ class Assessment extends Model
     /**
      * Get the user who created this assessment
      */
-    public function creator(): BelongsTo
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
@@ -60,7 +60,7 @@ class Assessment extends Model
     /**
      * Get the user who reviewed this assessment
      */
-    public function reviewer(): BelongsTo
+    public function reviewedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
     }
@@ -68,7 +68,7 @@ class Assessment extends Model
     /**
      * Get the user who approved this assessment
      */
-    public function approver(): BelongsTo
+    public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
     }

@@ -154,6 +154,12 @@ class AssessmentWebController extends Controller
                 ->with('error', 'Failed to create assessment: ' . $e->getMessage());
         }
     }
+            DB::rollBack();
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to create assessment: ' . $e->getMessage());
+        }
+    }
 
     /**
      * Display the specified assessment
@@ -184,8 +190,12 @@ class AssessmentWebController extends Controller
         $this->authorize('update', $assessment);
         
         $companies = Company::where('is_active', true)->get();
+        $designFactors = DesignFactor::where('is_active', true)->orderBy('factor_order')->get();
+        $gamoObjectives = GamoObjective::where('is_active', true)->orderBy('objective_order')->get();
         
-        return view('assessments.edit', compact('assessment', 'companies'));
+        $assessment->load(['company', 'designFactors', 'gamoObjectives']);
+        
+        return view('assessments.edit', compact('assessment', 'companies', 'designFactors', 'gamoObjectives'));
     }
 
     /**
@@ -193,7 +203,77 @@ class AssessmentWebController extends Controller
      */
     public function update(Request $request, Assessment $assessment)
     {
-        // Will implement after edit view is ready
+        $this->authorize('update', $assessment);
+        
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'company_id' => 'required|exists:companies,id',
+            'assessment_type' => 'required|in:initial,periodic,specific',
+            'scope_type' => 'required|in:full,tailored',
+            'assessment_period_start' => 'required|date',
+            'assessment_period_end' => 'required|date|after:assessment_period_start',
+            'design_factors' => 'nullable|array',
+            'design_factors.*' => 'exists:design_factors,id',
+            'gamo_objectives' => 'nullable|array',
+            'gamo_objectives.*' => 'exists:gamo_objectives,id',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $assessment->update([
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'company_id' => $validated['company_id'],
+                'assessment_type' => $validated['assessment_type'],
+                'scope_type' => $validated['scope_type'],
+                'assessment_period_start' => $validated['assessment_period_start'],
+                'assessment_period_end' => $validated['assessment_period_end'],
+            ]);
+
+            // Sync Design Factors
+            DB::table('assessment_design_factors')
+                ->where('assessment_id', $assessment->id)
+                ->delete();
+            
+            if (!empty($validated['design_factors'])) {
+                foreach ($validated['design_factors'] as $factorId) {
+                    DB::table('assessment_design_factors')->insert([
+                        'assessment_id' => $assessment->id,
+                        'design_factor_id' => $factorId,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+
+            // Sync GAMO Objectives
+            DB::table('assessment_gamo_selections')
+                ->where('assessment_id', $assessment->id)
+                ->delete();
+            
+            if (!empty($validated['gamo_objectives'])) {
+                foreach ($validated['gamo_objectives'] as $gamoId) {
+                    DB::table('assessment_gamo_selections')->insert([
+                        'assessment_id' => $assessment->id,
+                        'gamo_objective_id' => $gamoId,
+                        'is_selected' => true,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->route('assessments.show', $assessment)
+                ->with('success', 'Assessment updated successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to update assessment: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -220,19 +300,35 @@ class AssessmentWebController extends Controller
     /**
      * Show my assessments
      */
-    public function myAssessments()
+    public function myAssessments(Request $request)
     {
-        $assessments = Assessment::with(['company', 'createdBy'])
+        $query = Assessment::with(['company', 'createdBy'])
             ->where(function($q) {
                 $q->where('created_by', auth()->id())
                   ->orWhereHas('answers', function($query) {
                       $query->where('answered_by', auth()->id());
                   });
             })
-            ->latest()
-            ->paginate(15);
+            ->when($request->status, function($q) use ($request) {
+                return $q->where('status', $request->status);
+            })
+            ->when($request->search, function($q) use ($request) {
+                return $q->where(function($query) use ($request) {
+                    $query->where('title', 'like', '%' . $request->search . '%')
+                          ->orWhere('code', 'like', '%' . $request->search . '%');
+                });
+            });
+
+        $assessments = $query->latest()->paginate(15);
         
-        return view('assessments.my', compact('assessments'));
+        $stats = [
+            'total' => Assessment::where('created_by', auth()->id())->count(),
+            'in_progress' => Assessment::where('created_by', auth()->id())->where('status', 'in_progress')->count(),
+            'completed' => Assessment::where('created_by', auth()->id())->where('status', 'completed')->count(),
+            'approved' => Assessment::where('created_by', auth()->id())->where('status', 'approved')->count(),
+        ];
+        
+        return view('assessments.my-assessments', compact('assessments', 'stats'));
     }
 
     /**
@@ -240,9 +336,12 @@ class AssessmentWebController extends Controller
      */
     public function answer(Assessment $assessment)
     {
-        $this->authorize('answer', $assessment);
+        $this->authorize('update', $assessment);
         
-        // Will implement Q&A interface
+        $assessment->load(['gamoObjectives.questions' => function($query) {
+            $query->where('is_active', true)->orderBy('question_order');
+        }, 'answers']);
+        
         return view('assessments.answer', compact('assessment'));
     }
 
@@ -251,7 +350,86 @@ class AssessmentWebController extends Controller
      */
     public function submitAnswer(Request $request, Assessment $assessment)
     {
-        // Will implement after answer view is ready
+        $this->authorize('update', $assessment);
+        
+        $validated = $request->validate([
+            'answers' => 'required|array',
+            'answers.*.question_id' => 'required|exists:gamo_questions,id',
+            'answers.*.gamo_objective_id' => 'required|exists:gamo_objectives,id',
+            'answers.*.answer_text' => 'required|string',
+            'answers.*.maturity_level' => 'required|integer|min:0|max:5',
+            'answers.*.notes' => 'nullable|string',
+            'answers.*.evidence' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            foreach ($validated['answers'] as $questionId => $answerData) {
+                $evidencePath = null;
+                
+                // Handle file upload
+                if ($request->hasFile("answers.{$questionId}.evidence")) {
+                    $file = $request->file("answers.{$questionId}.evidence");
+                    $evidencePath = $file->store('evidence', 'public');
+                }
+
+                // Update or create answer
+                DB::table('assessment_answers')->updateOrInsert(
+                    [
+                        'assessment_id' => $assessment->id,
+                        'question_id' => $questionId,
+                    ],
+                    [
+                        'gamo_objective_id' => $answerData['gamo_objective_id'],
+                        'answer_text' => $answerData['answer_text'],
+                        'maturity_level' => $answerData['maturity_level'],
+                        'notes' => $answerData['notes'] ?? null,
+                        'evidence_file' => $evidencePath ?? DB::raw('evidence_file'),
+                        'answered_by' => auth()->id(),
+                        'answered_at' => now(),
+                        'updated_at' => now(),
+                    ]
+                );
+            }
+
+            // Update assessment status based on action
+            if ($request->action === 'submit') {
+                $assessment->update([
+                    'status' => 'completed',
+                    'completed_at' => now(),
+                ]);
+                $message = 'Answers submitted successfully!';
+            } else {
+                $assessment->update([
+                    'status' => 'in_progress',
+                ]);
+                $message = 'Answers saved as draft!';
+            }
+
+            // Calculate progress
+            $totalQuestions = DB::table('gamo_questions')
+                ->whereIn('gamo_objective_id', $assessment->gamoObjectives->pluck('id'))
+                ->where('is_active', true)
+                ->count();
+            
+            $answeredQuestions = DB::table('assessment_answers')
+                ->where('assessment_id', $assessment->id)
+                ->count();
+            
+            $progress = $totalQuestions > 0 ? round(($answeredQuestions / $totalQuestions) * 100) : 0;
+            
+            $assessment->update(['completion_percentage' => $progress]);
+
+            DB::commit();
+
+            return redirect()->route('assessments.show', $assessment)
+                ->with('success', $message);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to save answers: ' . $e->getMessage());
+        }
     }
 }
 
