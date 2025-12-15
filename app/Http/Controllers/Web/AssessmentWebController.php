@@ -425,5 +425,128 @@ class AssessmentWebController extends Controller
                 ->with('error', 'Failed to save answers: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Display team management for assessment
+     */
+    public function teamIndex(Assessment $assessment)
+    {
+        $this->authorize('update', $assessment);
+
+        $teamMembers = $assessment->teamMembers()
+            ->with(['user.roles', 'assignedBy'])
+            ->orderBy('assigned_at', 'desc')
+            ->get();
+
+        // Get users not already in team
+        $assignedUserIds = $teamMembers->pluck('user_id')->toArray();
+        $availableUsers = \App\Models\User::whereNotIn('id', $assignedUserIds)
+            ->where('id', '!=', $assessment->created_by)
+            ->with('roles')
+            ->orderBy('name')
+            ->get();
+
+        return view('assessments.team', compact('assessment', 'teamMembers', 'availableUsers'));
+    }
+
+    /**
+     * Add team member to assessment
+     */
+    public function teamStore(Request $request, Assessment $assessment)
+    {
+        $this->authorize('update', $assessment);
+
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'role' => 'required|in:lead,assessor,reviewer,observer',
+            'responsibilities' => 'nullable|string',
+            'can_edit' => 'boolean',
+            'can_approve' => 'boolean',
+        ]);
+
+        // Check if user already assigned
+        $exists = $assessment->teamMembers()
+            ->where('user_id', $validated['user_id'])
+            ->exists();
+
+        if ($exists) {
+            return redirect()->back()
+                ->with('error', 'User is already assigned to this assessment team.');
+        }
+
+        $assessment->teamMembers()->create([
+            'user_id' => $validated['user_id'],
+            'role' => $validated['role'],
+            'responsibilities' => $validated['responsibilities'],
+            'can_edit' => $request->has('can_edit'),
+            'can_approve' => $request->has('can_approve'),
+            'assigned_by' => auth()->id(),
+        ]);
+
+        activity()
+            ->performedOn($assessment)
+            ->withProperties(['user_id' => $validated['user_id'], 'role' => $validated['role']])
+            ->log('Team member added');
+
+        return redirect()->back()
+            ->with('success', 'Team member added successfully.');
+    }
+
+    /**
+     * Remove team member from assessment
+     */
+    public function teamDestroy(Assessment $assessment, $memberId)
+    {
+        $this->authorize('update', $assessment);
+
+        $member = $assessment->teamMembers()->findOrFail($memberId);
+        
+        activity()
+            ->performedOn($assessment)
+            ->withProperties(['user_id' => $member->user_id, 'role' => $member->role])
+            ->log('Team member removed');
+
+        $member->delete();
+
+        return redirect()->back()
+            ->with('success', 'Team member removed successfully.');
+    }
+
+    /**
+     * Display schedule management for assessment
+     */
+    public function scheduleShow(Assessment $assessment)
+    {
+        $this->authorize('view', $assessment);
+
+        return view('assessments.schedule', compact('assessment'));
+    }
+
+    /**
+     * Update assessment schedule
+     */
+    public function scheduleUpdate(Request $request, Assessment $assessment)
+    {
+        $this->authorize('update', $assessment);
+
+        $validated = $request->validate([
+            'assessment_period_start' => 'required|date',
+            'assessment_period_end' => 'required|date|after:assessment_period_start',
+            'schedule_notes' => 'nullable|string',
+        ]);
+
+        $assessment->update([
+            'assessment_period_start' => $validated['assessment_period_start'],
+            'assessment_period_end' => $validated['assessment_period_end'],
+        ]);
+
+        activity()
+            ->performedOn($assessment)
+            ->withProperties($validated)
+            ->log('Assessment schedule updated');
+
+        return redirect()->back()
+            ->with('success', 'Assessment schedule updated successfully.');
+    }
 }
 

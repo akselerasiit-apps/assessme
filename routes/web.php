@@ -106,6 +106,19 @@ Route::middleware(['auth'])->group(function () {
             Route::match(['get', 'post'], '/assign', [ActionPlanWebController::class, 'assign'])->name('assign');
             Route::post('/{recommendation}/update-progress', [ActionPlanWebController::class, 'updateProgress'])->name('update-progress');
         });
+        
+        // Team Management (nested under assessments)
+        Route::prefix('/{assessment}/team')->name('team.')->group(function () {
+            Route::get('/', [AssessmentWebController::class, 'teamIndex'])->name('index');
+            Route::post('/', [AssessmentWebController::class, 'teamStore'])->name('store');
+            Route::delete('/{member}', [AssessmentWebController::class, 'teamDestroy'])->name('destroy');
+        });
+        
+        // Schedule Management (nested under assessments)
+        Route::prefix('/{assessment}/schedule')->name('schedule.')->group(function () {
+            Route::get('/', [AssessmentWebController::class, 'scheduleShow'])->name('show');
+            Route::put('/', [AssessmentWebController::class, 'scheduleUpdate'])->name('update');
+        });
     });
     
     // Reports

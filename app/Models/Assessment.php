@@ -144,6 +144,24 @@ class Assessment extends Model
     }
 
     /**
+     * Get team members for this assessment
+     */
+    public function teamMembers(): HasMany
+    {
+        return $this->hasMany(AssessmentTeamMember::class);
+    }
+
+    /**
+     * Get users assigned to this assessment through team members
+     */
+    public function assignedUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'assessment_team_members')
+            ->withPivot('role', 'responsibilities', 'can_edit', 'can_approve', 'assigned_at', 'assigned_by')
+            ->withTimestamps();
+    }
+
+    /**
      * Scope by status
      */
     public function scopeByStatus($query, string $status)
