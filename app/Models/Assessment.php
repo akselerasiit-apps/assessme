@@ -22,23 +22,19 @@ class Assessment extends Model
         'assessment_period_end',
         'status',
         'overall_maturity_level',
-        'overall_capability_level',
         'progress_percentage',
+        'is_encrypted',
         'created_by',
         'reviewed_by',
         'approved_by',
-        'reviewed_at',
-        'approved_at',
     ];
 
     protected $casts = [
         'assessment_period_start' => 'date',
         'assessment_period_end' => 'date',
         'overall_maturity_level' => 'decimal:2',
-        'overall_capability_level' => 'decimal:2',
         'progress_percentage' => 'integer',
-        'reviewed_at' => 'datetime',
-        'approved_at' => 'datetime',
+        'is_encrypted' => 'boolean',
     ];
 
     /**

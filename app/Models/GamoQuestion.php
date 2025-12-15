@@ -11,19 +11,22 @@ class GamoQuestion extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'code',
         'gamo_objective_id',
-        'question_code',
         'question_text',
-        'question_text_id',
+        'guidance',
+        'evidence_requirement',
         'question_type',
-        'capability_level',
+        'maturity_level',
+        'required',
         'question_order',
         'is_active',
     ];
 
     protected $casts = [
-        'capability_level' => 'integer',
+        'maturity_level' => 'integer',
         'question_order' => 'integer',
+        'required' => 'boolean',
         'is_active' => 'boolean',
     ];
 
@@ -52,11 +55,11 @@ class GamoQuestion extends Model
     }
 
     /**
-     * Scope by capability level
+     * Scope by maturity level
      */
-    public function scopeByCapabilityLevel($query, int $level)
+    public function scopeByMaturityLevel($query, int $level)
     {
-        return $query->where('capability_level', $level);
+        return $query->where('maturity_level', $level);
     }
 
     /**

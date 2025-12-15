@@ -51,7 +51,7 @@ class AssessmentWebController extends Controller
         }
 
         $assessments = $query->latest()->paginate(15);
-        $companies = Company::where('is_active', true)->get();
+        $companies = Company::all();
         
         $statusCounts = [
             'all' => Assessment::count(),
@@ -70,7 +70,7 @@ class AssessmentWebController extends Controller
      */
     public function create()
     {
-        $companies = Company::where('is_active', true)->get();
+        $companies = Company::all();
         $designFactors = DesignFactor::where('is_active', true)->orderBy('factor_order')->get();
         $gamoObjectives = GamoObjective::where('is_active', true)->orderBy('objective_order')->get();
         
@@ -189,7 +189,7 @@ class AssessmentWebController extends Controller
     {
         $this->authorize('update', $assessment);
         
-        $companies = Company::where('is_active', true)->get();
+        $companies = Company::all();
         $designFactors = DesignFactor::where('is_active', true)->orderBy('factor_order')->get();
         $gamoObjectives = GamoObjective::where('is_active', true)->orderBy('objective_order')->get();
         

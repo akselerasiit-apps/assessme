@@ -10,16 +10,13 @@ class DesignFactor extends Model
     protected $fillable = [
         'code',
         'name',
-        'name_id',
         'description',
-        'description_id',
-        'category',
-        'weight',
+        'factor_order',
         'is_active',
     ];
 
     protected $casts = [
-        'weight' => 'integer',
+        'factor_order' => 'integer',
         'is_active' => 'boolean',
     ];
 

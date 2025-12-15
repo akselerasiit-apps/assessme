@@ -71,7 +71,7 @@ class DashboardController extends Controller
         
         $users = $query->latest()->paginate(15);
         $roles = \Spatie\Permission\Models\Role::all();
-        $companies = \App\Models\Company::where('is_active', true)->get();
+        $companies = \App\Models\Company::all();
         
         return view('admin.users', compact('users', 'roles', 'companies'));
     }
