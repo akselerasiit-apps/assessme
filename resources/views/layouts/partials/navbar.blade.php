@@ -90,6 +90,29 @@
                         </div>
                     </li>
                     @endhasanyrole
+                    
+                    <!-- Master Data -->
+                    @role('Super Admin')
+                    <li class="nav-item dropdown {{ request()->is('master-data*') ? 'active' : '' }}">
+                        <a class="nav-link dropdown-toggle" href="#navbar-master-data" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <i class="ti ti-database"></i>
+                            </span>
+                            <span class="nav-link-title">Master Data</span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item {{ request()->routeIs('master-data.companies*') ? 'active' : '' }}" href="{{ route('master-data.companies.index') }}">
+                                <i class="ti ti-building me-2"></i>Companies
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('master-data.design-factors*') ? 'active' : '' }}" href="{{ route('master-data.design-factors.index') }}">
+                                <i class="ti ti-puzzle me-2"></i>Design Factors
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('master-data.gamo-objectives*') ? 'active' : '' }}" href="{{ route('master-data.gamo-objectives.index') }}">
+                                <i class="ti ti-target me-2"></i>GAMO Objectives
+                            </a>
+                        </div>
+                    </li>
+                    @endrole
                 </ul>
             </div>
         </div>

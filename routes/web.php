@@ -74,4 +74,39 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/audit-logs', [DashboardController::class, 'auditLogs'])->name('audit-logs');
         Route::get('/settings', [DashboardController::class, 'adminSettings'])->name('settings');
     });
+    
+    // Master Data Routes (Super Admin only)
+    Route::prefix('master-data')->name('master-data.')->middleware('role:Super Admin')->group(function () {
+        // Companies Management
+        Route::prefix('companies')->name('companies.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Web\CompanyWebController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Web\CompanyWebController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Web\CompanyWebController::class, 'store'])->name('store');
+            Route::get('/{company}/edit', [\App\Http\Controllers\Web\CompanyWebController::class, 'edit'])->name('edit');
+            Route::put('/{company}', [\App\Http\Controllers\Web\CompanyWebController::class, 'update'])->name('update');
+            Route::delete('/{company}', [\App\Http\Controllers\Web\CompanyWebController::class, 'destroy'])->name('destroy');
+        });
+        
+        // Design Factors Management
+        Route::prefix('design-factors')->name('design-factors.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Web\DesignFactorWebController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Web\DesignFactorWebController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Web\DesignFactorWebController::class, 'store'])->name('store');
+            Route::get('/{designFactor}/edit', [\App\Http\Controllers\Web\DesignFactorWebController::class, 'edit'])->name('edit');
+            Route::put('/{designFactor}', [\App\Http\Controllers\Web\DesignFactorWebController::class, 'update'])->name('update');
+            Route::delete('/{designFactor}', [\App\Http\Controllers\Web\DesignFactorWebController::class, 'destroy'])->name('destroy');
+            Route::patch('/{designFactor}/toggle', [\App\Http\Controllers\Web\DesignFactorWebController::class, 'toggleActive'])->name('toggle');
+        });
+        
+        // GAMO Objectives Management
+        Route::prefix('gamo-objectives')->name('gamo-objectives.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Web\GamoObjectiveWebController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Web\GamoObjectiveWebController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Web\GamoObjectiveWebController::class, 'store'])->name('store');
+            Route::get('/{gamoObjective}/edit', [\App\Http\Controllers\Web\GamoObjectiveWebController::class, 'edit'])->name('edit');
+            Route::put('/{gamoObjective}', [\App\Http\Controllers\Web\GamoObjectiveWebController::class, 'update'])->name('update');
+            Route::delete('/{gamoObjective}', [\App\Http\Controllers\Web\GamoObjectiveWebController::class, 'destroy'])->name('destroy');
+            Route::patch('/{gamoObjective}/toggle', [\App\Http\Controllers\Web\GamoObjectiveWebController::class, 'toggleActive'])->name('toggle');
+        });
+    });
 });
