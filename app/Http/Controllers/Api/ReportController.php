@@ -33,10 +33,10 @@ class ReportController extends Controller
         // Load relationships
         $assessment->load([
             'company',
-            'creator',
-            'reviewer',
-            'approver',
-            'designFactors.designFactor',
+            'createdBy',
+            'reviewedBy',
+            'approvedBy',
+            'designFactors',
             'gamoObjectives',
             'gamoScores.gamoObjective'
         ]);
@@ -53,7 +53,7 @@ class ReportController extends Controller
         ];
 
         // Generate PDF
-        $pdf = Pdf::loadView('reports.assessment-summary', $data)
+        $pdf = Pdf::loadView('reports.summary-pdf', $data)
             ->setPaper('a4', 'portrait')
             ->setOption('margin-top', 10)
             ->setOption('margin-bottom', 10);
@@ -99,7 +99,7 @@ class ReportController extends Controller
             'generatedBy' => Auth::user()->name,
         ];
 
-        $pdf = Pdf::loadView('reports.maturity-report', $data)
+        $pdf = Pdf::loadView('reports.maturity-pdf', $data)
             ->setPaper('a4', 'landscape')
             ->setOption('margin-top', 10)
             ->setOption('margin-bottom', 10);
@@ -144,7 +144,7 @@ class ReportController extends Controller
             'generatedBy' => Auth::user()->name,
         ];
 
-        $pdf = Pdf::loadView('reports.gap-analysis', $data)
+        $pdf = Pdf::loadView('reports.gap-analysis-pdf', $data)
             ->setPaper('a4', 'portrait')
             ->setOption('margin-top', 10)
             ->setOption('margin-bottom', 10);

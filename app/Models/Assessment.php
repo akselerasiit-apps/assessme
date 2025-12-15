@@ -58,11 +58,27 @@ class Assessment extends Model
     }
 
     /**
+     * Alias for createdBy (backward compatibility)
+     */
+    public function creator(): BelongsTo
+    {
+        return $this->createdBy();
+    }
+
+    /**
      * Get the user who reviewed this assessment
      */
     public function reviewedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    /**
+     * Alias for reviewedBy (backward compatibility)
+     */
+    public function reviewer(): BelongsTo
+    {
+        return $this->reviewedBy();
     }
 
     /**
