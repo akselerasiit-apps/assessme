@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\AssessmentWebController;
 use App\Http\Controllers\Web\ReportWebController;
 use App\Http\Controllers\Web\QuestionWebController;
+use App\Http\Controllers\Web\ReviewApprovalController;
 
 // Guest Routes
 Route::middleware('guest')->group(function () {
@@ -76,6 +77,39 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{assessment}/maturity', [ReportWebController::class, 'maturity'])->name('maturity');
         Route::get('/{assessment}/gap-analysis', [ReportWebController::class, 'gapAnalysis'])->name('gap-analysis');
         Route::get('/{assessment}/summary', [ReportWebController::class, 'summary'])->name('summary');
+    });
+    
+    // Review & Approval Routes
+    Route::prefix('review-approval')->name('review-approval.')->group(function () {
+        // Pending Review (Admin/Manager)
+        Route::get('/pending-review', [ReviewApprovalController::class, 'pendingReview'])
+            ->name('pending-review')
+            ->middleware('role:Admin|Manager');
+        
+        // Pending Approval (Super Admin only)
+        Route::get('/pending-approval', [ReviewApprovalController::class, 'pendingApproval'])
+            ->name('pending-approval')
+            ->middleware('role:Super Admin');
+        
+        // Review Form & Submit
+        Route::get('/{assessment}/review', [ReviewApprovalController::class, 'showReviewForm'])
+            ->name('review')
+            ->middleware('role:Admin|Manager');
+        Route::post('/{assessment}/review', [ReviewApprovalController::class, 'submitReview'])
+            ->name('submit-review')
+            ->middleware('role:Admin|Manager');
+        
+        // Approval Form & Submit (Super Admin only)
+        Route::get('/{assessment}/approve', [ReviewApprovalController::class, 'showApprovalForm'])
+            ->name('approve')
+            ->middleware('role:Super Admin');
+        Route::post('/{assessment}/approve', [ReviewApprovalController::class, 'submitApproval'])
+            ->name('submit-approval')
+            ->middleware('role:Super Admin');
+        
+        // History
+        Route::get('/{assessment}/history', [ReviewApprovalController::class, 'history'])
+            ->name('history');
     });
     
     // Admin Routes
