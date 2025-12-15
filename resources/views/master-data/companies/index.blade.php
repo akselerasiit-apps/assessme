@@ -112,6 +112,9 @@
                             <td>{{ $company->established_year ?? '-' }}</td>
                             <td>
                                 <div class="btn-group">
+                                    <a href="{{ route('assessments.create', ['company_id' => $company->id]) }}" class="btn btn-sm btn-icon btn-ghost-success" title="Add Assessment">
+                                        <i class="ti ti-clipboard-plus"></i>
+                                    </a>
                                     <a href="{{ route('master-data.companies.edit', $company) }}" class="btn btn-sm btn-icon btn-ghost-primary" title="Edit">
                                         <i class="ti ti-edit"></i>
                                     </a>

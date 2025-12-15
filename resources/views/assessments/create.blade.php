@@ -57,7 +57,8 @@
                         <select name="company_id" class="form-select @error('company_id') is-invalid @enderror" required>
                             <option value="">Select Company</option>
                             @foreach($companies as $company)
-                                <option value="{{ $company->id }}" {{ old('company_id') == $company->id ? 'selected' : '' }}>
+                                <option value="{{ $company->id }}" 
+                                    {{ (old('company_id') == $company->id || request('company_id') == $company->id) ? 'selected' : '' }}>
                                     {{ $company->name }}
                                 </option>
                             @endforeach
@@ -65,6 +66,11 @@
                         @error('company_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                        @if(request('company_id'))
+                            <small class="form-hint text-success">
+                                <i class="ti ti-check me-1"></i>Pre-selected from company list
+                            </small>
+                        @endif
                     </div>
                     
                     <div class="col-12">
