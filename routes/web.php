@@ -61,7 +61,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Admin Routes
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/users', [DashboardController::class, 'users'])->name('users');
+        Route::post('/users', [\App\Http\Controllers\Web\UserManagementController::class, 'store'])->name('users.store');
+        Route::put('/users/{user}', [\App\Http\Controllers\Web\UserManagementController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [\App\Http\Controllers\Web\UserManagementController::class, 'destroy'])->name('users.destroy');
+        Route::patch('/users/{user}/toggle', [\App\Http\Controllers\Web\UserManagementController::class, 'toggleStatus'])->name('users.toggle');
+        
         Route::get('/roles', [DashboardController::class, 'roles'])->name('roles');
+        Route::post('/roles', [\App\Http\Controllers\Web\RoleManagementController::class, 'store'])->name('roles.store');
+        Route::put('/roles/{role}', [\App\Http\Controllers\Web\RoleManagementController::class, 'update'])->name('roles.update');
+        Route::delete('/roles/{role}', [\App\Http\Controllers\Web\RoleManagementController::class, 'destroy'])->name('roles.destroy');
+        
         Route::get('/audit-logs', [DashboardController::class, 'auditLogs'])->name('audit-logs');
         Route::get('/settings', [DashboardController::class, 'adminSettings'])->name('settings');
     });

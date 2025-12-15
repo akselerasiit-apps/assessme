@@ -26,6 +26,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'company_id',
+        'is_active',
     ];
 
     /**
@@ -84,6 +86,14 @@ class User extends Authenticatable
     public function approvedAssessments(): HasMany
     {
         return $this->hasMany(Assessment::class, 'approved_by');
+    }
+
+    /**
+     * Get the company that owns the user
+     */
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 
     /**
