@@ -10,6 +10,7 @@ use App\Http\Controllers\Web\ReviewApprovalController;
 use App\Http\Controllers\Web\BandingController;
 use App\Http\Controllers\Web\RecommendationWebController;
 use App\Http\Controllers\Web\ActionPlanWebController;
+use App\Http\Controllers\Web\CapabilityAssessmentController;
 
 // Guest Routes
 Route::middleware('guest')->group(function () {
@@ -118,6 +119,14 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('/{assessment}/schedule')->name('schedule.')->group(function () {
             Route::get('/', [AssessmentWebController::class, 'scheduleShow'])->name('show');
             Route::put('/', [AssessmentWebController::class, 'scheduleUpdate'])->name('update');
+        });
+        
+        // Capability Assessment (nested under assessments)
+        Route::prefix('/{assessment}/capability')->name('capability.')->group(function () {
+            Route::get('/', [CapabilityAssessmentController::class, 'index'])->name('index');
+            Route::get('/{gamo}', [CapabilityAssessmentController::class, 'assessment'])->name('assessment');
+            Route::post('/update-score', [CapabilityAssessmentController::class, 'updateCapabilityScore'])->name('update-score');
+            Route::get('/{gamo}/level/{level}/summary', [CapabilityAssessmentController::class, 'levelSummary'])->name('level-summary');
         });
     });
     
