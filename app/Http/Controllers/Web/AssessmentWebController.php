@@ -82,7 +82,77 @@ class AssessmentWebController extends Controller
      */
     public function store(Request $request)
     {
-        // Will implement after create view is ready
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'company_id' => 'required|exists:companies,id',
+            'assessment_type' => 'required|in:initial,periodic,specific',
+            'scope_type' => 'required|in:full,tailored',
+            'assessment_period_start' => 'required|date',
+            'assessment_period_end' => 'required|date|after:assessment_period_start',
+            'design_factors' => 'nullable|array',
+            'design_factors.*' => 'exists:design_factors,id',
+            'gamo_objectives' => 'nullable|array',
+            'gamo_objectives.*' => 'exists:gamo_objectives,id',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Generate unique code
+            $lastAssessment = Assessment::latest('id')->first();
+            $nextNumber = $lastAssessment ? intval(substr($lastAssessment->code, 4)) + 1 : 1;
+            $code = 'ASM-' . str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
+
+            // Create assessment
+            $assessment = Assessment::create([
+                'code' => $code,
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'company_id' => $validated['company_id'],
+                'assessment_type' => $validated['assessment_type'],
+                'scope_type' => $validated['scope_type'],
+                'status' => 'draft',
+                'assessment_period_start' => $validated['assessment_period_start'],
+                'assessment_period_end' => $validated['assessment_period_end'],
+                'created_by' => auth()->id(),
+                'progress_percentage' => 0,
+            ]);
+
+            // Attach Design Factors
+            if (!empty($validated['design_factors'])) {
+                foreach ($validated['design_factors'] as $factorId) {
+                    DB::table('assessment_design_factors')->insert([
+                        'assessment_id' => $assessment->id,
+                        'design_factor_id' => $factorId,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+
+            // Attach GAMO Objectives
+            if (!empty($validated['gamo_objectives'])) {
+                foreach ($validated['gamo_objectives'] as $gamoId) {
+                    DB::table('assessment_gamo_selections')->insert([
+                        'assessment_id' => $assessment->id,
+                        'gamo_objective_id' => $gamoId,
+                        'is_selected' => true,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->route('assessments.show', $assessment)
+                ->with('success', 'Assessment created successfully! You can now start answering questions.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to create assessment: ' . $e->getMessage());
+        }
     }
 
     /**
