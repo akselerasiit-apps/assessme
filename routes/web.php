@@ -61,6 +61,13 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{answer}/download', [\App\Http\Controllers\Web\EvidenceWebController::class, 'download'])->name('download');
             Route::delete('/{answer}', [\App\Http\Controllers\Web\EvidenceWebController::class, 'destroy'])->name('destroy');
         });
+        
+        // Scoring & Maturity (nested under assessments)
+        Route::prefix('/{assessment}/scoring')->name('scoring.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Web\ScoringWebController::class, 'index'])->name('index');
+            Route::get('/{score}', [\App\Http\Controllers\Web\ScoringWebController::class, 'show'])->name('show');
+            Route::post('/calculate', [\App\Http\Controllers\Web\ScoringWebController::class, 'calculate'])->name('calculate');
+        });
     });
     
     // Reports
