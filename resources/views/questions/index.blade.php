@@ -12,9 +12,14 @@
             </div>
             <div class="col-auto ms-auto d-print-none">
                 @can('create questions')
-                <a href="{{ route('questions.create') }}" class="btn btn-primary">
-                    <i class="ti ti-plus me-2"></i>Add Question
-                </a>
+                <div class="btn-group" role="group">
+                    <a href="{{ route('questions.create') }}" class="btn btn-primary">
+                        <i class="ti ti-plus me-2"></i>Add Question
+                    </a>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkImportModal" title="Import questions from CSV">
+                        <i class="ti ti-file-import me-2"></i>Bulk Import
+                    </button>
+                </div>
                 @endcan
             </div>
         </div>
@@ -212,4 +217,118 @@
         </div>
     </div>
 </div>
+
+<!-- Bulk Import Modal -->
+<div class="modal modal-blur fade" id="bulkImportModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header">
+                <h5 class="modal-title">Bulk Import Questions</h5>
+            </div>
+            <form action="{{ route('questions.bulk-import') }}" method="POST" enctype="multipart/form-data" id="bulkImportForm">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">CSV File <span class="text-danger">*</span></label>
+                        <input type="file" name="file" class="form-control" accept=".csv" required>
+                        <small class="form-hint">
+                            Upload a CSV file with the following columns: code, gamo_objective_id, question_text, question_type, maturity_level, guidance, evidence_requirement, required, is_active, question_order
+                        </small>
+                    </div>
+
+                    <div class="alert alert-info mb-0">
+                        <strong>CSV Format Example:</strong>
+                        <pre style="font-size: 0.75rem; margin-top: 0.5rem;"><code>code,gamo_objective_id,question_text,question_type,maturity_level,guidance,evidence_requirement,required,is_active,question_order
+EDM01-L1-001,1,What is your current governance structure?,text,1,Describe the organizational hierarchy,Document org chart,1,1,1
+EDM01-L1-002,1,Is governance documented?,yes_no,1,Check documentation,Policy documents,1,1,2</code></pre>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-link" data-bs-dismiss="modal">Close</a>
+                    <button type="button" class="btn btn-primary" id="submitImportBtn">
+                        <i class="ti ti-upload me-2"></i>Import Questions
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Modal (shown after import starts) -->
+<div class="modal modal-blur fade" id="importProgressModal" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Importing Questions</h5>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <p class="text-muted mb-0">
+                    Processing your file... <br>
+                    <small id="importStatus">Initializing import...</small>
+                </p>
+                <div class="progress mt-3">
+                    <div id="importProgressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+document.getElementById('submitImportBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    const form = document.getElementById('bulkImportForm');
+    const fileInput = form.querySelector('input[name="file"]');
+    
+    if (!fileInput.files.length) {
+        alert('Please select a CSV file');
+        return;
+    }
+    
+    // Hide import modal and show progress modal
+    const importModal = bootstrap.Modal.getInstance(document.getElementById('bulkImportModal'));
+    const progressModal = new bootstrap.Modal(document.getElementById('importProgressModal'));
+    
+    importModal.hide();
+    progressModal.show();
+    
+    // Submit form via AJAX
+    const formData = new FormData(form);
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('importStatus').textContent = data.message || 'Import completed!';
+        document.getElementById('importProgressBar').style.width = '100%';
+        
+        setTimeout(() => {
+            progressModal.hide();
+            location.reload();
+        }, 2000);
+    })
+    .catch(error => {
+        document.getElementById('importStatus').textContent = 'Import failed: ' + error.message;
+        console.error('Error:', error);
+        
+        setTimeout(() => {
+            progressModal.hide();
+        }, 3000);
+    });
+});
+</script>
+@endpush
 @endsection
