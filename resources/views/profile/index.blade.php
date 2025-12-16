@@ -52,7 +52,7 @@
                 <div class="card-body text-center">
                     <div class="mb-3">
                         @if($user->avatar_path)
-                        <img src="{{ Storage::url($user->avatar_path) }}" alt="{{ $user->name }}" class="avatar avatar-xl rounded-circle">
+                        <img src="{{ asset('storage/' . $user->avatar_path) }}" alt="{{ $user->name }}" class="avatar avatar-xl rounded-circle">
                         @else
                         <span class="avatar avatar-xl rounded-circle">
                             {{ strtoupper(substr($user->name, 0, 2)) }}

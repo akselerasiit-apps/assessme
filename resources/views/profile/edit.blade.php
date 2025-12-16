@@ -45,7 +45,7 @@
                             <div class="row align-items-center">
                                 <div class="col-auto">
                                     @if($user->avatar_path)
-                                    <img src="{{ Storage::url($user->avatar_path) }}" alt="{{ $user->name }}" class="avatar avatar-xl rounded-circle" id="avatar-preview">
+                                    <img src="{{ asset('storage/' . $user->avatar_path) }}" alt="{{ $user->name }}" class="avatar avatar-xl rounded-circle" id="avatar-preview">
                                     @else
                                     <span class="avatar avatar-xl rounded-circle" id="avatar-preview">
                                         {{ strtoupper(substr($user->name, 0, 2)) }}
