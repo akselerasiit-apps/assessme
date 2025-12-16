@@ -11,9 +11,10 @@ class DesignFactorWebController extends Controller
     /**
      * Display a listing of design factors
      */
-    public function index()
+    public function index(Request $request)
     {
-        $designFactors = DesignFactor::orderBy('factor_order')->get();
+        $perPage = $request->get('perPage', 15);
+        $designFactors = DesignFactor::orderBy('factor_order')->paginate($perPage);
         
         return view('master-data.design-factors.index', compact('designFactors'));
     }
