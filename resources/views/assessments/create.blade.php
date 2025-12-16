@@ -16,19 +16,19 @@
         <div class="card-body">
             <div class="steps steps-counter">
                 <a href="#step1" class="step-item active" data-step="1">
-                    <span class="h4">1</span>
+                    <span class="step-number">1</span>
                     Basic Information
                 </a>
                 <a href="#step2" class="step-item" data-step="2">
-                    <span class="h4">2</span>
+                    <span class="step-number">2</span>
                     Design Factors
                 </a>
                 <a href="#step3" class="step-item" data-step="3">
-                    <span class="h4">3</span>
+                    <span class="step-number">3</span>
                     GAMO Objectives
                 </a>
                 <a href="#step4" class="step-item" data-step="4">
-                    <span class="h4">4</span>
+                    <span class="step-number">4</span>
                     Review & Create
                 </a>
             </div>
@@ -150,17 +150,19 @@
                 <div class="row g-3">
                     @foreach($designFactors as $factor)
                     <div class="col-md-6">
-                        <label class="form-check form-check-rounded form-check-inline">
-                            <input type="checkbox" name="design_factors[]" value="{{ $factor->id }}" class="form-check-input design-factor-check" {{ in_array($factor->id, old('design_factors', [])) ? 'checked' : '' }}>
-                            <span class="form-check-label" style="cursor: pointer;">
-                                <div class="d-flex gap-2">
+                        <label class="card form-check-card border-2 cursor-pointer h-100" style="cursor: pointer; transition: all 0.3s ease;">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start gap-3">
+                                    <input type="checkbox" name="design_factors[]" value="{{ $factor->id }}" class="form-check-input design-factor-check mt-1" {{ in_array($factor->id, old('design_factors', [])) ? 'checked' : '' }}>
                                     <div class="flex-fill">
-                                        <div class="fw-bold text-dark">{{ $factor->code }}</div>
-                                        <div class="fw-semibold text-body">{{ $factor->name }}</div>
-                                        <div class="text-muted small mt-1">{{ Str::limit($factor->description, 100) }}</div>
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <span class="fw-bold text-dark">{{ $factor->code }}</span>
+                                        </div>
+                                        <div class="fw-semibold text-body mb-2">{{ $factor->name }}</div>
+                                        <p class="text-muted small mb-0">{{ Str::limit($factor->description, 100, '...') }}</p>
                                     </div>
                                 </div>
-                            </span>
+                            </div>
                         </label>
                     </div>
                     @endforeach
@@ -538,9 +540,31 @@ function updateReview() {
     color: #0d6efd !important;
 }
 
-.step-item.active .h4 {
+.step-item.active .step-number {
     background-color: #0d6efd !important;
     color: white !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+.step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 1.25rem;
+    background-color: #e9ecef;
+    color: #6c757d;
+    transition: all 0.3s ease;
 }
 
 /* Card selection styling for checkboxes */

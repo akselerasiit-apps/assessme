@@ -113,16 +113,16 @@
                             <td>
                                 <div class="btn-group">
                                     <a href="{{ route('assessments.create', ['company_id' => $company->id]) }}" class="btn btn-sm btn-icon btn-ghost-success" title="Add Assessment">
-                                        <i class="ti ti-clipboard-plus"></i>
+                                        <i class="ti ti-clipboard-plus" style="font-size:20px"></i>
                                     </a>
                                     <a href="{{ route('master-data.companies.edit', $company) }}" class="btn btn-sm btn-icon btn-ghost-primary" title="Edit">
-                                        <i class="ti ti-edit"></i>
+                                        <i class="ti ti-edit" style="font-size:20px"></i>
                                     </a>
                                     <form action="{{ route('master-data.companies.destroy', $company) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this company?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-icon btn-ghost-danger" title="Delete">
-                                            <i class="ti ti-trash"></i>
+                                            <i class="ti ti-trash" style="font-size:20px"></i>
                                         </button>
                                     </form>
                                 </div>
