@@ -115,10 +115,13 @@
                                             <td>
                                                 @if($answer)
                                                     @if($answer->evidence_provided)
-                                                        <span class="badge bg-success">
+                                                        <a href="#" class="badge bg-success text-decoration-none view-evidence-btn" 
+                                                           data-answer-id="{{ $answer->id }}"
+                                                           data-question-code="{{ $question->code }}"
+                                                           title="Click to view evidence details">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>
-                                                            Provided
-                                                        </span>
+                                                            Provided ({{ $answer->evidence_count ?? 1 }})
+                                                        </a>
                                                     @else
                                                         <span class="badge bg-warning">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4" /><path d="M12 16v.01" /><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /></svg>
@@ -147,11 +150,22 @@
                                             </td>
                                             <td>
                                                 @if($answer)
-                                                    <a href="{{ route('assessments.evidence.index', $assessment) }}?question={{ $question->id }}" 
-                                                       class="btn btn-sm btn-outline-primary"
-                                                       title="Manage Evidence">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0" /><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0" /><path d="M3 6l0 13" /><path d="M12 6l0 13" /><path d="M21 6l0 13" /></svg>
-                                                    </a>
+                                                    <div class="btn-group" role="group">
+                                                        @if($answer->evidence_provided)
+                                                            <button type="button" 
+                                                                    class="btn btn-sm btn-outline-info view-evidence-btn" 
+                                                                    data-answer-id="{{ $answer->id }}"
+                                                                    data-question-code="{{ $question->code }}"
+                                                                    title="View Evidence Details">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
+                                                            </button>
+                                                        @endif
+                                                        <a href="{{ route('assessments.evidence.index', $assessment) }}?question={{ $question->id }}" 
+                                                           class="btn btn-sm btn-outline-primary"
+                                                           title="Manage Evidence">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0" /><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0" /><path d="M3 6l0 13" /><path d="M12 6l0 13" /><path d="M21 6l0 13" /></svg>
+                                                        </a>
+                                                    </div>
                                                 @else
                                                     <a href="{{ route('assessments.answer', $assessment) }}?question={{ $question->id }}" 
                                                        class="btn btn-sm btn-outline-secondary"

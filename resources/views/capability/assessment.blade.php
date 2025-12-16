@@ -130,6 +130,26 @@
     </div>
 </div>
 
+<!-- Evidence Detail Modal -->
+<div class="modal modal-blur fade" id="evidenceModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Evidence Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="evidenceModalBody">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <div class="mt-2">Loading evidence details...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -170,6 +190,196 @@ document.addEventListener('DOMContentLoaded', function() {
                 showToast('Error', 'Failed to update capability score', 'danger');
             });
         });
+    });
+    
+    // Handle view evidence button click
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.view-evidence-btn')) {
+            e.preventDefault();
+            const button = e.target.closest('.view-evidence-btn');
+            const answerId = button.dataset.answerId;
+            const questionCode = button.dataset.questionCode;
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('evidenceModal'));
+            modal.show();
+            
+            // Fetch evidence details
+            fetch(`/api/assessments/{{ $assessment->id }}/answers/${answerId}/evidence`)
+                .then(response => response.json())
+                .then(data => {
+                    let html = '';
+                    
+                    if (data.answer) {
+                        html += `
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h4 class="card-title">Question: ${questionCode}</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Question Text (EN):</label>
+                                        <p>${data.question.question_text_en || 'N/A'}</p>
+                                    </div>
+                                    ${data.question.question_text_id ? `
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Question Text (ID):</label>
+                                            <p>${data.question.question_text_id}</p>
+                                        </div>
+                                    ` : ''}
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Answer:</label>
+                                        <p>${data.answer.answer_text || 'No answer text provided'}</p>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">Answered By:</label>
+                                            <p>${data.answered_by ? data.answered_by.name : 'Unknown'}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">Answered At:</label>
+                                            <p>${data.answer.answered_at ? new Date(data.answer.answered_at).toLocaleString() : 'N/A'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        if (data.answer.evidence_provided && data.answer.evidence_file_path) {
+                            html += `
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h4 class="card-title">Evidence File</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col">
+                                                <div class="d-flex align-items-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg text-primary me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /></svg>
+                                                    <div>
+                                                        <div class="fw-bold">${data.answer.evidence_file_path.split('/').pop()}</div>
+                                                        <div class="text-muted small">Evidence document</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <a href="/assessments/{{ $assessment->id }}/evidence/${answerId}/download" 
+                                                   class="btn btn-primary" 
+                                                   target="_blank">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>
+                                                    Download
+                                                </a>
+                                            </div>
+                                        </div>
+                                        ${data.answer.evidence_description ? `
+                                            <div class="mt-3">
+                                                <label class="form-label fw-bold">Evidence Description:</label>
+                                                <p>${data.answer.evidence_description}</p>
+                                            </div>
+                                        ` : ''}
+                                        ${data.answer.evidence_url ? `
+                                            <div class="mt-3">
+                                                <label class="form-label fw-bold">Evidence URL:</label>
+                                                <p><a href="${data.answer.evidence_url}" target="_blank" class="text-primary">${data.answer.evidence_url}</a></p>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        } else if (data.answer.evidence_url) {
+                            html += `
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h4 class="card-title">Evidence Link</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">URL:</label>
+                                            <p><a href="${data.answer.evidence_url}" target="_blank" class="text-primary">${data.answer.evidence_url}</a></p>
+                                        </div>
+                                        ${data.answer.evidence_description ? `
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Description:</label>
+                                                <p>${data.answer.evidence_description}</p>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        if (data.capability_scores && data.capability_scores.length > 0) {
+                            html += `
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 class="card-title">Capability Scores by Level</h4>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-vcenter card-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Level</th>
+                                                    <th>Achievement Status</th>
+                                                    <th>Compliance</th>
+                                                    <th>Notes</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                            `;
+                            
+                            data.capability_scores.forEach(score => {
+                                const statusBadge = {
+                                    'FULLY_ACHIEVED': '<span class="badge bg-success">Fully Achieved</span>',
+                                    'LARGELY_ACHIEVED': '<span class="badge bg-info">Largely Achieved</span>',
+                                    'PARTIALLY_ACHIEVED': '<span class="badge bg-warning">Partially Achieved</span>',
+                                    'NOT_ACHIEVED': '<span class="badge bg-danger">Not Achieved</span>'
+                                };
+                                
+                                html += `
+                                    <tr>
+                                        <td><span class="badge bg-primary">Level ${score.level}</span></td>
+                                        <td>${statusBadge[score.achievement_status] || 'N/A'}</td>
+                                        <td>
+                                            <div class="progress" style="height: 20px; min-width: 100px;">
+                                                <div class="progress-bar ${score.compliance_percentage >= 75 ? 'bg-success' : (score.compliance_percentage >= 50 ? 'bg-warning' : 'bg-danger')}" 
+                                                     style="width: ${score.compliance_percentage}%">
+                                                    ${score.compliance_percentage}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>${score.assessment_notes || '-'}</td>
+                                    </tr>
+                                `;
+                            });
+                            
+                            html += `
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        html = `
+                            <div class="empty">
+                                <p class="empty-title">No evidence found</p>
+                                <p class="empty-subtitle text-muted">Evidence details are not available for this question.</p>
+                            </div>
+                        `;
+                    }
+                    
+                    document.getElementById('evidenceModalBody').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('evidenceModalBody').innerHTML = `
+                        <div class="alert alert-danger">
+                            <h4 class="alert-title">Error</h4>
+                            <div class="text-muted">Failed to load evidence details. Please try again.</div>
+                        </div>
+                    `;
+                });
+        }
     });
     
     function showToast(title, message, type) {

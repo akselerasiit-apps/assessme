@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\AnswerController;
 use App\Http\Controllers\Api\ScoringController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Web\CapabilityAssessmentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -107,4 +108,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/audit-logs/export', [AuditLogController::class, 'export']);
     Route::get('/audit-logs/users/{userId}/activities', [AuditLogController::class, 'userActivities']);
     Route::get('/audit-logs/{id}', [AuditLogController::class, 'show']);
+    
+    // Capability Assessment - Evidence Details
+    Route::get('/assessments/{assessment}/answers/{answer}/evidence', [CapabilityAssessmentController::class, 'getEvidenceDetails']);
 });

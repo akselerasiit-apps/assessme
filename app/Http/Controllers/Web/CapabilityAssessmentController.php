@@ -204,4 +204,60 @@ class CapabilityAssessmentController extends Controller
             'overall_achievement' => $overallAchievement,
         ]);
     }
+
+    /**
+     * Get evidence details for an answer (API endpoint)
+     */
+    public function getEvidenceDetails(Assessment $assessment, AssessmentAnswer $answer)
+    {
+        // Check answer belongs to this assessment
+        if ($answer->assessment_id !== $assessment->id) {
+            return response()->json(['error' => 'Invalid answer'], 403);
+        }
+
+        $answer->load([
+            'question',
+            'answeredBy:id,name,email',
+            'capabilityScores' => function($query) {
+                $query->orderBy('level');
+            }
+        ]);
+
+        return response()->json([
+            'answer' => [
+                'id' => $answer->id,
+                'answer_text' => $answer->answer_text,
+                'answered_at' => $answer->answered_at,
+                'evidence_provided' => $answer->evidence_provided,
+                'evidence_file_path' => $answer->evidence_file_path,
+                'evidence_url' => $answer->evidence_url,
+                'evidence_description' => $answer->evidence_description,
+                'evidence_count' => $answer->evidence_count,
+            ],
+            'question' => [
+                'id' => $answer->question->id,
+                'code' => $answer->question->code,
+                'question_text_en' => $answer->question->question_text_en,
+                'question_text_id' => $answer->question->question_text_id,
+                'maturity_level' => $answer->question->maturity_level,
+            ],
+            'answered_by' => $answer->answeredBy ? [
+                'id' => $answer->answeredBy->id,
+                'name' => $answer->answeredBy->name,
+                'email' => $answer->answeredBy->email,
+            ] : null,
+            'capability_scores' => $answer->capabilityScores->map(function($score) {
+                return [
+                    'level' => $score->level,
+                    'achievement_status' => $score->achievement_status,
+                    'compliance_percentage' => $score->compliance_percentage,
+                    'compliance_score' => $score->compliance_score,
+                    'assessment_notes' => $score->assessment_notes,
+                    'evidence_provided' => $score->evidence_provided,
+                    'evidence_count' => $score->evidence_count,
+                ];
+            }),
+        ]);
+    }
 }
+
