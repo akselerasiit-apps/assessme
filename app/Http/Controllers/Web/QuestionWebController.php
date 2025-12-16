@@ -52,7 +52,13 @@ class QuestionWebController extends Controller
         $categories = ['EDM', 'APO', 'BAI', 'DSS', 'MEA'];
         $maturityLevels = [1, 2, 3, 4, 5];
 
-        return view('questions.index', compact('questions', 'gamoObjectives', 'categories', 'maturityLevels'));
+        // Get statistics
+        $totalQuestions = GamoQuestion::count();
+        $activeCount = GamoQuestion::where('is_active', true)->count();
+        $inactiveCount = GamoQuestion::where('is_active', false)->count();
+        $gamoCount = GamoObjective::where('is_active', true)->count();
+
+        return view('questions.index', compact('questions', 'gamoObjectives', 'categories', 'maturityLevels', 'totalQuestions', 'activeCount', 'inactiveCount', 'gamoCount'));
     }
 
     /**
