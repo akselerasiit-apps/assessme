@@ -150,22 +150,18 @@
                 <div class="row g-3">
                     @foreach($designFactors as $factor)
                     <div class="col-md-6">
-                        <div class="form-selectgroup-item">
-                            <label class="form-selectgroup-label">
-                                <input type="checkbox" name="design_factors[]" value="{{ $factor->id }}" class="form-selectgroup-input" {{ in_array($factor->id, old('design_factors', [])) ? 'checked' : '' }}>
-                                <span class="form-selectgroup-box">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-fill">
-                                            <div class="fw-bold">{{ $factor->code }} - {{ $factor->name }}</div>
-                                            <div class="text-muted small">{{ $factor->description }}</div>
-                                        </div>
-                                        <div class="ms-2">
-                                            <i class="ti ti-check text-success" style="font-size: 1.5rem;"></i>
-                                        </div>
+                        <label class="form-check form-check-rounded form-check-inline">
+                            <input type="checkbox" name="design_factors[]" value="{{ $factor->id }}" class="form-check-input design-factor-check" {{ in_array($factor->id, old('design_factors', [])) ? 'checked' : '' }}>
+                            <span class="form-check-label" style="cursor: pointer;">
+                                <div class="d-flex gap-2">
+                                    <div class="flex-fill">
+                                        <div class="fw-bold text-dark">{{ $factor->code }}</div>
+                                        <div class="fw-semibold text-body">{{ $factor->name }}</div>
+                                        <div class="text-muted small mt-1">{{ Str::limit($factor->description, 100) }}</div>
                                     </div>
-                                </span>
-                            </label>
-                        </div>
+                                </div>
+                            </span>
+                        </label>
                     </div>
                     @endforeach
                 </div>
@@ -231,25 +227,31 @@
                 </ul>
                 
                 <div class="tab-content">
-                    @foreach(['EDM' => 'Evaluate, Direct, Monitor', 'APO' => 'Align, Plan, Organize', 'BAI' => 'Build, Acquire, Implement', 'DSS' => 'Deliver, Service, Support', 'MEA' => 'Monitor, Evaluate, Assess'] as $category => $categoryName)
+                    @foreach(['EDM' => ['color' => 'purple', 'icon' => 'shield-check', 'name' => 'Evaluate, Direct, Monitor'], 'APO' => ['color' => 'blue', 'icon' => 'target', 'name' => 'Align, Plan, Organize'], 'BAI' => ['color' => 'green', 'icon' => 'tool', 'name' => 'Build, Acquire, Implement'], 'DSS' => ['color' => 'orange', 'icon' => 'server', 'name' => 'Deliver, Service, Support'], 'MEA' => ['color' => 'pink', 'icon' => 'chart-line', 'name' => 'Monitor, Evaluate, Assess']] as $category => $categoryInfo)
                     <div class="tab-pane {{ $category == 'EDM' ? 'active show' : '' }}" id="tab-{{ strtolower($category) }}">
-                        <div class="mb-3">
-                            <span class="badge bg-blue-lt">{{ $category }}</span>
-                            <span class="text-muted ms-2">{{ $categoryName }}</span>
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-{{ $categoryInfo['color'] }}">{{ $category }}</span>
+                                <h5 class="mb-0">{{ $categoryInfo['name'] }}</h5>
+                            </div>
                         </div>
                         
-                        <div class="row g-2">
+                        <div class="row g-3">
                             @foreach($gamoObjectives->where('category', $category) as $gamo)
-                            <div class="col-12">
-                                <label class="form-selectgroup-item">
-                                    <input type="checkbox" name="gamo_objectives[]" value="{{ $gamo->id }}" class="form-selectgroup-input" {{ in_array($gamo->id, old('gamo_objectives', [])) ? 'checked' : '' }}>
-                                    <span class="form-selectgroup-label d-flex align-items-start">
-                                        <span class="form-selectgroup-check"></span>
-                                        <span class="form-selectgroup-label-content">
-                                            <strong>{{ $gamo->code }}</strong> - {{ $gamo->name }}
-                                            <span class="d-block text-muted small mt-1">{{ $gamo->description }}</span>
-                                        </span>
-                                    </span>
+                            <div class="col-md-6">
+                                <label class="card form-check-card border-2 cursor-pointer h-100" style="cursor: pointer; transition: all 0.3s ease;">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-start gap-3">
+                                            <input type="checkbox" name="gamo_objectives[]" value="{{ $gamo->id }}" class="form-check-input gamo-check mt-1" {{ in_array($gamo->id, old('gamo_objectives', [])) ? 'checked' : '' }}>
+                                            <div class="flex-fill">
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <span class="badge bg-{{ $categoryInfo['color'] }}-lt">{{ $gamo->code }}</span>
+                                                    <span class="fw-bold text-dark">{{ $gamo->name }}</span>
+                                                </div>
+                                                <p class="text-muted small mb-0">{{ Str::limit($gamo->description, 120, '...') }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </label>
                             </div>
                             @endforeach
@@ -399,30 +401,98 @@ function prevStep(step) {
     nextStep(step);
 }
 
-// Update counters
+// Update counters and styling
 document.addEventListener('DOMContentLoaded', function() {
-    // Design Factors counter
+    // Design Factors counter and styling
     const dfCheckboxes = document.querySelectorAll('input[name="design_factors[]"]');
     dfCheckboxes.forEach(cb => {
-        cb.addEventListener('change', () => {
-            const count = document.querySelectorAll('input[name="design_factors[]"]:checked').length;
-            document.getElementById('design-factors-count').textContent = count;
+        // Add click handler
+        cb.addEventListener('change', function() {
+            updateDesignFactorCount();
+            updateCardStyle(this);
         });
+        // Initialize styling
+        updateCardStyle(cb);
     });
     
-    // GAMO counter
+    // GAMO counter and styling
     const gamoCheckboxes = document.querySelectorAll('input[name="gamo_objectives[]"]');
     gamoCheckboxes.forEach(cb => {
-        cb.addEventListener('change', () => {
-            const count = document.querySelectorAll('input[name="gamo_objectives[]"]:checked').length;
-            document.getElementById('gamo-count').textContent = count;
+        // Add click handler
+        cb.addEventListener('change', function() {
+            updateGamoCount();
+            updateCardStyle(this);
         });
+        // Initialize styling
+        updateCardStyle(cb);
     });
     
     // Initialize counts
-    document.getElementById('design-factors-count').textContent = document.querySelectorAll('input[name="design_factors[]"]:checked').length;
-    document.getElementById('gamo-count').textContent = document.querySelectorAll('input[name="gamo_objectives[]"]:checked').length;
+    updateDesignFactorCount();
+    updateGamoCount();
+    
+    // Setup tab styling for active state with blue color
+    setupTabStyling();
 });
+
+function updateDesignFactorCount() {
+    const count = document.querySelectorAll('input[name="design_factors[]"]:checked').length;
+    const elem = document.getElementById('design-factors-count');
+    if (elem) elem.textContent = count;
+}
+
+function updateGamoCount() {
+    const count = document.querySelectorAll('input[name="gamo_objectives[]"]:checked').length;
+    const elem = document.getElementById('gamo-count');
+    if (elem) elem.textContent = count;
+}
+
+function updateCardStyle(checkbox) {
+    const card = checkbox.closest('.card');
+    const label = checkbox.closest('label');
+    
+    if (checkbox.checked) {
+        if (card) {
+            card.classList.add('border-success', 'bg-success-lt');
+            card.style.borderColor = '#22c55e';
+        }
+        if (label) {
+            label.classList.add('border-success');
+        }
+    } else {
+        if (card) {
+            card.classList.remove('border-success', 'bg-success-lt');
+            card.style.borderColor = '';
+        }
+        if (label) {
+            label.classList.remove('border-success');
+        }
+    }
+}
+
+function setupTabStyling() {
+    const tabLinks = document.querySelectorAll('[data-bs-toggle="tab"]');
+    tabLinks.forEach(link => {
+        link.addEventListener('shown.bs.tab', function() {
+            // Remove active styling from all tabs
+            tabLinks.forEach(l => {
+                l.classList.remove('active');
+                l.style.borderBottomColor = 'transparent';
+                l.style.color = '';
+            });
+            // Add active styling to current tab
+            this.classList.add('active');
+            this.style.borderBottomColor = '#0d6efd';
+            this.style.color = '#0d6efd';
+        });
+        
+        // Set initial state for active tab
+        if (link.classList.contains('active')) {
+            link.style.borderBottomColor = '#0d6efd';
+            link.style.color = '#0d6efd';
+        }
+    });
+}
 
 // Update review summary
 function updateReview() {
@@ -443,8 +513,9 @@ function updateReview() {
     const dfChecked = document.querySelectorAll('input[name="design_factors[]"]:checked');
     document.getElementById('review-df-count').textContent = dfChecked.length;
     const dfList = Array.from(dfChecked).map(cb => {
-        const label = cb.closest('.form-selectgroup-label').querySelector('.fw-bold').textContent;
-        return label;
+        const parent = cb.closest('label');
+        const bold = parent.querySelector('.fw-bold');
+        return bold ? bold.textContent : cb.value;
     });
     document.getElementById('review-df-list').innerHTML = dfList.length ? dfList.join(', ') : 'None selected';
     
@@ -452,10 +523,89 @@ function updateReview() {
     const gamoChecked = document.querySelectorAll('input[name="gamo_objectives[]"]:checked');
     document.getElementById('review-gamo-count').textContent = gamoChecked.length;
     const gamoList = Array.from(gamoChecked).map(cb => {
-        const label = cb.closest('.form-selectgroup-label-content').querySelector('strong').textContent;
-        return label;
+        const parent = cb.closest('label');
+        const bold = parent.querySelector('.fw-bold');
+        return bold ? bold.textContent : cb.value;
     });
     document.getElementById('review-gamo-list').innerHTML = gamoList.length ? gamoList.join(', ') : 'None selected';
 }
 </script>
 @endpush
+
+<style>
+/* Step indicator active state - blue color */
+.step-item.active {
+    color: #0d6efd !important;
+}
+
+.step-item.active .h4 {
+    background-color: #0d6efd !important;
+    color: white !important;
+}
+
+/* Card selection styling for checkboxes */
+.form-check-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid #e0e0e0;
+}
+
+.form-check-card:hover {
+    border-color: #0d6efd;
+    background-color: #f8f9fa !important;
+}
+
+.form-check-card input[type="checkbox"]:checked ~ div {
+    color: #0d6efd;
+}
+
+/* Tab styling with active underline */
+.nav-tabs .nav-link {
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #626e79;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    border-bottom-color: #e0e0e0;
+    color: #0d6efd;
+}
+
+.nav-tabs .nav-link.active {
+    border-bottom-color: #0d6efd !important;
+    color: #0d6efd !important;
+    background-color: transparent !important;
+}
+
+/* Tab content animation */
+.tab-content .tab-pane {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Success card styling */
+.card.border-success {
+    border-color: #22c55e !important;
+}
+
+.card.bg-success-lt {
+    background-color: #f0fdf4 !important;
+}
+
+/* Badge styling for categories */
+.badge {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.625rem;
+}
+</style>

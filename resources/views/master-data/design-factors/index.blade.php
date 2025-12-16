@@ -88,7 +88,7 @@
                                     <form action="{{ route('master-data.design-factors.toggle-active', $factor) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="badge {{ $factor->is_active ? 'bg-green' : 'bg-secondary' }} border-0" 
+                                        <button type="submit" class="badge {{ $factor->is_active ? 'bg-green text-white' : 'bg-secondary' }} border-0" 
                                                 style="cursor: pointer;">
                                             {{ $factor->is_active ? 'Active' : 'Inactive' }}
                                         </button>

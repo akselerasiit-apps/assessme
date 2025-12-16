@@ -145,7 +145,7 @@
                                     <form action="{{ route('master-data.gamo-objectives.toggle-active', $objective) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="badge {{ $objective->is_active ? 'bg-green' : 'bg-secondary' }} border-0" 
+                                        <button type="submit" class="badge {{ $objective->is_active ? 'bg-green text-white' : 'bg-secondary' }} border-0" 
                                                 style="cursor: pointer;">
                                             {{ $objective->is_active ? 'Active' : 'Inactive' }}
                                         </button>
