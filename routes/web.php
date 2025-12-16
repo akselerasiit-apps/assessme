@@ -37,8 +37,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     // Profile & Settings
-    Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
-    Route::get('/settings', [DashboardController::class, 'settings'])->name('settings');
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Web\ProfileController::class, 'index'])->name('index');
+        Route::get('/edit', [\App\Http\Controllers\Web\ProfileController::class, 'edit'])->name('edit');
+        Route::put('/update', [\App\Http\Controllers\Web\ProfileController::class, 'update'])->name('update');
+        Route::get('/change-password', [\App\Http\Controllers\Web\ProfileController::class, 'changePassword'])->name('change-password');
+        Route::put('/update-password', [\App\Http\Controllers\Web\ProfileController::class, 'updatePassword'])->name('update-password');
+        Route::get('/activity', [\App\Http\Controllers\Web\ProfileController::class, 'activity'])->name('activity');
+        Route::get('/settings', [\App\Http\Controllers\Web\ProfileController::class, 'settings'])->name('settings');
+        Route::put('/update-settings', [\App\Http\Controllers\Web\ProfileController::class, 'updateSettings'])->name('update-settings');
+    });
+    
+    // Legacy routes - redirect to new profile routes
+    Route::get('/profile-old', [DashboardController::class, 'profile']);
+    Route::get('/settings-old', [DashboardController::class, 'settings']);
     
     // Assessments
     Route::prefix('assessments')->name('assessments.')->group(function () {

@@ -41,12 +41,14 @@ class DashboardController extends Controller
     
     public function profile()
     {
-        return view('dashboard.profile');
+        // Redirect to new ProfileController
+        return redirect()->route('profile.index');
     }
     
     public function settings()
     {
-        return view('dashboard.settings');
+        // Redirect to new ProfileController settings
+        return redirect()->route('profile.settings');
     }
     
     public function users(Request $request)

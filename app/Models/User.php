@@ -28,6 +28,12 @@ class User extends Authenticatable
         'password',
         'company_id',
         'is_active',
+        'avatar_path',
+        'phone',
+        'bio',
+        'timezone',
+        'language',
+        'preferences',
     ];
 
     /**
@@ -50,6 +56,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
+            'preferences' => 'array',
         ];
     }
 
