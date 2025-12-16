@@ -229,7 +229,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{designFactor}/edit', [\App\Http\Controllers\Web\DesignFactorWebController::class, 'edit'])->name('edit');
             Route::put('/{designFactor}', [\App\Http\Controllers\Web\DesignFactorWebController::class, 'update'])->name('update');
             Route::delete('/{designFactor}', [\App\Http\Controllers\Web\DesignFactorWebController::class, 'destroy'])->name('destroy');
-            Route::patch('/{designFactor}/toggle', [\App\Http\Controllers\Web\DesignFactorWebController::class, 'toggleActive'])->name('toggle');
+            Route::patch('/{designFactor}/toggle-active', [\App\Http\Controllers\Web\DesignFactorWebController::class, 'toggleActive'])->name('toggle-active');
         });
         
         // GAMO Objectives Management
@@ -240,7 +240,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{gamoObjective}/edit', [\App\Http\Controllers\Web\GamoObjectiveWebController::class, 'edit'])->name('edit');
             Route::put('/{gamoObjective}', [\App\Http\Controllers\Web\GamoObjectiveWebController::class, 'update'])->name('update');
             Route::delete('/{gamoObjective}', [\App\Http\Controllers\Web\GamoObjectiveWebController::class, 'destroy'])->name('destroy');
-            Route::patch('/{gamoObjective}/toggle', [\App\Http\Controllers\Web\GamoObjectiveWebController::class, 'toggleActive'])->name('toggle');
+            Route::patch('/{gamoObjective}/toggle-active', [\App\Http\Controllers\Web\GamoObjectiveWebController::class, 'toggleActive'])->name('toggle-active');
         });
         
         // Question Management
