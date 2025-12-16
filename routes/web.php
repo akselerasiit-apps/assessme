@@ -67,9 +67,17 @@ Route::middleware(['auth'])->group(function () {
         // Progress tracking
         Route::get('/{assessment}/progress', [\App\Http\Controllers\Web\AssessmentProgressController::class, 'show'])->name('progress');
         
-        // Answer questions
-        Route::get('/{assessment}/answer', [AssessmentWebController::class, 'answer'])->name('answer');
-        Route::post('/{assessment}/submit-answer', [AssessmentWebController::class, 'submitAnswer'])->name('submit-answer');
+        // Assessment Taking & Answering (Phase 13)
+        Route::get('/{assessment}/take', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'take'])->name('take');
+        Route::post('/{assessment}/answer/{question}', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'saveAnswer'])->name('answer');
+        Route::post('/{assessment}/save-draft', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'saveDraft'])->name('save-draft');
+        Route::post('/{assessment}/auto-save/{question}', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'autoSave'])->name('auto-save');
+        Route::get('/{assessment}/review', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'review'])->name('review');
+        Route::get('/{assessment}/bookmarked', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'bookmarked'])->name('bookmarked');
+        
+        // Legacy answer routes
+        Route::get('/{assessment}/answer', [AssessmentWebController::class, 'answer'])->name('answer-legacy');
+        Route::post('/{assessment}/submit-answer', [AssessmentWebController::class, 'submitAnswer'])->name('submit-answer-legacy');
         
         // Evidence Management (nested under assessments)
         Route::prefix('/{assessment}/evidence')->name('evidence.')->group(function () {
