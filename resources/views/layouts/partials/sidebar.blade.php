@@ -20,8 +20,8 @@
                     </div>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <a href="{{ route('profile') }}" class="dropdown-item">Profile</a>
-                    <a href="{{ route('settings') }}" class="dropdown-item">Settings</a>
+                    <a href="{{ route('profile.index') }}" class="dropdown-item">Profile</a>
+                    <a href="{{ route('profile.settings') }}" class="dropdown-item">Settings</a>
                     <div class="dropdown-divider"></div>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
