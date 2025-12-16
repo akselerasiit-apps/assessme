@@ -58,14 +58,14 @@
                 </div>
             </div>
             <div class="table-responsive">
-                <table class="table card-table table-vcenter text-nowrap datatable">
+                <table class="table card-table table-vcenter datatable">
                     <thead>
                         <tr>
                             <th class="w-1">Order</th>
-                            <th>Code</th>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Status</th>
+                            <th style="min-width: 100px;">Code</th>
+                            <th style="min-width: 250px;">Name</th>
+                            <th style="min-width: 300px;">Description</th>
+                            <th style="min-width: 100px;">Status</th>
                             <th class="w-1">Actions</th>
                         </tr>
                     </thead>
@@ -74,11 +74,15 @@
                             <tr>
                                 <td><span class="badge badge-outline text-azure">{{ $factor->factor_order ?? '-' }}</span></td>
                                 <td><code>{{ $factor->code }}</code></td>
-                                <td class="fw-bold">{{ $factor->name }}</td>
+                                <td class="fw-bold">
+                                    <span title="{{ $factor->name }}">
+                                        {{ Str::limit($factor->name, 50, '...') }}
+                                    </span>
+                                </td>
                                 <td>
-                                    <div class="text-muted" style="max-width: 300px;">
-                                        {{ Str::limit($factor->description, 80) }}
-                                    </div>
+                                    <span class="text-muted" title="{{ $factor->description }}">
+                                        {{ Str::limit($factor->description, 100, '...') }}
+                                    </span>
                                 </td>
                                 <td>
                                     <form action="{{ route('master-data.design-factors.toggle-active', $factor) }}" method="POST" class="d-inline">

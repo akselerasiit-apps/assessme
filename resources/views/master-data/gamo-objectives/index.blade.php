@@ -104,15 +104,15 @@
                 </div>
             </div>
             <div class="table-responsive">
-                <table class="table card-table table-vcenter text-nowrap datatable">
+                <table class="table card-table table-vcenter datatable">
                     <thead>
                         <tr>
                             <th class="w-1">Order</th>
-                            <th>Code</th>
-                            <th>Category</th>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Status</th>
+                            <th style="min-width: 100px;">Code</th>
+                            <th style="min-width: 90px;">Category</th>
+                            <th style="min-width: 250px;">Name</th>
+                            <th style="min-width: 300px;">Description</th>
+                            <th style="min-width: 100px;">Status</th>
                             <th class="w-1">Actions</th>
                         </tr>
                     </thead>
@@ -131,11 +131,15 @@
                                         {{ $objective->category }}
                                     </span>
                                 </td>
-                                <td class="fw-bold" style="max-width: 250px;">{{ $objective->name }}</td>
+                                <td class="fw-bold">
+                                    <span title="{{ $objective->name }}">
+                                        {{ Str::limit($objective->name, 50, '...') }}
+                                    </span>
+                                </td>
                                 <td>
-                                    <div class="text-muted" style="max-width: 300px;">
-                                        {{ Str::limit($objective->description, 80) }}
-                                    </div>
+                                    <span class="text-muted" title="{{ $objective->description }}">
+                                        {{ Str::limit($objective->description, 100, '...') }}
+                                    </span>
                                 </td>
                                 <td>
                                     <form action="{{ route('master-data.gamo-objectives.toggle-active', $objective) }}" method="POST" class="d-inline">

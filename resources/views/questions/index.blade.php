@@ -92,16 +92,16 @@
         <!-- Questions Table -->
         <div class="card">
             <div class="table-responsive">
-                <table class="table card-table table-vcenter text-nowrap datatable">
+                <table class="table card-table table-vcenter datatable">
                     <thead>
                         <tr>
-                            <th class="w-1">Code</th>
-                            <th>GAMO</th>
-                            <th>Question</th>
-                            <th>Type</th>
-                            <th class="w-1">Level</th>
-                            <th class="w-1">Order</th>
-                            <th>Status</th>
+                            <th style="min-width: 90px;">Code</th>
+                            <th style="min-width: 120px;">GAMO</th>
+                            <th style="min-width: 300px;">Question</th>
+                            <th style="min-width: 120px;">Type</th>
+                            <th style="min-width: 80px;">Level</th>
+                            <th style="min-width: 80px;">Order</th>
+                            <th style="min-width: 100px;">Status</th>
                             <th class="w-1">Actions</th>
                         </tr>
                     </thead>
@@ -120,10 +120,14 @@
                                             {{ $question->gamoObjective->code }}
                                         </span>
                                     </div>
-                                    <div class="text-muted small">{{ Str::limit($question->gamoObjective->name, 30) }}</div>
+                                    <div class="text-muted small" title="{{ $question->gamoObjective->name }}">
+                                        {{ Str::limit($question->gamoObjective->name, 30, '...') }}
+                                    </div>
                                 </td>
-                                <td style="max-width: 400px;">
-                                    <div class="fw-bold">{{ Str::limit($question->question_text, 80) }}</div>
+                                <td>
+                                    <div class="fw-bold" title="{{ $question->question_text }}">
+                                        {{ Str::limit($question->question_text, 80, '...') }}
+                                    </div>
                                     @if($question->required)
                                         <span class="badge bg-red-lt">Required</span>
                                     @endif
