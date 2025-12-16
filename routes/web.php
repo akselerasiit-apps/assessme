@@ -11,6 +11,7 @@ use App\Http\Controllers\Web\BandingController;
 use App\Http\Controllers\Web\RecommendationWebController;
 use App\Http\Controllers\Web\ActionPlanWebController;
 use App\Http\Controllers\Web\CapabilityAssessmentController;
+use App\Http\Controllers\Web\ProfileController;
 
 // Guest Routes
 Route::middleware('guest')->group(function () {
@@ -38,14 +39,14 @@ Route::middleware(['auth'])->group(function () {
     
     // Profile & Settings
     Route::prefix('profile')->name('profile.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Web\ProfileController::class, 'index'])->name('index');
-        Route::get('/edit', [\App\Http\Controllers\Web\ProfileController::class, 'edit'])->name('edit');
-        Route::put('/update', [\App\Http\Controllers\Web\ProfileController::class, 'update'])->name('update');
-        Route::get('/change-password', [\App\Http\Controllers\Web\ProfileController::class, 'changePassword'])->name('change-password');
-        Route::put('/update-password', [\App\Http\Controllers\Web\ProfileController::class, 'updatePassword'])->name('update-password');
-        Route::get('/activity', [\App\Http\Controllers\Web\ProfileController::class, 'activity'])->name('activity');
-        Route::get('/settings', [\App\Http\Controllers\Web\ProfileController::class, 'settings'])->name('settings');
-        Route::put('/update-settings', [\App\Http\Controllers\Web\ProfileController::class, 'updateSettings'])->name('update-settings');
+        Route::get('/', [ProfileController::class, 'index'])->name('index');
+        Route::get('/edit', [ProfileController::class, 'edit'])->name('edit');
+        Route::put('/update', [ProfileController::class, 'update'])->name('update');
+        Route::get('/change-password', [ProfileController::class, 'changePassword'])->name('change-password');
+        Route::put('/update-password', [ProfileController::class, 'updatePassword'])->name('update-password');
+        Route::get('/activity', [ProfileController::class, 'activity'])->name('activity');
+        Route::get('/settings', [ProfileController::class, 'settings'])->name('settings');
+        Route::put('/update-settings', [ProfileController::class, 'updateSettings'])->name('update-settings');
     });
     
     // Legacy routes - redirect to new profile routes
