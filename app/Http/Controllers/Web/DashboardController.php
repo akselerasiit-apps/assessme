@@ -227,6 +227,143 @@ class DashboardController extends Controller
         ));
     }
 
+    /**
+     * Show Performance Dashboard with Maturity Heatmap
+     */
+    public function performanceDashboard(Request $request)
+    {
+        // Get filter parameters
+        $companyFilter = $request->get('company', null);
+        $periodFilter = $request->get('period', 'all'); // all, draft, completed, approved
+
+        // Build base query
+        $query = Assessment::with(['company', 'gamoSelections.gamoObjective']);
+
+        // Apply status filter based on period
+        if ($periodFilter !== 'all') {
+            $query->where('status', $periodFilter);
+        }
+
+        // Apply company filter
+        if ($companyFilter) {
+            $query->where('company_id', $companyFilter);
+        }
+
+        $assessments = $query->get();
+
+        // Build GAMO Maturity Heatmap
+        $gamoObjectives = \App\Models\GamoObjective::with('category')->orderBy('category')->orderBy('code')->get();
+        $companies = Company::orderBy('name')->get();
+
+        // Initialize heatmap data structure
+        $heatmapData = [];
+        foreach ($companies as $company) {
+            $heatmapData[$company->id] = [];
+            foreach ($gamoObjectives as $gamo) {
+                $heatmapData[$company->id][$gamo->id] = null;
+            }
+        }
+
+        // Populate heatmap with actual maturity levels
+        foreach ($assessments as $assessment) {
+            $company = $assessment->company;
+            if ($company) {
+                foreach ($assessment->gamoSelections as $selection) {
+                    if ($selection->gamoObjective) {
+                        $gamo = $selection->gamoObjective;
+                        $maturity = $selection->maturity_level ?? 0;
+                        if (!isset($heatmapData[$company->id][$gamo->id]) || $maturity > $heatmapData[$company->id][$gamo->id]) {
+                            $heatmapData[$company->id][$gamo->id] = $maturity;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Calculate overall maturity by GAMO category
+        $categoryMaturity = [];
+        foreach (GamoObjective::groupBy('category')->pluck('category') as $category) {
+            $categoryMaturity[$category] = [
+                'total' => GamoObjective::where('category', $category)->count(),
+                'count' => 0,
+                'sum' => 0,
+            ];
+        }
+
+        foreach ($assessments as $assessment) {
+            foreach ($assessment->gamoSelections as $selection) {
+                if ($selection->gamoObjective && $selection->maturity_level) {
+                    $category = $selection->gamoObjective->category;
+                    if (isset($categoryMaturity[$category])) {
+                        $categoryMaturity[$category]['count']++;
+                        $categoryMaturity[$category]['sum'] += $selection->maturity_level;
+                    }
+                }
+            }
+        }
+
+        // Calculate averages
+        foreach ($categoryMaturity as &$cat) {
+            $cat['average'] = $cat['count'] > 0 ? round($cat['sum'] / $cat['count'], 2) : 0;
+        }
+
+        // Get company capability levels
+        $companyCapability = [];
+        foreach ($companies as $company) {
+            $companyAssessments = $assessments->where('company_id', $company->id);
+            $totalMaturity = 0;
+            $totalItems = 0;
+
+            foreach ($companyAssessments as $assessment) {
+                foreach ($assessment->gamoSelections as $selection) {
+                    if ($selection->maturity_level) {
+                        $totalMaturity += $selection->maturity_level;
+                        $totalItems++;
+                    }
+                }
+            }
+
+            $companyCapability[$company->id] = [
+                'name' => $company->name,
+                'count' => $companyAssessments->count(),
+                'avg_maturity' => $totalItems > 0 ? round($totalMaturity / $totalItems, 2) : 0,
+            ];
+        }
+
+        // Sort companies by average maturity
+        usort($companyCapability, function($a, $b) {
+            return $b['avg_maturity'] <=> $a['avg_maturity'];
+        });
+
+        // Get maturity trend (last 30 days by completion)
+        $maturityTrend = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $assessments_on_date = Assessment::whereDate('completed_at', $date->format('Y-m-d'))
+                ->whereNotNull('overall_maturity_level')
+                ->avg('overall_maturity_level') ?? 0;
+            $maturityTrend[$date->format('M d')] = round($assessments_on_date, 2);
+        }
+
+        // Get available companies for filter
+        $allCompanies = Company::orderBy('name')->get();
+        $periods = ['all' => 'All', 'draft' => 'Draft', 'completed' => 'Completed', 'approved' => 'Approved'];
+
+        return view('dashboard.performance', compact(
+            'heatmapData',
+            'gamoObjectives',
+            'companies',
+            'categoryMaturity',
+            'companyCapability',
+            'maturityTrend',
+            'allCompanies',
+            'periods',
+            'companyFilter',
+            'periodFilter',
+            'assessments'
+        ));
+    }
+
     public function profile()
     {
         // Redirect to new ProfileController
