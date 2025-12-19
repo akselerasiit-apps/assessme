@@ -13,30 +13,127 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Get statistics
+        // Get comprehensive statistics
         $stats = [
             'total_assessments' => Assessment::count(),
             'draft' => Assessment::where('status', 'draft')->count(),
             'in_progress' => Assessment::where('status', 'in_progress')->count(),
-            'under_review' => Assessment::where('status', 'under_review')->count(),
+            'reviewed' => Assessment::where('status', 'reviewed')->count(),
             'completed' => Assessment::where('status', 'completed')->count(),
             'approved' => Assessment::where('status', 'approved')->count(),
-            'average_maturity' => Assessment::whereNotNull('maturity_level')->avg('maturity_level') ?? 0,
+            'archived' => Assessment::where('status', 'archived')->count(),
+            'completion_rate' => $this->getCompletionRate(),
+            'average_maturity' => Assessment::whereNotNull('overall_maturity_level')->avg('overall_maturity_level') ?? 0,
+        ];
+        
+        // Get assessment status counts for charts
+        $statusCounts = [
+            'draft' => $stats['draft'],
+            'in_progress' => $stats['in_progress'],
+            'reviewed' => $stats['reviewed'],
+            'completed' => $stats['completed'],
+            'approved' => $stats['approved'],
         ];
         
         // Get maturity distribution
         $maturityDistribution = [];
         for ($i = 0; $i <= 5; $i++) {
-            $maturityDistribution[$i] = Assessment::whereBetween('maturity_level', [$i, $i + 0.99])->count();
+            $maturityDistribution[$i] = Assessment::whereBetween('overall_maturity_level', [$i, $i + 0.99])->count();
         }
         
-        // Get recent assessments
+        // Get GAMO category distribution
+        $gamoDistribution = $this->getGamoDistribution();
+        
+        // Get recent assessments with relations
         $recentAssessments = Assessment::with(['company', 'creator'])
             ->latest()
-            ->limit(10)
+            ->limit(8)
             ->get();
         
-        return view('dashboard.index', compact('stats', 'maturityDistribution', 'recentAssessments'));
+        // Get assessments by company
+        $assessmentsByCompany = $this->getAssessmentsByCompany();
+        
+        // Get completion trend (last 7 days)
+        $completionTrend = $this->getCompletionTrend();
+        
+        return view('dashboard.index', compact(
+            'stats',
+            'statusCounts',
+            'maturityDistribution',
+            'gamoDistribution',
+            'recentAssessments',
+            'assessmentsByCompany',
+            'completionTrend'
+        ));
+    }
+    
+    /**
+     * Get overall completion rate
+     */
+    private function getCompletionRate(): float
+    {
+        $totalQuestions = DB::table('assessment_answers')->count();
+        $answeredQuestions = DB::table('assessment_answers')->whereNotNull('answered_at')->count();
+        
+        return $totalQuestions > 0 ? round(($answeredQuestions / $totalQuestions) * 100, 1) : 0;
+    }
+    
+    /**
+     * Get GAMO distribution
+     */
+    private function getGamoDistribution(): array
+    {
+        return [
+            'EDM' => DB::table('assessment_gamo_selections')
+                ->join('gamo_objectives', 'assessment_gamo_selections.gamo_objective_id', '=', 'gamo_objectives.id')
+                ->where('gamo_objectives.category', 'EDM')
+                ->count(),
+            'APO' => DB::table('assessment_gamo_selections')
+                ->join('gamo_objectives', 'assessment_gamo_selections.gamo_objective_id', '=', 'gamo_objectives.id')
+                ->where('gamo_objectives.category', 'APO')
+                ->count(),
+            'BAI' => DB::table('assessment_gamo_selections')
+                ->join('gamo_objectives', 'assessment_gamo_selections.gamo_objective_id', '=', 'gamo_objectives.id')
+                ->where('gamo_objectives.category', 'BAI')
+                ->count(),
+            'DSS' => DB::table('assessment_gamo_selections')
+                ->join('gamo_objectives', 'assessment_gamo_selections.gamo_objective_id', '=', 'gamo_objectives.id')
+                ->where('gamo_objectives.category', 'DSS')
+                ->count(),
+            'MEA' => DB::table('assessment_gamo_selections')
+                ->join('gamo_objectives', 'assessment_gamo_selections.gamo_objective_id', '=', 'gamo_objectives.id')
+                ->where('gamo_objectives.category', 'MEA')
+                ->count(),
+        ];
+    }
+    
+    /**
+     * Get assessments by company
+     */
+    private function getAssessmentsByCompany(): \Illuminate\Support\Collection
+    {
+        return Assessment::with('company')
+            ->select('company_id', DB::raw('COUNT(*) as total'))
+            ->groupBy('company_id')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get();
+    }
+    
+    /**
+     * Get completion trend for last 7 days
+     */
+    private function getCompletionTrend(): array
+    {
+        $trend = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $count = Assessment::whereDate('updated_at', $date->format('Y-m-d'))
+                ->where('status', '=', 'completed')
+                ->count();
+            $trend[$date->format('M d')] = $count;
+        }
+        return $trend;
     }
     
     public function profile()
