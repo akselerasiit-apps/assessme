@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Models\Activity;
 
 class RecommendationWebController extends Controller
 {
@@ -115,10 +116,9 @@ class RecommendationWebController extends Controller
             ->first();
 
         // Get activity history
-        $activities = activity()
-            ->performedOn($recommendation)
+        $activities = Activity::forSubject($recommendation)
             ->with('causer')
-            ->latest()
+            ->latest('id')
             ->get();
 
         return view('recommendations.show', compact('assessment', 'recommendation', 'gamoScore', 'activities'));
