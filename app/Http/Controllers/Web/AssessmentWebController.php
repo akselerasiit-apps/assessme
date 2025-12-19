@@ -70,6 +70,11 @@ class AssessmentWebController extends Controller
      */
     public function create()
     {
+        // Check if user has permission to create assessments
+        if (!auth()->user()->can('create_assessment')) {
+            abort(403, 'You do not have permission to create assessments.');
+        }
+
         $companies = Company::all();
         $designFactors = DesignFactor::where('is_active', true)->orderBy('factor_order')->get();
         $gamoObjectives = GamoObjective::where('is_active', true)->orderBy('objective_order')->get();
@@ -82,6 +87,11 @@ class AssessmentWebController extends Controller
      */
     public function store(Request $request)
     {
+        // Check if user has permission to create assessments
+        if (!auth()->user()->can('create_assessment')) {
+            abort(403, 'You do not have permission to create assessments.');
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -90,10 +100,15 @@ class AssessmentWebController extends Controller
             'scope_type' => 'required|in:full,tailored',
             'assessment_period_start' => 'required|date',
             'assessment_period_end' => 'required|date|after:assessment_period_start',
-            'design_factors' => 'nullable|array',
+            'design_factors' => 'required|array|min:1',
             'design_factors.*' => 'exists:design_factors,id',
-            'gamo_objectives' => 'nullable|array',
+            'gamo_objectives' => 'required|array|min:1',
             'gamo_objectives.*' => 'exists:gamo_objectives,id',
+        ], [
+            'design_factors.required' => 'Please select at least one Design Factor.',
+            'design_factors.min' => 'Please select at least one Design Factor.',
+            'gamo_objectives.required' => 'Please select at least one GAMO Objective.',
+            'gamo_objectives.min' => 'Please select at least one GAMO Objective.',
         ]);
 
         DB::beginTransaction();
@@ -102,6 +117,9 @@ class AssessmentWebController extends Controller
             $lastAssessment = Assessment::latest('id')->first();
             $nextNumber = $lastAssessment ? intval(substr($lastAssessment->code, 4)) + 1 : 1;
             $code = 'ASM-' . str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
+
+            // Calculate initial progress percentage (10% for having selections)
+            $initialProgress = 10;
 
             // Create assessment
             $assessment = Assessment::create([
@@ -115,7 +133,7 @@ class AssessmentWebController extends Controller
                 'assessment_period_start' => $validated['assessment_period_start'],
                 'assessment_period_end' => $validated['assessment_period_end'],
                 'created_by' => auth()->id(),
-                'progress_percentage' => 0,
+                'progress_percentage' => $initialProgress,
             ]);
 
             // Attach Design Factors

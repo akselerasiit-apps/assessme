@@ -390,10 +390,13 @@ function nextStep(step) {
         }
     });
     
-    // Update review if step 4
+    // Update review if step 4 - ALWAYS sync before showing
     if (step === 4) {
         updateReview();
     }
+    
+    // Re-apply card styling after navigation (Fix #3)
+    reapplyCardStyling();
     
     // Scroll to top
     window.scrollTo(0, 0);
@@ -433,20 +436,34 @@ document.addEventListener('DOMContentLoaded', function() {
     updateDesignFactorCount();
     updateGamoCount();
     
-    // Setup tab styling for active state with blue color
+    // Setup tab styling for active state with blue color (Fix #4 - prevent double binding)
     setupTabStyling();
+    
+    // Setup form validation (Fix #8 - required field notifications)
+    setupFormValidation();
 });
 
 function updateDesignFactorCount() {
     const count = document.querySelectorAll('input[name="design_factors[]"]:checked').length;
     const elem = document.getElementById('design-factors-count');
     if (elem) elem.textContent = count;
+    // Trigger form validation update (Fix #8)
+    validateDesignFactors();
 }
 
 function updateGamoCount() {
     const count = document.querySelectorAll('input[name="gamo_objectives[]"]:checked').length;
     const elem = document.getElementById('gamo-count');
     if (elem) elem.textContent = count;
+    // Trigger form validation update (Fix #8)
+    validateGamoObjectives();
+}
+
+// Reapply card styling after navigation (Fix #3)
+function reapplyCardStyling() {
+    document.querySelectorAll('input[name="design_factors[]"], input[name="gamo_objectives[]"]').forEach(cb => {
+        updateCardStyle(cb);
+    });
 }
 
 function updateCardStyle(checkbox) {
@@ -473,11 +490,20 @@ function updateCardStyle(checkbox) {
 }
 
 function setupTabStyling() {
+    // Fix #4: Guard against double-binding
     const tabLinks = document.querySelectorAll('[data-bs-toggle="tab"]');
+    
+    // Remove existing listeners by cloning elements
     tabLinks.forEach(link => {
+        const newLink = link.cloneNode(true);
+        link.parentNode.replaceChild(newLink, link);
+    });
+    
+    // Now add fresh listeners
+    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(link => {
         link.addEventListener('shown.bs.tab', function() {
             // Remove active styling from all tabs
-            tabLinks.forEach(l => {
+            document.querySelectorAll('[data-bs-toggle="tab"]').forEach(l => {
                 l.classList.remove('active');
                 l.style.borderBottomColor = 'transparent';
                 l.style.color = '';
@@ -530,6 +556,77 @@ function updateReview() {
         return bold ? bold.textContent : cb.value;
     });
     document.getElementById('review-gamo-list').innerHTML = gamoList.length ? gamoList.join(', ') : 'None selected';
+}
+
+// Fix #8: Validate required fields and show error notifications
+function setupFormValidation() {
+    const form = document.getElementById('assessment-wizard-form');
+    if (!form) return;
+    
+    form.addEventListener('submit', function(e) {
+        // Validate design factors
+        if (!validateDesignFactors() || !validateGamoObjectives()) {
+            e.preventDefault();
+            return false;
+        }
+        return true;
+    });
+    
+    // Check on initial load
+    validateDesignFactors();
+    validateGamoObjectives();
+}
+
+function validateDesignFactors() {
+    const dfChecked = document.querySelectorAll('input[name="design_factors[]"]:checked').length;
+    const dfError = document.getElementById('design-factors-error') || createErrorElement('design-factors-error');
+    
+    if (dfChecked === 0) {
+        dfError.textContent = 'Please select at least one Design Factor.';
+        dfError.style.display = 'block';
+        // Find and highlight step 2 button
+        const step2Elem = document.getElementById('step2');
+        if (step2Elem) step2Elem.classList.add('has-error');
+        return false;
+    } else {
+        dfError.style.display = 'none';
+        const step2Elem = document.getElementById('step2');
+        if (step2Elem) step2Elem.classList.remove('has-error');
+        return true;
+    }
+}
+
+function validateGamoObjectives() {
+    const gamoChecked = document.querySelectorAll('input[name="gamo_objectives[]"]:checked').length;
+    const gamoError = document.getElementById('gamo-objectives-error') || createErrorElement('gamo-objectives-error');
+    
+    if (gamoChecked === 0) {
+        gamoError.textContent = 'Please select at least one GAMO Objective.';
+        gamoError.style.display = 'block';
+        // Find and highlight step 3 button
+        const step3Elem = document.getElementById('step3');
+        if (step3Elem) step3Elem.classList.add('has-error');
+        return false;
+    } else {
+        gamoError.style.display = 'none';
+        const step3Elem = document.getElementById('step3');
+        if (step3Elem) step3Elem.classList.remove('has-error');
+        return true;
+    }
+}
+
+function createErrorElement(id) {
+    const errorDiv = document.createElement('div');
+    errorDiv.id = id;
+    errorDiv.className = 'alert alert-danger mt-3';
+    errorDiv.style.display = 'none';
+    
+    const formElement = document.getElementById('assessment-wizard-form');
+    if (formElement) {
+        formElement.insertBefore(errorDiv, formElement.firstChild);
+    }
+    
+    return errorDiv;
 }
 </script>
 @endpush
@@ -631,5 +728,20 @@ function updateReview() {
 .badge {
     font-size: 0.875rem;
     padding: 0.375rem 0.625rem;
+}
+
+/* Error state styling (Fix #8) */
+.has-error {
+    border-color: #dc3545 !important;
+}
+
+.has-error .card-body {
+    background-color: #fff5f5 !important;
+}
+
+/* Alert styling for required field errors */
+.alert-danger {
+    border-radius: 0.25rem;
+    padding: 0.75rem 1rem;
 }
 </style>
