@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
+use Spatie\Activitylog\Models\Activity;
 
 class ProfileController extends Controller
 {
@@ -26,9 +27,8 @@ class ProfileController extends Controller
         ];
         
         // Get recent activities
-        $recentActivities = activity()
-            ->causedBy($user)
-            ->latest()
+        $recentActivities = Activity::where('causer_id', $user->id)
+            ->latest('id')
             ->take(10)
             ->get();
         
@@ -128,10 +128,9 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
         
-        $activities = activity()
-            ->causedBy($user)
+        $activities = Activity::where('causer_id', $user->id)
             ->with('subject')
-            ->latest()
+            ->latest('id')
             ->paginate(20);
         
         return view('profile.activity', compact('activities'));
