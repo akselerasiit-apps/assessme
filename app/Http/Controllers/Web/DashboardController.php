@@ -135,7 +135,98 @@ class DashboardController extends Controller
         }
         return $trend;
     }
-    
+
+    /**
+     * Show Assessment Progress Dashboard
+     */
+    public function progressDashboard(Request $request)
+    {
+        // Get filter parameters
+        $statusFilter = $request->get('status', null);
+        $companyFilter = $request->get('company', null);
+        $dateFrom = $request->get('date_from', null);
+        $dateTo = $request->get('date_to', null);
+
+        // Build base query
+        $query = Assessment::with(['company', 'creator', 'team']);
+
+        // Apply filters
+        if ($statusFilter) {
+            $query->where('status', $statusFilter);
+        }
+        if ($companyFilter) {
+            $query->where('company_id', $companyFilter);
+        }
+        if ($dateFrom) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+
+        // Get filtered assessments
+        $assessments = $query->latest()->paginate(15);
+
+        // Get aggregated progress metrics
+        $progressStats = [
+            'total' => Assessment::count(),
+            'by_status' => [
+                'draft' => Assessment::where('status', 'draft')->count(),
+                'in_progress' => Assessment::where('status', 'in_progress')->count(),
+                'reviewed' => Assessment::where('status', 'reviewed')->count(),
+                'completed' => Assessment::where('status', 'completed')->count(),
+                'approved' => Assessment::where('status', 'approved')->count(),
+            ],
+            'avg_progress' => round(Assessment::avg('progress_percentage') ?? 0, 1),
+            'avg_questions_answered' => round(DB::table('assessment_answers')->whereNotNull('answered_at')->count() / (Assessment::count() ?: 1), 0),
+        ];
+
+        // Get progress distribution for chart
+        $progressBuckets = [
+            '0-20%' => Assessment::whereBetween('progress_percentage', [0, 20])->count(),
+            '21-40%' => Assessment::whereBetween('progress_percentage', [21, 40])->count(),
+            '41-60%' => Assessment::whereBetween('progress_percentage', [41, 60])->count(),
+            '61-80%' => Assessment::whereBetween('progress_percentage', [61, 80])->count(),
+            '81-100%' => Assessment::whereBetween('progress_percentage', [81, 100])->count(),
+        ];
+
+        // Get team-wise metrics
+        $teamMetrics = User::select('id', 'name', DB::raw('COUNT(DISTINCT assessments.id) as total_assignments'))
+            ->leftJoin('assessments', 'users.id', '=', 'assessments.assigned_to')
+            ->groupBy('id', 'name')
+            ->having('total_assignments', '>', 0)
+            ->limit(10)
+            ->get();
+
+        // Get top companies by progress
+        $companiesProgress = Company::select('companies.id', 'companies.name', 
+                DB::raw('COUNT(DISTINCT assessments.id) as total_count'),
+                DB::raw('AVG(assessments.progress_percentage) as avg_progress'))
+            ->leftJoin('assessments', 'companies.id', '=', 'assessments.company_id')
+            ->groupBy('companies.id', 'companies.name')
+            ->orderByDesc('avg_progress')
+            ->limit(8)
+            ->get();
+
+        // Get available filters
+        $companies = Company::orderBy('name')->get();
+        $statuses = ['draft', 'in_progress', 'reviewed', 'completed', 'approved'];
+
+        return view('dashboard.assessment-progress', compact(
+            'assessments',
+            'progressStats',
+            'progressBuckets',
+            'teamMetrics',
+            'companiesProgress',
+            'companies',
+            'statuses',
+            'statusFilter',
+            'companyFilter',
+            'dateFrom',
+            'dateTo'
+        ));
+    }
+
     public function profile()
     {
         // Redirect to new ProfileController
