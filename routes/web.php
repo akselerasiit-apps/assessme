@@ -156,9 +156,12 @@ Route::middleware(['auth'])->group(function () {
     // Reports
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/', [ReportWebController::class, 'index'])->name('index');
+        Route::get('/{assessment}/preview', [ReportWebController::class, 'preview'])->name('preview');
         Route::get('/{assessment}/maturity', [ReportWebController::class, 'maturity'])->name('maturity');
         Route::get('/{assessment}/gap-analysis', [ReportWebController::class, 'gapAnalysis'])->name('gap-analysis');
         Route::get('/{assessment}/summary', [ReportWebController::class, 'summary'])->name('summary');
+        Route::get('/{assessment}/export-pdf', [ReportWebController::class, 'exportPdf'])->name('export-pdf');
+        Route::get('/{assessment}/export-excel', [ReportWebController::class, 'exportExcel'])->name('export-excel');
     });
     
     // Review & Approval Routes

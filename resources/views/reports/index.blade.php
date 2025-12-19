@@ -109,28 +109,72 @@
                     <td>
                         <div class="btn-group" role="group">
                             <a 
+                                href="{{ route('reports.preview', $assessment) }}?type=summary" 
+                                class="btn btn-sm btn-ghost-primary"
+                                title="Preview Report"
+                            >
+                                <i class="ti ti-eye"></i>
+                            </a>
+                            
+                            <!-- Export Dropdown -->
+                            <div class="btn-group" role="group">
+                                <button 
+                                    type="button" 
+                                    class="btn btn-sm btn-primary dropdown-toggle" 
+                                    data-bs-toggle="dropdown" 
+                                    aria-expanded="false"
+                                >
+                                    <i class="ti ti-download me-1"></i>Export
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <h6 class="dropdown-header">Export as PDF</h6>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('reports.export-pdf', $assessment) }}?type=summary">
+                                            <i class="ti ti-file-text me-2"></i>Summary Report
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('reports.export-pdf', $assessment) }}?type=maturity">
+                                            <i class="ti ti-chart-radar me-2"></i>Maturity Report
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('reports.export-pdf', $assessment) }}?type=gap-analysis">
+                                            <i class="ti ti-chart-bar me-2"></i>Gap Analysis
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('reports.export-pdf', $assessment) }}?type=executive">
+                                            <i class="ti ti-briefcase me-2"></i>Executive Summary
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <h6 class="dropdown-header">Export as Excel</h6>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('reports.export-excel', $assessment) }}">
+                                            <i class="ti ti-file-spreadsheet me-2"></i>Full Report (Excel)
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <a 
                                 href="{{ route('reports.maturity', $assessment) }}" 
-                                class="btn btn-sm btn-primary"
-                                title="Maturity Report"
+                                class="btn btn-sm btn-ghost-info"
+                                title="View Maturity Report"
                             >
                                 <i class="ti ti-chart-radar"></i>
-                                Maturity
                             </a>
                             <a 
                                 href="{{ route('reports.gap-analysis', $assessment) }}" 
-                                class="btn btn-sm btn-warning"
-                                title="Gap Analysis"
+                                class="btn btn-sm btn-ghost-warning"
+                                title="View Gap Analysis"
                             >
                                 <i class="ti ti-chart-bar"></i>
-                                Gap Analysis
-                            </a>
-                            <a 
-                                href="{{ route('reports.summary', $assessment) }}" 
-                                class="btn btn-sm btn-info"
-                                title="Summary Report"
-                            >
-                                <i class="ti ti-file-text"></i>
-                                Summary
                             </a>
                         </div>
                     </td>
