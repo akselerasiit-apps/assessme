@@ -94,6 +94,14 @@ class AssessmentWebController extends Controller
             abort(403, 'You do not have permission to create assessments.');
         }
 
+        // Log incoming request for debugging
+        \Log::info('Assessment store request', [
+            'title' => $request->input('title'),
+            'company_id' => $request->input('company_id'),
+            'design_factors_count' => count($request->input('design_factors', [])),
+            'gamo_objectives_count' => count($request->input('gamo_objectives', [])),
+        ]);
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -127,7 +135,7 @@ class AssessmentWebController extends Controller
             $assessment = Assessment::create([
                 'code' => $code,
                 'title' => $validated['title'],
-                'description' => $validated['description'],
+                'description' => $validated['description'] ?? null,
                 'company_id' => $validated['company_id'],
                 'assessment_type' => $validated['assessment_type'],
                 'scope_type' => $validated['scope_type'],
@@ -137,6 +145,8 @@ class AssessmentWebController extends Controller
                 'created_by' => auth()->id(),
                 'progress_percentage' => $initialProgress,
             ]);
+
+            \Log::info('Assessment created', ['id' => $assessment->id, 'code' => $assessment->code]);
 
             // Attach Design Factors
             if (!empty($validated['design_factors'])) {
@@ -165,10 +175,13 @@ class AssessmentWebController extends Controller
 
             DB::commit();
 
+            \Log::info('Assessment store completed successfully', ['assessment_id' => $assessment->id]);
+
             return redirect()->route('assessments.show', $assessment)
                 ->with('success', 'Assessment created successfully! You can now start answering questions.');
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Assessment creation failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Failed to create assessment: ' . $e->getMessage());

@@ -564,11 +564,29 @@ function setupFormValidation() {
     if (!form) return;
     
     form.addEventListener('submit', function(e) {
-        // Validate design factors
-        if (!validateDesignFactors() || !validateGamoObjectives()) {
+        // Check if we're already on step 4 (review)
+        const currentStep = document.querySelector('.step-item.active')?.dataset.step;
+        
+        // Validate design factors and gamo objectives before submit
+        const dfChecked = document.querySelectorAll('input[name="design_factors[]"]:checked').length;
+        const gamoChecked = document.querySelectorAll('input[name="gamo_objectives[]"]:checked').length;
+        
+        if (dfChecked === 0) {
             e.preventDefault();
+            alert('Please select at least one Design Factor.');
+            nextStep(2);
             return false;
         }
+        
+        if (gamoChecked === 0) {
+            e.preventDefault();
+            alert('Please select at least one GAMO Objective.');
+            nextStep(3);
+            return false;
+        }
+        
+        // Form is valid, allow submission
+        console.log('Form is valid, submitting...');
         return true;
     });
     

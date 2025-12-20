@@ -63,7 +63,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('questions', QuestionController::class);
 
     // Assessment routes
-    Route::apiResource('assessments', AssessmentController::class);
+    Route::apiResource('assessments', AssessmentController::class, [
+        'names' => [
+            'index' => 'api.assessments.index',
+            'store' => 'api.assessments.store',
+            'show' => 'api.assessments.show',
+            'update' => 'api.assessments.update',
+            'destroy' => 'api.assessments.destroy',
+        ]
+    ]);
     Route::patch('/assessments/{id}/status', [AssessmentController::class, 'updateStatus']);
     Route::post('/assessments/{id}/design-factors', [AssessmentController::class, 'selectDesignFactors']);
     Route::post('/assessments/{id}/gamo-selections', [AssessmentController::class, 'selectGamoObjectives']);
