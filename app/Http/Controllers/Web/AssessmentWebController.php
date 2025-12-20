@@ -167,8 +167,8 @@ class AssessmentWebController extends Controller
                         'assessment_id' => $assessment->id,
                         'gamo_objective_id' => $gamoId,
                         'is_selected' => true,
+                        'selected_at' => now(),
                         'created_at' => now(),
-                        'updated_at' => now(),
                     ]);
                 }
             }
