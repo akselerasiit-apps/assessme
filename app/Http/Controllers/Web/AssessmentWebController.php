@@ -70,8 +70,9 @@ class AssessmentWebController extends Controller
      */
     public function create()
     {
-        // Check if user has permission to create assessments
-        if (!auth()->user()->can('create_assessment')) {
+        // Check if user has permission to create assessments (Super Admin, Admin, Manager can create)
+        $allowedRoles = ['Super Admin', 'Admin', 'Manager', 'Assessor'];
+        if (!auth()->user()->hasAnyRole($allowedRoles)) {
             abort(403, 'You do not have permission to create assessments.');
         }
 
@@ -87,8 +88,9 @@ class AssessmentWebController extends Controller
      */
     public function store(Request $request)
     {
-        // Check if user has permission to create assessments
-        if (!auth()->user()->can('create_assessment')) {
+        // Check if user has permission to create assessments (Super Admin, Admin, Manager can create)
+        $allowedRoles = ['Super Admin', 'Admin', 'Manager', 'Assessor'];
+        if (!auth()->user()->hasAnyRole($allowedRoles)) {
             abort(403, 'You do not have permission to create assessments.');
         }
 
