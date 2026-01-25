@@ -161,8 +161,7 @@
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 <script>
 let quillEditor;
-let currentGamoId = null;
-let currentAssessmentId = null;
+// currentGamoId and currentAssessmentId are declared in answer-new.blade.php
 
 // Initialize Quill editor
 function initQuillEditor() {

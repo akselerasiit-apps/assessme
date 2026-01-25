@@ -90,7 +90,7 @@
 
         <!-- GAMO Selector -->
         <div class="row mt-3">
-            <div class="col-md-4">
+            <div class="col-md-5">
                 <select class="form-select" id="gamoSelector">
                     @foreach($gamoObjectives as $gamo)
                     <option value="{{ $gamo->id }}" 
@@ -103,11 +103,11 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <div class="card mb-0 border-primary shadow-sm">
+                <div class="card mb-0 border-primary shadow-sm h-100">
                     <div class="card-body p-3">
                         <div class="d-flex align-items-center mb-2">
-                            <i class="ti ti-target text-primary me-2" style="font-size: 1.25rem;"></i>
-                            <span class="text-muted small fw-semibold">TARGET CAPABILITY LEVEL</span>
+                            <i class="ti ti-target text-primary me-2" style="font-size: 1.1rem;"></i>
+                            <span class="text-muted small fw-semibold">TARGET</span>
                         </div>
                         <div class="d-flex align-items-baseline justify-content-between">
                             <div class="fw-bold text-primary" style="font-size: 2.5rem; line-height: 1;" id="gamoTargetLevel">
@@ -131,12 +131,12 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-2">
-                <div class="card mb-0 border-success shadow-sm">
+            <div class="col-md-3">
+                <div class="card mb-0 border-success shadow-sm h-100">
                     <div class="card-body p-3">
                         <div class="d-flex align-items-center mb-2">
-                            <i class="ti ti-trending-up text-success me-2" style="font-size: 1.25rem;"></i>
-                            <span class="text-muted small fw-semibold">CURRENT CAPABILITY LEVEL</span>
+                            <i class="ti ti-trending-up text-success me-2" style="font-size: 1.1rem;"></i>
+                            <span class="text-muted small fw-semibold">CURRENT</span>
                         </div>
                         <div class="d-flex align-items-baseline justify-content-between">
                             <div class="d-flex align-items-baseline">
@@ -155,15 +155,15 @@
                 </div>
             </div>
             <div class="col-md-2">
-                <div class="card mb-0 border-info shadow-sm">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="ti ti-bulb text-info me-2" style="font-size: 1.25rem;"></i>
-                            <span class="text-muted small fw-semibold">OPPORTUNITY</span>
+                <div class="card mb-0 border-info shadow-sm h-100">
+                    <div class="card-body p-3 d-flex flex-column justify-content-center">
+                        <div class="d-flex align-items-center mb-2 justify-content-center">
+                            <i class="ti ti-bulb text-info me-2" style="font-size: 1.1rem;"></i>
+                            <span class="text-muted small fw-semibold">OFI</span>
                         </div>
-                        <button type="button" class="btn btn-info w-100" onclick="showOFIModal(document.getElementById('gamoObjectiveSelect').value)">
-                            <i class="ti ti-edit me-1"></i>
-                            <span class="d-none d-lg-inline">OFI</span>
+                        <button type="button" class="btn btn-info w-100" onclick="showOFIModal(document.getElementById('gamoSelector').value)">
+                            <i class="ti ti-clipboard-list me-1"></i>
+                            Lihat OFI
                         </button>
                     </div>
                 </div>
