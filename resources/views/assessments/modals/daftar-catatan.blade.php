@@ -117,13 +117,13 @@ function renderNotesList(notesList) {
     notesList.forEach(note => {
         const hasRating = note.rating && note.rating !== 'N/A';
         const ratingBadge = getRatingBadge(note.rating);
-        const levelBadge = `<span class="badge bg-primary">Level ${note.level || '-'}</span>`;
+        const levelBadge = `<span class="badge text-white bg-primary">Level ${note.level || '-'}</span>`;
         
         html += `
             <div class="list-group-item">
                 <div class="row align-items-start">
                     <div class="col-auto">
-                        <span class="avatar ${hasRating ? 'bg-success' : 'bg-secondary'}">
+                        <span class="avatar text-white ${hasRating ? 'bg-success' : 'bg-secondary'}">
                             <i class="ti ${hasRating ? 'ti-notes' : 'ti-note'}"></i>
                         </span>
                     </div>
@@ -171,11 +171,11 @@ function getRatingBadge(rating) {
     if (!rating) return '';
     
     const badges = {
-        'F': '<span class="badge bg-success">F - Fully</span>',
-        'L': '<span class="badge bg-info">L - Largely</span>',
-        'P': '<span class="badge bg-warning">P - Partially</span>',
-        'N': '<span class="badge bg-danger">N - Not Achieved</span>',
-        'N/A': '<span class="badge bg-secondary">N/A</span>'
+        'F': '<span class="badge text-white bg-success">F - Fully</span>',
+        'L': '<span class="badge text-white bg-info">L - Largely</span>',
+        'P': '<span class="badge text-white bg-warning">P - Partially</span>',
+        'N': '<span class="badge text-white bg-danger">N - Not Achieved</span>',
+        'N/A': '<span class="badge text-white bg-secondary">N/A</span>'
     };
     
     return badges[rating] || '';
