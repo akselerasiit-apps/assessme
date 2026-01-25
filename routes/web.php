@@ -13,12 +13,13 @@ use App\Http\Controllers\Web\ActionPlanWebController;
 use App\Http\Controllers\Web\CapabilityAssessmentController;
 use App\Http\Controllers\Web\ProfileController;
 
+// Root redirect - redirect to dashboard if authenticated, otherwise to login
+Route::get('/', function () {
+    return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
+})->name('home');
+
 // Guest Routes
 Route::middleware('guest')->group(function () {
-    Route::get('/', function () {
-        return view('welcome');
-    });
-    
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
     
@@ -71,22 +72,43 @@ Route::middleware(['auth'])->group(function () {
         
         // Assessment Taking & Answering (Phase 13)
         Route::get('/{assessment}/take', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'take'])->name('take');
+        Route::get('/{assessment}/answer-new', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'answerNew'])->name('answer-new');
         Route::post('/{assessment}/answer/{question}', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'saveAnswer'])->name('answer');
         Route::post('/{assessment}/save-draft', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'saveDraft'])->name('save-draft');
         Route::post('/{assessment}/auto-save/{question}', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'autoSave'])->name('auto-save');
         Route::get('/{assessment}/review', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'review'])->name('review');
         Route::get('/{assessment}/bookmarked', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'bookmarked'])->name('bookmarked');
+        Route::post('/toggle-language', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'toggleLanguage'])->name('toggle-language');
+        
+        // New Answer Assessment Features (Level-based)
+        Route::get('/{assessment}/gamo/{gamo}/activities', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getActivitiesByLevel'])->name('activities-by-level');
+        Route::get('/{assessment}/activity/{activity}', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getActivityDetail'])->name('activity-detail');
+        Route::post('/{assessment}/activity/{activity}/answer', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'saveActivityAnswer'])->name('save-activity-answer');
+        Route::get('/{assessment}/gamo/{gamo}/history', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getHistoryLog'])->name('history-log');
+        Route::get('/{assessment}/gamo/{gamo}/average-score', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getAverageScore'])->name('average-score');
+        Route::get('/{assessment}/gamo/{gamo}/notes', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getNotesList'])->name('notes-list');
+        Route::get('/{assessment}/gamo/{gamo}/summary', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getSummary'])->name('summary');
+        Route::get('/{assessment}/summary-all-gamos', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getSummaryAllGamos'])->name('summary-all-gamos');
+        Route::get('/{assessment}/evidence-repository', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getEvidenceRepository'])->name('evidence-repository');
+        Route::get('/{assessment}/gamo/{gamo}/pbc', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getPBCByLevel'])->name('pbc');
+        Route::get('/{assessment}/activity/{activity}/evidence', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getEvidenceList'])->name('evidence-list');
+        Route::post('/{assessment}/activity/{activity}/evidence', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'uploadEvidence'])->name('upload-evidence');
+        Route::get('/{assessment}/evidence/{evidence}/download', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'downloadEvidence'])->name('evidence-download');
         
         // Legacy answer routes
         Route::get('/{assessment}/answer', [AssessmentWebController::class, 'answer'])->name('answer-legacy');
         Route::post('/{assessment}/submit-answer', [AssessmentWebController::class, 'submitAnswer'])->name('submit-answer-legacy');
         
-        // Evidence Management (nested under assessments)
+        // Evidence Management (nested under assessments) - Enhanced with versioning
         Route::prefix('/{assessment}/evidence')->name('evidence.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Web\EvidenceWebController::class, 'index'])->name('index');
             Route::get('/upload', [\App\Http\Controllers\Web\EvidenceWebController::class, 'create'])->name('create');
             Route::post('/', [\App\Http\Controllers\Web\EvidenceWebController::class, 'store'])->name('store');
+            Route::get('/{answer}/preview', [\App\Http\Controllers\Web\EvidenceWebController::class, 'preview'])->name('preview');
             Route::get('/{answer}/download', [\App\Http\Controllers\Web\EvidenceWebController::class, 'download'])->name('download');
+            Route::post('/{answer}/upload-version', [\App\Http\Controllers\Web\EvidenceWebController::class, 'uploadVersion'])->name('upload-version');
+            Route::get('/{answer}/version/{version}/download', [\App\Http\Controllers\Web\EvidenceWebController::class, 'downloadVersion'])->name('download-version');
+            Route::post('/{answer}/version/{version}/restore', [\App\Http\Controllers\Web\EvidenceWebController::class, 'restoreVersion'])->name('restore-version');
             Route::delete('/{answer}', [\App\Http\Controllers\Web\EvidenceWebController::class, 'destroy'])->name('destroy');
         });
         
@@ -221,6 +243,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/audit-logs', [DashboardController::class, 'auditLogs'])->name('audit-logs');
         Route::get('/settings', [DashboardController::class, 'adminSettings'])->name('settings');
     });
+    
+    // GAMO Objectives - Activities Count (accessible to all authenticated users)
+    Route::get('/gamo-objectives/{id}/activities-count', [\App\Http\Controllers\Api\GamoObjectiveController::class, 'getActivitiesCount'])->name('gamo-objectives.activities-count');
     
     // Master Data Routes (Super Admin only)
     Route::prefix('master-data')->name('master-data.')->middleware('role:Super Admin')->group(function () {

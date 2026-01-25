@@ -5,8 +5,14 @@
         </button>
         
         <h1 class="navbar-brand navbar-brand-autodark">
-            <a href="{{ route('dashboard') }}">
-                <img src="https://via.placeholder.com/110x32/206bc4/ffffff?text=COBIT" height="32" alt="COBIT Assessment" class="navbar-brand-image">
+            <a href="{{ route('dashboard') }}" class="d-flex align-items-center text-decoration-none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white me-2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span class="navbar-brand-text text-white" style="font-size: 1.1rem; font-weight: 600;">COBIT Assessment</span>
             </a>
         </h1>
         
@@ -83,7 +89,7 @@
                 </li>
                 @endcan
                 
-                @hasanyrole('Super Admin|Admin')
+                @role('Super Admin')
                 <li class="nav-item dropdown {{ request()->is('admin*') ? 'active' : '' }}">
                     <a class="nav-link dropdown-toggle" href="#navbar-admin" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -110,7 +116,7 @@
                         </div>
                     </div>
                 </li>
-                @endhasanyrole
+                @endrole
             </ul>
         </div>
     </div>

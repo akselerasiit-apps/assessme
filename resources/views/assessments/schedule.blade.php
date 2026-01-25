@@ -204,7 +204,7 @@
                             <a href="{{ route('assessments.team.index', $assessment) }}" class="btn btn-outline-primary">
                                 Manage Team
                             </a>
-                            <a href="{{ route('assessments.answer', $assessment) }}" class="btn btn-outline-primary">
+                            <a href="{{ route('assessments.take', $assessment) }}" class="btn btn-outline-primary">
                                 Start Assessment
                             </a>
                             <a href="{{ route('assessments.progress', $assessment) }}" class="btn btn-outline-primary">

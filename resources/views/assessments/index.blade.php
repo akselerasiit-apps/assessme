@@ -36,25 +36,25 @@
             <li class="nav-item" role="presentation">
                 <a href="{{ route('assessments.index', ['status' => 'in_progress']) }}" class="nav-link {{ request('status') == 'in_progress' ? 'active' : '' }}">
                     <i class="ti ti-progress me-1"></i>In Progress
-                    <span class="badge bg-blue ms-1">{{ $statusCounts['in_progress'] }}</span>
+                    <span class="badge text-white bg-blue ms-1">{{ $statusCounts['in_progress'] }}</span>
                 </a>
             </li>
             <li class="nav-item" role="presentation">
                 <a href="{{ route('assessments.index', ['status' => 'completed']) }}" class="nav-link {{ request('status') == 'completed' ? 'active' : '' }}">
                     <i class="ti ti-circle-check me-1"></i>Completed
-                    <span class="badge bg-success ms-1">{{ $statusCounts['completed'] }}</span>
+                    <span class="badge text-white bg-success ms-1">{{ $statusCounts['completed'] }}</span>
                 </a>
             </li>
             <li class="nav-item" role="presentation">
                 <a href="{{ route('assessments.index', ['status' => 'reviewed']) }}" class="nav-link {{ request('status') == 'reviewed' ? 'active' : '' }}">
                     <i class="ti ti-eye-check me-1"></i>Reviewed
-                    <span class="badge bg-info ms-1">{{ $statusCounts['reviewed'] }}</span>
+                    <span class="badge text-white bg-info ms-1">{{ $statusCounts['reviewed'] }}</span>
                 </a>
             </li>
             <li class="nav-item" role="presentation">
                 <a href="{{ route('assessments.index', ['status' => 'approved']) }}" class="nav-link {{ request('status') == 'approved' ? 'active' : '' }}">
                     <i class="ti ti-rosette me-1"></i>Approved
-                    <span class="badge bg-purple ms-1">{{ $statusCounts['approved'] }}</span>
+                    <span class="badge text-white bg-purple ms-1">{{ $statusCounts['approved'] }}</span>
                 </a>
             </li>
         </ul>
@@ -175,35 +175,48 @@
                         </div>
                     </td>
                     <td>
-                        <div class="btn-list">
+                        <div class="btn-group" role="group">
                             @can('view', $assessment)
-                            <a href="{{ route('assessments.show', $assessment) }}" class="btn btn-sm btn-icon btn-ghost-primary" title="View">
+                            <a href="{{ route('assessments.show', $assessment) }}" class="btn btn-sm btn-outline-primary" title="View">
                                 <i class="ti ti-eye"></i>
                             </a>
                             @endcan
                             
                             @can('answer', $assessment)
-                            <a href="{{ route('assessments.answer', $assessment) }}" class="btn btn-sm btn-icon btn-ghost-success" title="Answer Questions">
-                                <i class="ti ti-clipboard-text"></i>
+                            <a href="{{ route('assessments.answer-new', $assessment) }}" class="btn btn-sm btn-success" title="Answer Assessment (New)">
+                                <i class="ti ti-clipboard-check"></i>
                             </a>
                             @endcan
                             
                             @can('update', $assessment)
-                            <a href="{{ route('assessments.edit', $assessment) }}" class="btn btn-sm btn-icon btn-ghost-warning" title="Edit">
-                                <i class="ti ti-edit"></i>
+                            @if(in_array($assessment->status, ['draft', 'in_progress']))
+                            <a href="{{ route('assessments.edit', $assessment) }}" class="btn btn-sm btn-outline-info" title="Edit">
+                                <i class="ti ti-pencil"></i>
                             </a>
+                            @endif
                             @endcan
                             
                             @can('delete', $assessment)
-                            <button type="button" class="btn btn-sm btn-icon btn-ghost-danger" title="Delete" onclick="deleteAssessment({{ $assessment->id }})">
+                            @if($assessment->status === 'draft')
+                            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete"
+                                onclick="if(confirm('Are you sure you want to delete this assessment?')) { document.getElementById('delete-form-{{ $assessment->id }}').submit(); }">
                                 <i class="ti ti-trash"></i>
                             </button>
-                            <form id="delete-form-{{ $assessment->id }}" action="{{ route('assessments.destroy', $assessment) }}" method="POST" style="display: none;">
-                                @csrf
-                                @method('DELETE')
-                            </form>
+                            @endif
                             @endcan
                         </div>
+                        
+                        @can('delete', $assessment)
+                        @if($assessment->status === 'draft')
+                        <form id="delete-form-{{ $assessment->id }}" 
+                            action="{{ route('assessments.destroy', $assessment) }}" 
+                            method="POST" 
+                            class="d-none">
+                            @csrf
+                            @method('DELETE')
+                        </form>
+                        @endif
+                        @endcan
                     </td>
                 </tr>
                 @empty

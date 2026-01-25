@@ -138,21 +138,27 @@ class AssessmentPolicy
     }
 
     /**
+     * Determine whether the user can take/fill the assessment.
+     * Alias for answer() method
+     */
+    public function takeAssessment(User $user, Assessment $assessment): bool
+    {
+        return $this->answer($user, $assessment);
+    }
+
+    /**
      * Determine whether the user can review the assessment.
-     * UAM: Admin, Manager can review
+     * UAM: Only Super Admin can review
      */
     public function review(User $user, Assessment $assessment): bool
     {
-        if ($user->hasAnyRole(['Admin', 'Manager'])) {
-            return $assessment->status === 'completed';
-        }
-
-        return false;
+        return $user->hasRole('Super Admin') 
+            && $assessment->status === 'completed';
     }
 
     /**
      * Determine whether the user can approve the assessment.
-     * UAM: Only Super Admin can approve
+     * UAM: Super Admin approves after review (same as review)
      */
     public function approve(User $user, Assessment $assessment): bool
     {

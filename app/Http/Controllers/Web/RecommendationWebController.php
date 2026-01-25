@@ -60,7 +60,7 @@ class RecommendationWebController extends Controller
 
         // Get potential owners (users from the same company or assessors)
         $users = User::whereHas('roles', function ($query) {
-            $query->whereIn('name', ['Admin', 'Manager', 'Assessor']);
+            $query->whereIn('name', ['Super Admin', 'Assessor']);
         })->orderBy('name')->get();
 
         return view('recommendations.create', compact('assessment', 'gamoObjectives', 'users'));
@@ -138,7 +138,7 @@ class RecommendationWebController extends Controller
 
         // Get potential owners
         $users = User::whereHas('roles', function ($query) {
-            $query->whereIn('name', ['Admin', 'Manager', 'Assessor']);
+            $query->whereIn('name', ['Super Admin', 'Assessor']);
         })->orderBy('name')->get();
 
         return view('recommendations.edit', compact('assessment', 'recommendation', 'gamoObjectives', 'users'));

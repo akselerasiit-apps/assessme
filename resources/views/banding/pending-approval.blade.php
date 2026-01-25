@@ -8,7 +8,7 @@
     <div class="page-header d-print-none">
         <div class="row align-items-center">
             <div class="col">
-                <div class="page-pretitle">Admin Dashboard</div>
+                <div class="page-pretitle">Super Admin Dashboard</div>
                 <h2 class="page-title">Pending Banding Approvals</h2>
             </div>
             <div class="col-auto ms-auto d-print-none">

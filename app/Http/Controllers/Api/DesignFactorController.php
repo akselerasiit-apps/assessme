@@ -47,10 +47,10 @@ class DesignFactorController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        // Only Super Admin and Admin can create
-        if (!auth()->user()->hasAnyRole(['Super Admin', 'Admin'])) {
+        // Only Super Admin can create
+        if (!auth()->user()->hasRole('Super Admin')) {
             return response()->json([
-                'message' => 'Unauthorized. Only Admin+ can create design factors',
+                'message' => 'Unauthorized. Only Super Admin can create design factors',
             ], 403);
         }
 
@@ -111,10 +111,10 @@ class DesignFactorController extends Controller
      */
     public function update(Request $request, DesignFactor $designFactor): JsonResponse
     {
-        // Only Super Admin and Admin can update
-        if (!auth()->user()->hasAnyRole(['Super Admin', 'Admin'])) {
+        // Only Super Admin can update
+        if (!auth()->user()->hasRole('Super Admin')) {
             return response()->json([
-                'message' => 'Unauthorized. Only Admin+ can update design factors',
+                'message' => 'Unauthorized. Only Super Admin can update design factors',
             ], 403);
         }
 

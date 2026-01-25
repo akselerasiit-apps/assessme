@@ -9,9 +9,11 @@ use App\Models\DesignFactor;
 use App\Models\GamoObjective;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class AssessmentWebController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Display a listing of assessments
      */
@@ -106,19 +108,20 @@ class AssessmentWebController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'company_id' => 'required|exists:companies,id',
-            'assessment_type' => 'required|in:initial,periodic,specific',
-            'scope_type' => 'required|in:full,tailored',
             'assessment_period_start' => 'required|date',
             'assessment_period_end' => 'required|date|after:assessment_period_start',
             'design_factors' => 'required|array|min:1',
             'design_factors.*' => 'exists:design_factors,id',
             'gamo_objectives' => 'required|array|min:1',
             'gamo_objectives.*' => 'exists:gamo_objectives,id',
+            'target_levels' => 'required|array',
+            'target_levels.*' => 'required|integer|min:1|max:5',
         ], [
             'design_factors.required' => 'Please select at least one Design Factor.',
             'design_factors.min' => 'Please select at least one Design Factor.',
             'gamo_objectives.required' => 'Please select at least one GAMO Objective.',
             'gamo_objectives.min' => 'Please select at least one GAMO Objective.',
+            'target_levels.required' => 'Please set target levels for all selected GAMOs.',
         ]);
 
         DB::beginTransaction();
@@ -128,8 +131,8 @@ class AssessmentWebController extends Controller
             $nextNumber = $lastAssessment ? intval(substr($lastAssessment->code, 4)) + 1 : 1;
             $code = 'ASM-' . str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
 
-            // Calculate initial progress percentage (10% for having selections)
-            $initialProgress = 10;
+            // Initial progress is 0% (no questions answered yet)
+            $initialProgress = 0;
 
             // Create assessment
             $assessment = Assessment::create([
@@ -137,8 +140,8 @@ class AssessmentWebController extends Controller
                 'title' => $validated['title'],
                 'description' => $validated['description'] ?? null,
                 'company_id' => $validated['company_id'],
-                'assessment_type' => $validated['assessment_type'],
-                'scope_type' => $validated['scope_type'],
+                'assessment_type' => 'periodic', // Default value
+                'scope_type' => 'tailored', // Default value based on GAMO selection
                 'status' => 'draft',
                 'assessment_period_start' => $validated['assessment_period_start'],
                 'assessment_period_end' => $validated['assessment_period_end'],
@@ -160,12 +163,17 @@ class AssessmentWebController extends Controller
                 }
             }
 
-            // Attach GAMO Objectives
+            // Attach GAMO Objectives with target levels
             if (!empty($validated['gamo_objectives'])) {
+                $targetLevels = $validated['target_levels'] ?? [];
+                
                 foreach ($validated['gamo_objectives'] as $gamoId) {
+                    $targetLevel = $targetLevels[$gamoId] ?? 3; // Default to Level 3 if not specified
+                    
                     DB::table('assessment_gamo_selections')->insert([
                         'assessment_id' => $assessment->id,
                         'gamo_objective_id' => $gamoId,
+                        'target_maturity_level' => $targetLevel,
                         'is_selected' => true,
                         'selected_at' => now(),
                         'created_at' => now(),
@@ -201,12 +209,23 @@ class AssessmentWebController extends Controller
             'reviewedBy',
             'approvedBy',
             'designFactors',
-            'gamoObjectives',
+            'gamoObjectives' => function($query) {
+                $query->withPivot('target_maturity_level');
+            },
             'answers.question',
             'gamoScores.gamoObjective'
         ]);
         
-        return view('assessments.show', compact('assessment'));
+        // Get all GAMO objectives for comparison
+        $allGamos = \App\Models\GamoObjective::where('is_active', true)
+            ->orderBy('category')
+            ->orderBy('code')
+            ->get();
+        
+        // Get selected GAMO IDs
+        $selectedGamoIds = $assessment->gamoObjectives->pluck('id')->toArray();
+        
+        return view('assessments.show', compact('assessment', 'allGamos', 'selectedGamoIds'));
     }
 
     /**
@@ -220,7 +239,13 @@ class AssessmentWebController extends Controller
         $designFactors = DesignFactor::where('is_active', true)->orderBy('factor_order')->get();
         $gamoObjectives = GamoObjective::where('is_active', true)->orderBy('objective_order')->get();
         
-        $assessment->load(['company', 'designFactors', 'gamoObjectives']);
+        $assessment->load([
+            'company', 
+            'designFactors', 
+            'gamoObjectives' => function($query) {
+                $query->withPivot('target_maturity_level');
+            }
+        ]);
         
         return view('assessments.edit', compact('assessment', 'companies', 'designFactors', 'gamoObjectives'));
     }
@@ -244,6 +269,8 @@ class AssessmentWebController extends Controller
             'design_factors.*' => 'exists:design_factors,id',
             'gamo_objectives' => 'nullable|array',
             'gamo_objectives.*' => 'exists:gamo_objectives,id',
+            'target_levels' => 'nullable|array',
+            'target_levels.*' => 'integer|min:1|max:5',
         ]);
 
         DB::beginTransaction();
@@ -274,19 +301,24 @@ class AssessmentWebController extends Controller
                 }
             }
 
-            // Sync GAMO Objectives
+            // Sync GAMO Objectives with Target Levels
             DB::table('assessment_gamo_selections')
                 ->where('assessment_id', $assessment->id)
                 ->delete();
             
             if (!empty($validated['gamo_objectives'])) {
+                $targetLevels = $validated['target_levels'] ?? [];
+                
                 foreach ($validated['gamo_objectives'] as $gamoId) {
+                    $targetLevel = $targetLevels[$gamoId] ?? 3; // Default to level 3 if not provided
+                    
                     DB::table('assessment_gamo_selections')->insert([
                         'assessment_id' => $assessment->id,
                         'gamo_objective_id' => $gamoId,
+                        'target_maturity_level' => $targetLevel,
                         'is_selected' => true,
+                        'selected_at' => now(),
                         'created_at' => now(),
-                        'updated_at' => now(),
                     ]);
                 }
             }

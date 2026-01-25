@@ -178,7 +178,7 @@ class BandingController extends Controller
             return back()->with('error', 'Only draft bandings can be submitted.');
         }
 
-        if ($banding->initiated_by !== auth()->id() && !auth()->user()->hasAnyRole(['Super Admin', 'Admin'])) {
+        if ($banding->initiated_by !== auth()->id() && !auth()->user()->hasRole('Super Admin')) {
             return back()->with('error', 'You can only submit your own bandings.');
         }
 
@@ -199,12 +199,12 @@ class BandingController extends Controller
     }
 
     /**
-     * Display pending bandings for approval (Admin/Super Admin)
+     * Display pending bandings for approval (Super Admin only)
      */
     public function pendingApproval(Request $request)
     {
-        if (!auth()->user()->hasAnyRole(['Super Admin', 'Admin'])) {
-            abort(403, 'Only Admin and Super Admin can approve bandings.');
+        if (!auth()->user()->hasRole('Super Admin')) {
+            abort(403, 'Only Super Admin can approve bandings.');
         }
 
         $query = AssessmentBanding::with(['assessment.company', 'gamoObjective', 'initiatedBy'])

@@ -173,29 +173,69 @@
             <!-- GAMO Objectives -->
             <div class="card mb-3">
                 <div class="card-header">
-                    <h3 class="card-title">GAMO Objectives</h3>
-                    <div class="card-subtitle">Select GAMO objectives to assess</div>
+                    <h3 class="card-title">GAMO Objectives & Target Levels</h3>
+                    <div class="card-subtitle">Select GAMO objectives to assess and set target maturity level for each</div>
                 </div>
                 <div class="card-body">
+                    @php
+                        $currentTargetLevels = old('target_levels', 
+                            $assessment->gamoObjectives->pluck('pivot.target_maturity_level', 'id')->toArray()
+                        );
+                        $levelNames = [
+                            1 => 'Level 1 - Initial',
+                            2 => 'Level 2 - Managed', 
+                            3 => 'Level 3 - Established',
+                            4 => 'Level 4 - Predictable',
+                            5 => 'Level 5 - Optimizing'
+                        ];
+                    @endphp
                     @foreach($gamoObjectives->groupBy('category') as $category => $objectives)
                     <div class="mb-4">
                         <h4 class="mb-3">{{ $category }}</h4>
                         <div class="row g-3">
                             @foreach($objectives as $gamo)
-                            <div class="col-md-6">
-                                <label class="form-check">
-                                    <input 
-                                        type="checkbox" 
-                                        name="gamo_objectives[]" 
-                                        value="{{ $gamo->id }}"
-                                        class="form-check-input"
-                                        {{ in_array($gamo->id, old('gamo_objectives', $assessment->gamoObjectives->pluck('id')->toArray())) ? 'checked' : '' }}
-                                    >
-                                    <span class="form-check-label">
-                                        <span class="badge bg-blue-lt me-1">{{ $gamo->code }}</span>
-                                        {{ $gamo->name }}
-                                    </span>
-                                </label>
+                            <div class="col-12">
+                                <div class="card card-sm">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <label class="form-check mb-0">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        name="gamo_objectives[]" 
+                                                        value="{{ $gamo->id }}"
+                                                        class="form-check-input gamo-checkbox"
+                                                        data-gamo-id="{{ $gamo->id }}"
+                                                        {{ in_array($gamo->id, old('gamo_objectives', $assessment->gamoObjectives->pluck('id')->toArray())) ? 'checked' : '' }}
+                                                    >
+                                                </label>
+                                            </div>
+                                            <div class="col">
+                                                <div class="fw-bold">
+                                                    <span class="badge bg-blue-lt me-2">{{ $gamo->code }}</span>
+                                                    {{ $gamo->name }}
+                                                </div>
+                                                <div class="text-muted small mt-1">{{ $gamo->description }}</div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="target-level-group" id="target-group-{{ $gamo->id }}" style="display: {{ in_array($gamo->id, old('gamo_objectives', $assessment->gamoObjectives->pluck('id')->toArray())) ? 'block' : 'none' }}">
+                                                    <label class="form-label small mb-1">Target Maturity Level</label>
+                                                    <select 
+                                                        name="target_levels[{{ $gamo->id }}]" 
+                                                        class="form-select form-select-sm"
+                                                        id="target-{{ $gamo->id }}"
+                                                    >
+                                                        @foreach($levelNames as $level => $name)
+                                                        <option value="{{ $level }}" {{ ($currentTargetLevels[$gamo->id] ?? 3) == $level ? 'selected' : '' }}>
+                                                            {{ $name }}
+                                                        </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             @endforeach
                         </div>
@@ -220,3 +260,28 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle GAMO checkbox toggle to show/hide target level dropdown
+    const gamoCheckboxes = document.querySelectorAll('.gamo-checkbox');
+    
+    gamoCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const gamoId = this.getAttribute('data-gamo-id');
+            const targetGroup = document.getElementById('target-group-' + gamoId);
+            const targetSelect = document.getElementById('target-' + gamoId);
+            
+            if (this.checked) {
+                targetGroup.style.display = 'block';
+                targetSelect.required = true;
+            } else {
+                targetGroup.style.display = 'none';
+                targetSelect.required = false;
+            }
+        });
+    });
+});
+</script>
+@endpush

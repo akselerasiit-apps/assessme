@@ -13,11 +13,11 @@
             <div class="col-auto ms-auto d-print-none">
                 @can('create questions')
                 <div class="btn-group" role="group">
-                    <a href="{{ route('questions.create') }}" class="btn btn-primary">
-                        <i class="ti ti-plus me-2"></i>Add Question
+                    <a href="{{ route('master-data.questions.create') }}" class="btn btn-primary">
+                        <i class="ti ti-plus icon-size-lg me-2"></i>Add Question
                     </a>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkImportModal" title="Import questions from CSV">
-                        <i class="ti ti-file-import me-2"></i>Bulk Import
+                        <i class="ti ti-file-import icon-size-lg me-2"></i>Bulk Import
                     </button>
                 </div>
                 @endcan
@@ -122,7 +122,7 @@
                 <h5 class="card-title mb-0">Filters & Search</h5>
             </div>
             <div class="card-body border-bottom">
-                <form method="GET" action="{{ route('questions.index') }}" class="row g-2">
+                <form method="GET" action="{{ route('master-data.questions.index') }}" class="row g-2">
                     <div class="col-md-4">
                         <input type="text" name="search" class="form-control" placeholder="Search questions, codes..." value="{{ request('search') }}">
                     </div>
@@ -174,9 +174,7 @@
                             <th style="width: 80px;">Code</th>
                             <th style="width: 100px;">GAMO</th>
                             <th>Question</th>
-                            <th style="width: 100px;">Type</th>
                             <th style="width: 60px;">Level</th>
-                            <th style="width: 50px;">Order</th>
                             <th style="width: 80px;">Status</th>
                             <th style="width: 90px;" class="text-center">Actions</th>
                         </tr>
@@ -213,15 +211,7 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <span class="badge bg-azure-lt">
-                                        {{ ucfirst(str_replace('_', ' ', $question->question_type)) }}
-                                    </span>
-                                </td>
-                                <td>
                                     <span class="badge badge-outline text-cyan">L{{ $question->maturity_level }}</span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="text-muted fw-semibold">{{ $question->question_order ?? '—' }}</span>
                                 </td>
                                 <td>
                                     <form action="{{ route('master-data.questions.toggle-active', $question) }}" method="POST" class="d-inline">
@@ -236,11 +226,11 @@
                                 <td>
                                     <div class="btn-list flex-nowrap">
                                         <a href="{{ route('master-data.questions.show', $question) }}" class="btn btn-sm btn-icon btn-ghost-info" title="View">
-                                            <i class="ti ti-eye"></i>
+                                            <i class="ti ti-eye icon-size-md"></i>
                                         </a>
                                         @can('update questions')
                                         <a href="{{ route('master-data.questions.edit', $question) }}" class="btn btn-sm btn-icon btn-ghost-primary" title="Edit">
-                                            <i class="ti ti-edit"></i>
+                                            <i class="ti ti-edit icon-size-md"></i>
                                         </a>
                                         @endcan
                                         @can('delete questions')
@@ -249,7 +239,7 @@
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-icon btn-ghost-danger" title="Delete">
-                                                <i class="ti ti-trash"></i>
+                                                <i class="ti ti-trash icon-size-md"></i>
                                             </button>
                                         </form>
                                         @endcan
@@ -261,13 +251,13 @@
                                 <td colspan="8" class="py-8">
                                     <div class="text-center">
                                         <div class="mb-3">
-                                            <i class="ti ti-help-circle text-muted" style="font-size: 3rem;"></i>
+                                            <i class="ti ti-help-circle text-muted icon-size-xxl"></i>
                                         </div>
                                         <h4 class="text-muted mb-1">No questions found</h4>
                                         <p class="text-muted mb-3">Create your first question or adjust your filters</p>
                                         @can('create questions')
                                         <a href="{{ route('master-data.questions.create') }}" class="btn btn-primary">
-                                            <i class="ti ti-plus me-2"></i>Create Question
+                                            <i class="ti ti-plus icon-size-lg me-2"></i>Create Question
                                         </a>
                                         @endcan
                                     </div>

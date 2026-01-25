@@ -10,9 +10,12 @@ use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AssessmentReportExport;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ReportWebController extends Controller
 {
+    use AuthorizesRequests;
+    
     /**
      * Display reports dashboard
      */

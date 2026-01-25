@@ -54,12 +54,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // GAMO Objective routes
     Route::get('/gamo-objectives/category/{category}', [GamoObjectiveController::class, 'byCategory']);
+    Route::get('/gamo-objectives/{id}/activities-count', [GamoObjectiveController::class, 'getActivitiesCount']);
     Route::apiResource('gamo-objectives', GamoObjectiveController::class);
 
     // Question routes
-    Route::get('/questions/gamo-objective/{gamoObjectiveId}', [QuestionController::class, 'byGamoObjective']);
-    Route::post('/questions/bulk-import', [QuestionController::class, 'bulkImport']);
-    Route::patch('/questions/{id}/toggle-active', [QuestionController::class, 'toggleActive']);
+    Route::get('/questions/gamo-objective/{gamoObjectiveId}', [QuestionController::class, 'byGamoObjective'])->name('api.questions.by-gamo-objective');
+    Route::post('/questions/bulk-import', [QuestionController::class, 'bulkImport'])->name('api.questions.bulk-import');
+    Route::patch('/questions/{id}/toggle-active', [QuestionController::class, 'toggleActive'])->name('api.questions.toggle-active');
     Route::apiResource('questions', QuestionController::class);
 
     // Assessment routes

@@ -85,24 +85,28 @@ class QuestionWebController extends Controller
         $validated = $request->validate([
             'code' => 'required|string|max:50|unique:gamo_questions,code',
             'gamo_objective_id' => 'required|exists:gamo_objectives,id',
-            'question_text' => 'required|string',
+            'question_text_en' => 'required|string',
+            'question_text_id' => 'required|string',
             'guidance' => 'nullable|string',
             'evidence_requirement' => 'nullable|string',
-            'question_type' => 'required|in:text,rating,multiple_choice,yes_no,evidence',
             'maturity_level' => 'required|integer|min:1|max:5',
             'required' => 'boolean',
-            'question_order' => 'nullable|integer|min:1',
             'is_active' => 'boolean',
         ]);
 
+        // Merge EN and ID into single field with separator
+        $validated['question_text'] = trim($validated['question_text_en']) . ' | ' . trim($validated['question_text_id']);
+        unset($validated['question_text_en'], $validated['question_text_id']);
+
         // Set defaults
+        $validated['question_type'] = 'rating'; // Default to rating
         $validated['required'] = $request->has('required');
         $validated['is_active'] = $request->has('is_active') ? true : ($request->filled('is_active') ? $request->is_active : true);
 
         $question = GamoQuestion::create($validated);
 
         return redirect()
-            ->route('questions.index')
+            ->route('master-data.questions.index')
             ->with('success', 'Question created successfully!');
     }
 
@@ -144,24 +148,28 @@ class QuestionWebController extends Controller
         $validated = $request->validate([
             'code' => 'required|string|max:50|unique:gamo_questions,code,' . $question->id,
             'gamo_objective_id' => 'required|exists:gamo_objectives,id',
-            'question_text' => 'required|string',
+            'question_text_en' => 'required|string',
+            'question_text_id' => 'required|string',
             'guidance' => 'nullable|string',
             'evidence_requirement' => 'nullable|string',
-            'question_type' => 'required|in:text,rating,multiple_choice,yes_no,evidence',
             'maturity_level' => 'required|integer|min:1|max:5',
             'required' => 'boolean',
-            'question_order' => 'nullable|integer|min:1',
             'is_active' => 'boolean',
         ]);
 
+        // Merge EN and ID into single field with separator
+        $validated['question_text'] = trim($validated['question_text_en']) . ' | ' . trim($validated['question_text_id']);
+        unset($validated['question_text_en'], $validated['question_text_id']);
+
         // Set defaults
+        $validated['question_type'] = 'rating'; // Default to rating
         $validated['required'] = $request->has('required');
         $validated['is_active'] = $request->has('is_active') ? true : ($request->filled('is_active') ? $request->is_active : true);
 
         $question->update($validated);
 
         return redirect()
-            ->route('questions.index')
+            ->route('master-data.questions.index')
             ->with('success', 'Question updated successfully!');
     }
 
@@ -182,7 +190,7 @@ class QuestionWebController extends Controller
         $question->delete();
 
         return redirect()
-            ->route('questions.index')
+            ->route('master-data.questions.index')
             ->with('success', 'Question deleted successfully!');
     }
 

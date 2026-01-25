@@ -11,11 +11,11 @@
                 <h2 class="page-title">Edit Question</h2>
             </div>
             <div class="col-auto ms-auto d-print-none">
-                <a href="{{ route('questions.show', $question) }}" class="btn btn-ghost-secondary me-2">
-                    <i class="ti ti-eye me-2"></i>View
+                <a href="{{ route('master-data.questions.show', $question) }}" class="btn btn-ghost-secondary me-2">
+                    <i class="ti ti-eye icon-size-md me-2"></i>View
                 </a>
-                <a href="{{ route('questions.index') }}" class="btn btn-ghost-secondary">
-                    <i class="ti ti-arrow-left me-2"></i>Back to List
+                <a href="{{ route('master-data.questions.index') }}" class="btn btn-ghost-secondary">
+                    <i class="ti ti-arrow-left icon-size-md me-2"></i>Back to List
                 </a>
             </div>
         </div>
@@ -24,7 +24,7 @@
 
 <div class="page-body">
     <div class="container-xl">
-        <form action="{{ route('questions.update', $question) }}" method="POST">
+        <form action="{{ route('master-data.questions.update', $question) }}" method="POST">
             @csrf
             @method('PUT')
             
@@ -35,24 +35,13 @@
                             <h3 class="card-title">Question Details</h3>
                         </div>
                         <div class="card-body">
-                            <!-- Code -->
-                            <div class="mb-3">
-                                <label class="form-label required">Question Code</label>
-                                <input type="text" name="code" class="form-control @error('code') is-invalid @enderror" 
-                                       value="{{ old('code', $question->code) }}" required>
-                                <small class="form-hint">Unique identifier for this question</small>
-                                @error('code')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
                             <!-- GAMO Objective -->
                             <div class="mb-3">
                                 <label class="form-label required">GAMO Objective</label>
-                                <select name="gamo_objective_id" class="form-select @error('gamo_objective_id') is-invalid @enderror" required>
-                                    <option value="">Select GAMO Objective...</option>
+                                <select name="gamo_objective_id" id="gamoObjectiveSelect" class="form-select @error('gamo_objective_id') is-invalid @enderror" required>
+                                    <option value="" data-code="">Select GAMO Objective...</option>
                                     @foreach($gamoObjectives as $gamo)
-                                        <option value="{{ $gamo->id }}" 
+                                        <option value="{{ $gamo->id }}" data-code="{{ $gamo->code }}"
                                                 {{ old('gamo_objective_id', $question->gamo_objective_id) == $gamo->id ? 'selected' : '' }}>
                                             [{{ $gamo->category }}] {{ $gamo->code }} - {{ $gamo->name }}
                                         </option>
@@ -63,13 +52,39 @@
                                 @enderror
                             </div>
 
-                            <!-- Question Text -->
+                            <!-- Code -->
                             <div class="mb-3">
-                                <label class="form-label required">Question Text</label>
-                                <textarea name="question_text" rows="4" 
-                                          class="form-control @error('question_text') is-invalid @enderror" 
-                                          required>{{ old('question_text', $question->question_text) }}</textarea>
-                                @error('question_text')
+                                <label class="form-label required">Question Code</label>
+                                <input type="text" name="code" id="questionCodeInput" class="form-control @error('code') is-invalid @enderror" 
+                                       value="{{ old('code', $question->code) }}" required>
+                                <small class="form-hint">Based on GAMO Objective and Level</small>
+                                @error('code')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <!-- Question Text English -->
+                            <div class="mb-3">
+                                <label class="form-label required">
+                                    <i class="ti ti-language me-1"></i>Question Text (English)
+                                </label>
+                                <textarea name="question_text_en" rows="3" 
+                                          class="form-control @error('question_text_en') is-invalid @enderror" 
+                                          required>{{ old('question_text_en', explode(' | ', $question->question_text)[0] ?? '') }}</textarea>
+                                @error('question_text_en')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <!-- Question Text Indonesian -->
+                            <div class="mb-3">
+                                <label class="form-label required">
+                                    <i class="ti ti-language me-1"></i>Question Text (Bahasa Indonesia)
+                                </label>
+                                <textarea name="question_text_id" rows="3" 
+                                          class="form-control @error('question_text_id') is-invalid @enderror" 
+                                          required>{{ old('question_text_id', explode(' | ', $question->question_text)[1] ?? '') }}</textarea>
+                                @error('question_text_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -106,26 +121,10 @@
                             <h3 class="card-title">Configuration</h3>
                         </div>
                         <div class="card-body">
-                            <!-- Question Type -->
-                            <div class="mb-3">
-                                <label class="form-label required">Question Type</label>
-                                <select name="question_type" class="form-select @error('question_type') is-invalid @enderror" required>
-                                    <option value="">Select type...</option>
-                                    <option value="text" {{ old('question_type', $question->question_type) == 'text' ? 'selected' : '' }}>Text (Open-ended)</option>
-                                    <option value="rating" {{ old('question_type', $question->question_type) == 'rating' ? 'selected' : '' }}>Rating (Scale)</option>
-                                    <option value="multiple_choice" {{ old('question_type', $question->question_type) == 'multiple_choice' ? 'selected' : '' }}>Multiple Choice</option>
-                                    <option value="yes_no" {{ old('question_type', $question->question_type) == 'yes_no' ? 'selected' : '' }}>Yes/No</option>
-                                    <option value="evidence" {{ old('question_type', $question->question_type) == 'evidence' ? 'selected' : '' }}>Evidence Upload</option>
-                                </select>
-                                @error('question_type')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
                             <!-- Maturity Level -->
                             <div class="mb-3">
                                 <label class="form-label required">Maturity Level</label>
-                                <select name="maturity_level" class="form-select @error('maturity_level') is-invalid @enderror" required>
+                                <select name="maturity_level" id="maturityLevelSelect" class="form-select @error('maturity_level') is-invalid @enderror" required>
                                     <option value="">Select level...</option>
                                     @foreach($maturityLevels as $level)
                                         <option value="{{ $level }}" {{ old('maturity_level', $question->maturity_level) == $level ? 'selected' : '' }}>
@@ -134,18 +133,6 @@
                                     @endforeach
                                 </select>
                                 @error('maturity_level')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <!-- Question Order -->
-                            <div class="mb-3">
-                                <label class="form-label">Question Order <span class="form-label-description">Optional</span></label>
-                                <input type="number" name="question_order" min="1" 
-                                       class="form-control @error('question_order') is-invalid @enderror" 
-                                       value="{{ old('question_order', $question->question_order) }}">
-                                <small class="form-hint">Display order within maturity level</small>
-                                @error('question_order')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -209,3 +196,34 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    const gamoSelect = $('#gamoObjectiveSelect');
+    const codeInput = $('#questionCodeInput');
+    const levelSelect = $('#maturityLevelSelect');
+    
+    // Auto-update question code when GAMO or Level changes
+    function updateQuestionCode() {
+        const gamoCode = gamoSelect.find(':selected').data('code');
+        const level = levelSelect.val();
+        
+        if (gamoCode && level) {
+            const currentValue = codeInput.val();
+            const currentParts = currentValue.split('.');
+            
+            // Format: EDM01.02.001 (GAMO.Level.Sequence)
+            if (currentParts.length >= 3) {
+                // Keep the sequence number
+                const newCode = gamoCode + '.' + String(level).padStart(2, '0') + '.' + currentParts[2];
+                codeInput.val(newCode);
+            }
+        }
+    }
+    
+    gamoSelect.on('change', updateQuestionCode);
+    levelSelect.on('change', updateQuestionCode);
+});
+</script>
+@endpush

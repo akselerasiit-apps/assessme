@@ -6,24 +6,25 @@ use App\Http\Controllers\Controller;
 use App\Models\Assessment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ReviewApprovalController extends Controller
 {
+    use AuthorizesRequests;
     /**
-     * Display assessments pending review (Admin/Manager dashboard)
+     * Display assessments pending review (Super Admin dashboard)
      * Shows assessments with status = 'completed'
      */
     public function pendingReview(Request $request)
     {
         $this->authorize('viewAny', Assessment::class);
 
+        if (!auth()->user()->hasRole('Super Admin')) {
+            abort(403, 'Only Super Admin can review assessments');
+        }
+
         $query = Assessment::with(['company', 'createdBy', 'reviewedBy'])
             ->where('status', 'completed');
-
-        // Filter by company (for Managers)
-        if (auth()->user()->hasRole('Manager')) {
-            $query->where('company_id', auth()->user()->company_id);
-        }
 
         // Search filter
         if ($request->filled('search')) {
@@ -34,8 +35,8 @@ class ReviewApprovalController extends Controller
             });
         }
 
-        // Company filter (for Admin)
-        if ($request->filled('company_id') && auth()->user()->hasAnyRole(['Super Admin', 'Admin'])) {
+        // Company filter
+        if ($request->filled('company_id')) {
             $query->where('company_id', $request->company_id);
         }
 
@@ -139,7 +140,7 @@ class ReviewApprovalController extends Controller
 
                 return redirect()
                     ->route('review-approval.pending-review')
-                    ->with('success', 'Assessment reviewed successfully. Waiting for Super Admin approval.');
+                    ->with('success', 'Assessment reviewed successfully. Ready for final approval.');
             } else {
                 // Send back for revision
                 $assessment->update([

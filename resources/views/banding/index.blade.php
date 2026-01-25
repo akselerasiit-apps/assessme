@@ -192,7 +192,7 @@
                                 <a href="{{ route('banding.show', [$assessment, $banding]) }}" class="btn btn-sm btn-outline-secondary">
                                     View
                                 </a>
-                                @if($banding->status === 'draft' && ($banding->initiated_by === auth()->id() || auth()->user()->hasAnyRole(['Super Admin', 'Admin'])))
+                                @if($banding->status === 'draft' && ($banding->initiated_by === auth()->id() || auth()->user()->hasRole('Super Admin')))
                                 <form action="{{ route('banding.submit', [$assessment, $banding]) }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-primary" onclick="return confirm('Submit this banding for approval?')">

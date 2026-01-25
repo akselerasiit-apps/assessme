@@ -65,7 +65,7 @@ class UserSeeder extends Seeder
         );
         $assessor->assignRole('Assessor');
 
-        // 5. Viewer User
+        // 3. Viewer User
         $viewer = User::firstOrCreate(
             ['email' => 'viewer@assessme.com'],
             [
@@ -84,8 +84,7 @@ class UserSeeder extends Seeder
             ['Email', 'Role', 'Name'],
             [
                 ['superadmin@assessme.com', 'Super Admin', 'Super Administrator'],
-                ['admin@assessme.com', 'Admin', 'System Administrator'],
-                ['manager@assessme.com', 'Manager', 'Assessment Manager'],
+
                 ['assessor@assessme.com', 'Assessor', 'IT Assessor'],
                 ['viewer@assessme.com', 'Viewer', 'Report Viewer'],
             ]

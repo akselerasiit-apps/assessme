@@ -12,12 +12,12 @@
             </div>
             <div class="col-auto ms-auto d-print-none">
                 @can('update questions')
-                <a href="{{ route('questions.edit', $question) }}" class="btn btn-primary">
-                    <i class="ti ti-edit me-2"></i>Edit
+                <a href="{{ route('master-data.questions.edit', $question) }}" class="btn btn-primary">
+                    <i class="ti ti-edit icon-size-lg me-2"></i>Edit
                 </a>
                 @endcan
-                <a href="{{ route('questions.index') }}" class="btn btn-ghost-secondary">
-                    <i class="ti ti-arrow-left me-2"></i>Back to List
+                <a href="{{ route('master-data.questions.index') }}" class="btn btn-ghost-secondary">
+                    <i class="ti ti-arrow-left icon-size-md me-2"></i>Back to List
                 </a>
             </div>
         </div>
@@ -71,11 +71,23 @@
 
                         <hr>
 
-                        <!-- Question Text -->
+                        <!-- Question Text English -->
                         <div class="mb-4">
-                            <label class="form-label text-muted">Question Text:</label>
-                            <div class="fs-4 fw-bold">
-                                {{ $question->question_text }}
+                            <label class="form-label text-muted">
+                                <i class="ti ti-language me-1"></i>Question Text (English):
+                            </label>
+                            <div class="fs-5 fw-semibold">
+                                {{ explode(' | ', $question->question_text)[0] ?? $question->question_text }}
+                            </div>
+                        </div>
+
+                        <!-- Question Text Indonesian -->
+                        <div class="mb-4">
+                            <label class="form-label text-muted">
+                                <i class="ti ti-language me-1"></i>Question Text (Bahasa Indonesia):
+                            </label>
+                            <div class="fs-5 fw-semibold">
+                                {{ explode(' | ', $question->question_text)[1] ?? '-' }}
                             </div>
                         </div>
 
@@ -215,7 +227,7 @@
                                 <i class="ti ti-edit me-2"></i>Edit Question
                             </a>
                             
-                            <form action="{{ route('questions.toggle-active', $question) }}" method="POST">
+                            <form action="{{ route('master-data.questions.toggle-active', $question) }}" method="POST">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="btn btn-{{ $question->is_active ? 'warning' : 'success' }} w-100">
@@ -226,7 +238,7 @@
                             @endcan
                             
                             @can('delete questions')
-                            <form action="{{ route('questions.destroy', $question) }}" method="POST" 
+                            <form action="{{ route('master-data.questions.destroy', $question) }}" method="POST" 
                                   onsubmit="return confirm('Are you sure you want to delete this question? This action cannot be undone.');">
                                 @csrf
                                 @method('DELETE')

@@ -11,7 +11,7 @@
         </div>
         <div class="col-auto ms-auto">
             <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary">
-                <i class="ti ti-arrow-left me-1"></i>
+                <i class="ti ti-arrow-left icon-size-md me-1"></i>
                 Back to Reports
             </a>
         </div>

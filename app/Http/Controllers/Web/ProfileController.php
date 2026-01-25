@@ -41,7 +41,7 @@ class ProfileController extends Controller
     public function edit()
     {
         $user = auth()->user()->load('company');
-        $companies = \App\Models\Company::where('is_active', true)->orderBy('name')->get();
+        $companies = \App\Models\Company::orderBy('name')->get();
         
         return view('profile.edit', compact('user', 'companies'));
     }

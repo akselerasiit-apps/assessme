@@ -18,94 +18,77 @@
 @endsection
 
 @section('content')
-<!-- Stats Cards -->
-<div class="row row-cards mb-3">
-    <div class="col-sm-6 col-lg-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="subheader">Total</div>
-                </div>
-                <div class="h1 mb-3">{{ $stats['total'] }}</div>
-                <div class="d-flex mb-2">
-                    <div>All assessments</div>
-                </div>
-            </div>
-        </div>
+<!-- Status Filter Tabs -->
+<div class="card mb-3">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a href="{{ route('assessments.my') }}" class="nav-link {{ !request('status') ? 'active' : '' }}">
+                    <i class="ti ti-list me-1"></i>All
+                    <span class="badge bg-secondary ms-1">{{ $stats['total'] }}</span>
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a href="{{ route('assessments.my', ['status' => 'draft']) }}" class="nav-link {{ request('status') == 'draft' ? 'active' : '' }}">
+                    <i class="ti ti-file me-1"></i>Draft
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a href="{{ route('assessments.my', ['status' => 'in_progress']) }}" class="nav-link {{ request('status') == 'in_progress' ? 'active' : '' }}">
+                    <i class="ti ti-progress me-1"></i>In Progress
+                    <span class="badge text-white bg-blue ms-1">{{ $stats['in_progress'] }}</span>
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a href="{{ route('assessments.my', ['status' => 'completed']) }}" class="nav-link {{ request('status') == 'completed' ? 'active' : '' }}">
+                    <i class="ti ti-circle-check me-1"></i>Completed
+                    <span class="badge text-white bg-success ms-1">{{ $stats['completed'] }}</span>
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a href="{{ route('assessments.my', ['status' => 'reviewed']) }}" class="nav-link {{ request('status') == 'reviewed' ? 'active' : '' }}">
+                    <i class="ti ti-eye-check me-1"></i>Reviewed
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a href="{{ route('assessments.my', ['status' => 'approved']) }}" class="nav-link {{ request('status') == 'approved' ? 'active' : '' }}">
+                    <i class="ti ti-rosette me-1"></i>Approved
+                    <span class="badge text-white bg-purple ms-1">{{ $stats['approved'] }}</span>
+                </a>
+            </li>
+        </ul>
     </div>
-    
-    <div class="col-sm-6 col-lg-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="subheader">In Progress</div>
-                </div>
-                <div class="h1 mb-3">{{ $stats['in_progress'] }}</div>
-                <div class="d-flex mb-2">
-                    <div>Active assessments</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-sm-6 col-lg-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="subheader">Completed</div>
-                </div>
-                <div class="h1 mb-3">{{ $stats['completed'] }}</div>
-                <div class="d-flex mb-2">
-                    <div>Finished assessments</div>
+</div>
+
+<!-- Search Filter -->
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="GET" action="{{ route('assessments.my') }}" class="row g-3">
+            <input type="hidden" name="status" value="{{ request('status') }}">
+            
+            <div class="col-md-9">
+                <div class="input-icon">
+                    <span class="input-icon-addon">
+                        <i class="ti ti-search"></i>
+                    </span>
+                    <input type="text" name="search" class="form-control" placeholder="Search by title or code..." value="{{ request('search') }}">
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <div class="col-sm-6 col-lg-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="subheader">Approved</div>
-                </div>
-                <div class="h1 mb-3">{{ $stats['approved'] }}</div>
-                <div class="d-flex mb-2">
-                    <div>Final approved</div>
-                </div>
+            
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="ti ti-filter me-1"></i>Filter
+                </button>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
 <!-- Assessments Table -->
 <div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Your Assessments</h3>
-        <div class="card-actions">
-            <form method="GET" action="{{ route('assessments.my-assessments') }}" class="d-flex gap-2">
-                <input 
-                    type="search" 
-                    name="search" 
-                    class="form-control form-control-sm" 
-                    placeholder="Search..." 
-                    value="{{ request('search') }}"
-                    style="width: 200px;"
-                >
-                <select name="status" class="form-select form-select-sm" style="width: 150px;" onchange="this.form.submit()">
-                    <option value="">All Status</option>
-                    <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
-                    <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                    <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
-                    <option value="reviewed" {{ request('status') == 'reviewed' ? 'selected' : '' }}>Reviewed</option>
-                    <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
-                </select>
-            </form>
-        </div>
-    </div>
-    
     @if($assessments->count() > 0)
     <div class="table-responsive">
-        <table class="table table-vcenter card-table">
+        <table class="table table-vcenter card-table table-striped">
             <thead>
                 <tr>
                     <th>Assessment</th>
@@ -114,7 +97,7 @@
                     <th>Progress</th>
                     <th>Status</th>
                     <th>Created</th>
-                    <th>Actions</th>
+                    <th class="w-1">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -128,40 +111,42 @@
                             <small class="text-muted">{{ $assessment->code }}</small>
                         </div>
                     </td>
-                    <td>{{ $assessment->company }}</td>
                     <td>
-                        <span class="badge bg-blue-lt">
-                            {{ ucfirst($assessment->assessment_type) }}
+                        <div class="text-muted">{{ $assessment->company->name ?? 'N/A' }}</div>
+                    </td>
+                    <td>
+                        <span class="badge bg-azure-lt">
+                            {{ ucfirst(str_replace('_', ' ', $assessment->assessment_type)) }}
                         </span>
                     </td>
                     <td>
-                        <div class="row align-items-center">
+                        <div class="row g-2 align-items-center">
                             <div class="col-auto">
                                 <div class="progress" style="width: 100px; height: 8px;">
                                     <div 
-                                        class="progress-bar" 
-                                        style="width: {{ $assessment->completion_percentage ?? 0 }}%"
+                                        class="progress-bar bg-primary" 
+                                        style="width: {{ $assessment->progress_percentage ?? 0 }}%"
                                         role="progressbar"
                                     ></div>
                                 </div>
                             </div>
-                            <div class="col-auto">
-                                <span class="text-muted">{{ $assessment->completion_percentage ?? 0 }}%</span>
+                            <div class="col-auto ps-0">
+                                <small class="text-muted">{{ $assessment->progress_percentage ?? 0 }}%</small>
                             </div>
                         </div>
                     </td>
                     <td>
-                        @if($assessment->status == 'draft')
-                            <span class="badge bg-secondary">Draft</span>
-                        @elseif($assessment->status == 'in_progress')
-                            <span class="badge bg-info">In Progress</span>
-                        @elseif($assessment->status == 'completed')
-                            <span class="badge bg-success">Completed</span>
-                        @elseif($assessment->status == 'reviewed')
-                            <span class="badge bg-warning">Reviewed</span>
-                        @elseif($assessment->status == 'approved')
-                            <span class="badge bg-primary">Approved</span>
-                        @endif
+                        @php
+                            $statusColors = [
+                                'draft' => 'secondary',
+                                'in_progress' => 'blue',
+                                'completed' => 'success',
+                                'reviewed' => 'info',
+                                'approved' => 'purple',
+                            ];
+                            $color = $statusColors[$assessment->status] ?? 'secondary';
+                        @endphp
+                        <span class="badge bg-{{ $color }}">{{ ucfirst(str_replace('_', ' ', $assessment->status)) }}</span>
                     </td>
                     <td>{{ $assessment->created_at->format('d M Y') }}</td>
                     <td>
@@ -172,27 +157,33 @@
                             
                             @can('update', $assessment)
                             @if(in_array($assessment->status, ['draft', 'in_progress']))
-                            <a href="{{ route('assessments.answer', $assessment) }}" class="btn btn-sm btn-outline-info">
+                            <a href="{{ route('assessments.edit', $assessment) }}" class="btn btn-sm btn-outline-info">
                                 <i class="ti ti-pencil"></i>
                             </a>
                             @endif
                             @endcan
                             
                             @can('delete', $assessment)
-                            <form 
-                                action="{{ route('assessments.destroy', $assessment) }}" 
-                                method="POST" 
-                                class="d-inline"
-                                onsubmit="return confirm('Delete this assessment?')"
-                            >
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                    <i class="ti ti-trash"></i>
-                                </button>
-                            </form>
+                            @if($assessment->status === 'draft')
+                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                onclick="if(confirm('Are you sure you want to delete this assessment?')) { document.getElementById('delete-form-{{ $assessment->id }}').submit(); }">
+                                <i class="ti ti-trash"></i>
+                            </button>
+                            @endif
                             @endcan
                         </div>
+                        
+                        @can('delete', $assessment)
+                        @if($assessment->status === 'draft')
+                        <form id="delete-form-{{ $assessment->id }}" 
+                            action="{{ route('assessments.destroy', $assessment) }}" 
+                            method="POST" 
+                            class="d-none">
+                            @csrf
+                            @method('DELETE')
+                        </form>
+                        @endif
+                        @endcan
                     </td>
                 </tr>
                 @endforeach

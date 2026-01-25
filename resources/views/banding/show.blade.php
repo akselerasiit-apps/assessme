@@ -64,7 +64,7 @@
                     </div>
                     @elseif($banding->status === 'submitted')
                     <div class="alert alert-warning mb-0">
-                        This banding has been submitted and is waiting for admin review.
+                        This banding has been submitted and is waiting for Super Admin review.
                     </div>
                     @elseif($banding->status === 'approved')
                     <div class="alert alert-success mb-0">
@@ -207,8 +207,8 @@
                 </div>
             </div>
 
-            <!-- Approval Form (Admin/Super Admin only) -->
-            @if($banding->status === 'submitted' && auth()->user()->hasAnyRole(['Super Admin', 'Admin']))
+            <!-- Approval Form (Super Admin only) -->
+            @if($banding->status === 'submitted' && auth()->user()->hasRole('Super Admin'))
             <div class="card">
                 <div class="card-header bg-warning-lt">
                     <h3 class="card-title">Review & Approval</h3>

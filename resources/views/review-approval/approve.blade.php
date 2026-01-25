@@ -172,7 +172,7 @@
                                 Super Admin Action Required
                             </h4>
                             <div class="text-muted">
-                                This assessment has been reviewed by {{ $assessment->reviewedBy?->name ?? 'a reviewer' }}. 
+                                This assessment has been reviewed by Super Admin. 
                                 As Super Admin, you have the final authority to approve or reject this assessment.
                             </div>
                         </div>

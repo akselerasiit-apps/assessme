@@ -28,7 +28,7 @@
             <div class="col-md-3">
                 <select name="company_id" class="form-select">
                     <option value="">All Companies</option>
-                    @foreach(\App\Models\Company::where('is_active', true)->get() as $company)
+                    @foreach(\App\Models\Company::orderBy('name')->get() as $company)
                     <option value="{{ $company->id }}" {{ request('company_id') == $company->id ? 'selected' : '' }}>
                         {{ $company->name }}
                     </option>

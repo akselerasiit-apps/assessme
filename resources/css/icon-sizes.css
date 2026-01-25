@@ -1,0 +1,322 @@
+/* ============================================
+   ICON SIZE STANDARDS - AssessMe Application
+   Created: 7 Januari 2026
+   Purpose: Standardized icon sizing for better UX
+   ============================================ */
+
+/* ------------------------------------------
+   SIZE CLASSES
+   ------------------------------------------ */
+
+/* Small icons - Status, badges, inline text */
+.icon-size-sm {
+    font-size: 1rem !important;
+    width: 1rem;
+    height: 1rem;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+/* Medium icons - Action buttons, navigation (RECOMMENDED DEFAULT) */
+.icon-size-md {
+    font-size: 1.25rem !important;
+    width: 1.25rem;
+    height: 1.25rem;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+/* Large icons - Primary CTAs, main actions */
+.icon-size-lg {
+    font-size: 1.5rem !important;
+    width: 1.5rem;
+    height: 1.5rem;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+/* Extra large icons - File previews, empty states */
+.icon-size-xl {
+    font-size: 2.5rem !important;
+    width: 2.5rem;
+    height: 2.5rem;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+/* Huge icons - Hero sections, major illustrations */
+.icon-size-xxl {
+    font-size: 4rem !important;
+    width: 4rem;
+    height: 4rem;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+/* ------------------------------------------
+   BUTTON ICON IMPROVEMENTS
+   ------------------------------------------ */
+
+/* Better icon spacing in buttons */
+.btn .ti {
+    vertical-align: middle;
+    line-height: 1;
+}
+
+/* Icon before text in buttons */
+.btn .ti.me-1,
+.btn .ti.me-2 {
+    margin-right: 0.5rem;
+}
+
+/* Icon after text in buttons */
+.btn .ti.ms-1,
+.btn .ti.ms-2 {
+    margin-left: 0.5rem;
+}
+
+/* Icon-only buttons - perfect centering */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    min-width: 2.25rem;
+    min-height: 2.25rem;
+}
+
+.btn-icon.btn-sm {
+    min-width: 2rem;
+    min-height: 2rem;
+    padding: 0.375rem;
+}
+
+.btn-icon .ti {
+    margin: 0 !important;
+}
+
+/* ------------------------------------------
+   TABLE ACTION BUTTONS
+   ------------------------------------------ */
+
+/* Action buttons in tables */
+.table .btn-icon {
+    margin: 0 0.125rem;
+}
+
+.table .btn-group .btn-icon {
+    margin: 0;
+}
+
+/* Consistent sizing for table actions */
+.table-actions .btn .ti {
+    font-size: 1.25rem;
+}
+
+/* ------------------------------------------
+   DROPDOWN MENU ICONS
+   ------------------------------------------ */
+
+.dropdown-menu .dropdown-item .ti {
+    font-size: 1.125rem;
+    width: 1.125rem;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+/* ------------------------------------------
+   CARD HEADER ACTIONS
+   ------------------------------------------ */
+
+.card-header .btn .ti {
+    font-size: 1.25rem;
+}
+
+.card-header .btn-primary .ti,
+.card-header .btn-success .ti {
+    font-size: 1.5rem;
+}
+
+/* ------------------------------------------
+   NAVIGATION & BREADCRUMBS
+   ------------------------------------------ */
+
+.breadcrumb-item .ti {
+    font-size: 1rem;
+    margin-right: 0.25rem;
+}
+
+.page-header .btn .ti {
+    font-size: 1.5rem;
+}
+
+/* ------------------------------------------
+   ALERTS & NOTIFICATIONS
+   ------------------------------------------ */
+
+.alert .ti {
+    font-size: 1.25rem;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+.alert-icon {
+    font-size: 1.5rem !important;
+}
+
+/* ------------------------------------------
+   STATUS BADGES
+   ------------------------------------------ */
+
+.badge .ti {
+    font-size: 0.875rem;
+    margin-right: 0.25rem;
+    vertical-align: middle;
+}
+
+/* ------------------------------------------
+   FILE & MEDIA ICONS
+   ------------------------------------------ */
+
+.file-icon {
+    font-size: 3rem !important;
+    line-height: 1;
+}
+
+.media-icon {
+    font-size: 2.5rem !important;
+    line-height: 1;
+}
+
+/* ------------------------------------------
+   EMPTY STATES
+   ------------------------------------------ */
+
+.empty-state .ti,
+.empty .ti {
+    font-size: 4rem !important;
+    opacity: 0.3;
+}
+
+/* ------------------------------------------
+   LIST ICONS
+   ------------------------------------------ */
+
+.list-unstyled > li .ti,
+.list-group-item .ti {
+    font-size: 1.125rem;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+/* ------------------------------------------
+   RESPONSIVE ADJUSTMENTS
+   ------------------------------------------ */
+
+/* Tablet and below */
+@media (max-width: 1024px) {
+    .icon-size-md {
+        font-size: 1.375rem !important;
+        width: 1.375rem;
+        height: 1.375rem;
+    }
+    
+    .icon-size-lg {
+        font-size: 1.625rem !important;
+        width: 1.625rem;
+        height: 1.625rem;
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    /* Larger touch targets */
+    .btn-icon {
+        min-width: 2.75rem;
+        min-height: 2.75rem;
+    }
+    
+    .btn-icon.btn-sm {
+        min-width: 2.5rem;
+        min-height: 2.5rem;
+    }
+    
+    /* Slightly larger icons for better visibility */
+    .table-actions .btn .ti {
+        font-size: 1.375rem;
+    }
+}
+
+/* ------------------------------------------
+   UTILITY CLASSES
+   ------------------------------------------ */
+
+/* Icon alignment helpers */
+.icon-align-top {
+    vertical-align: top !important;
+}
+
+.icon-align-middle {
+    vertical-align: middle !important;
+}
+
+.icon-align-bottom {
+    vertical-align: bottom !important;
+}
+
+/* Icon spacing utilities */
+.icon-mr-xs { margin-right: 0.25rem; }
+.icon-mr-sm { margin-right: 0.5rem; }
+.icon-mr-md { margin-right: 0.75rem; }
+.icon-mr-lg { margin-right: 1rem; }
+
+.icon-ml-xs { margin-left: 0.25rem; }
+.icon-ml-sm { margin-left: 0.5rem; }
+.icon-ml-md { margin-left: 0.75rem; }
+.icon-ml-lg { margin-left: 1rem; }
+
+/* ------------------------------------------
+   ANIMATION & TRANSITIONS
+   ------------------------------------------ */
+
+.ti {
+    transition: all 0.2s ease;
+}
+
+.btn:hover .ti,
+.btn:focus .ti {
+    transform: scale(1.05);
+}
+
+.btn-icon:hover .ti,
+.btn-icon:focus .ti {
+    transform: scale(1.1);
+}
+
+/* Spin animation for loading icons */
+.ti-spin {
+    animation: icon-spin 1s linear infinite;
+}
+
+@keyframes icon-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Pulse animation for notifications */
+.ti-pulse {
+    animation: icon-pulse 2s ease-in-out infinite;
+}
+
+@keyframes icon-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}

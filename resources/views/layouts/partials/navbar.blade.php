@@ -2,8 +2,14 @@
     <div class="container-xl">
         <!-- Brand/Logo -->
         <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-            <a href="{{ route('dashboard') }}">
-                <img src="https://via.placeholder.com/110x32/206bc4/ffffff?text=COBIT" height="32" alt="COBIT Assessment" class="navbar-brand-image">
+            <a href="{{ route('dashboard') }}" class="d-flex align-items-center text-decoration-none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary me-2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span class="navbar-brand-text" style="font-size: 1.25rem; font-weight: 600; color: #206bc4;">COBIT Assessment</span>
             </a>
         </h1>
         
@@ -27,7 +33,7 @@
                     </li>
                     
                     <!-- Assessments -->
-                    @if(auth()->user()->hasAnyRole(['Super Admin', 'Admin', 'Manager', 'Assessor', 'Viewer']))
+                    @if(auth()->user()->hasAnyRole(['Super Admin', 'Assessor', 'Viewer']))
                     <li class="nav-item dropdown {{ request()->is('assessments*') ? 'active' : '' }}">
                         <a class="nav-link dropdown-toggle" href="#navbar-assessments" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -39,7 +45,7 @@
                             <a class="dropdown-item {{ request()->routeIs('assessments.index') ? 'active' : '' }}" href="{{ route('assessments.index') }}">
                                 <i class="ti ti-list me-2"></i>All Assessments
                             </a>
-                            @if(auth()->user()->hasAnyRole(['Super Admin', 'Admin', 'Manager', 'Assessor']))
+                            @if(auth()->user()->hasAnyRole(['Super Admin', 'Assessor']))
                             <a class="dropdown-item {{ request()->routeIs('assessments.create') ? 'active' : '' }}" href="{{ route('assessments.create') }}">
                                 <i class="ti ti-plus me-2"></i>Create Assessment
                             </a>
@@ -63,8 +69,52 @@
                     </li>
                     @endcan
                     
+                    <!-- Review & Approval -->
+                    @role('Super Admin')
+                    <li class="nav-item dropdown {{ request()->is('review-approval*') ? 'active' : '' }}">
+                        <a class="nav-link dropdown-toggle" href="#navbar-review" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <i class="ti ti-checklist"></i>
+                            </span>
+                            <span class="nav-link-title">Review & Approval</span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item {{ request()->routeIs('review-approval.pending-review') ? 'active' : '' }}" href="{{ route('review-approval.pending-review') }}">
+                                <i class="ti ti-eye-check me-2"></i>Pending Review
+                                @php
+                                    $pendingReviewCount = \App\Models\Assessment::where('status', 'completed')->count();
+                                @endphp
+                                @if($pendingReviewCount > 0)
+                                    <span class="badge bg-orange ms-auto">{{ $pendingReviewCount }}</span>
+                                @endif
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('review-approval.pending-approval') ? 'active' : '' }}" href="{{ route('review-approval.pending-approval') }}">
+                                <i class="ti ti-circle-check me-2"></i>Pending Approval
+                                @php
+                                    $pendingApprovalCount = \App\Models\Assessment::where('status', 'reviewed')->count();
+                                @endphp
+                                @if($pendingApprovalCount > 0)
+                                    <span class="badge bg-red ms-auto">{{ $pendingApprovalCount }}</span>
+                                @endif
+                            </a>
+                        </div>
+                    </li>
+                    @endrole
+                    
+                    <!-- Questions Management -->
+                    @role('Super Admin')
+                    <li class="nav-item {{ request()->is('master-data/questions*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('master-data.questions.index') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <i class="ti ti-help"></i>
+                            </span>
+                            <span class="nav-link-title">Questions</span>
+                        </a>
+                    </li>
+                    @endrole
+                    
                     <!-- Administration -->
-                    @hasanyrole('Super Admin|Admin')
+                    @role('Super Admin')
                     <li class="nav-item dropdown {{ request()->is('admin*') ? 'active' : '' }}">
                         <a class="nav-link dropdown-toggle" href="#navbar-admin" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -87,7 +137,7 @@
                             </a>
                         </div>
                     </li>
-                    @endhasanyrole
+                    @endrole
                     
                     <!-- Master Data -->
                     @role('Super Admin')

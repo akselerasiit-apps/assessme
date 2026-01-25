@@ -186,7 +186,7 @@
                         <div class="alert alert-info mb-3">
                             <h4 class="alert-title">Review Actions</h4>
                             <div class="text-muted">
-                                <strong>Approve for Final Approval:</strong> Assessment will be sent to Super Admin for final approval.<br>
+                                <strong>Approve for Final Approval:</strong> Assessment will be marked as reviewed and ready for final approval by Super Admin.<br>
                                 <strong>Send Back for Revision:</strong> Assessment will be returned to the creator for corrections.
                             </div>
                         </div>

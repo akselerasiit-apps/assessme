@@ -13,7 +13,7 @@ class CompanyPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['Super Admin', 'Admin', 'Manager', 'Assessor', 'Viewer']);
+        return $user->hasAnyRole(['Super Admin', 'Assessor', 'Viewer']);
     }
 
     /**
@@ -21,7 +21,7 @@ class CompanyPolicy
      */
     public function view(User $user, Company $company): bool
     {
-        if ($user->hasAnyRole(['Super Admin', 'Admin'])) {
+        if ($user->hasRole('Super Admin')) {
             return true;
         }
         
@@ -33,7 +33,7 @@ class CompanyPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['Super Admin', 'Admin']);
+        return $user->hasRole('Super Admin');
     }
 
     /**
@@ -41,7 +41,7 @@ class CompanyPolicy
      */
     public function update(User $user, Company $company): bool
     {
-        return $user->hasAnyRole(['Super Admin', 'Admin']);
+        return $user->hasRole('Super Admin');
     }
 
     /**
@@ -50,10 +50,6 @@ class CompanyPolicy
     public function delete(User $user, Company $company): bool
     {
         if ($user->hasRole('Super Admin')) {
-            return true;
-        }
-
-        if ($user->hasRole('Admin')) {
             return !$company->assessments()->exists();
         }
 

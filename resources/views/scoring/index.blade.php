@@ -238,7 +238,7 @@
                         Answer assessment questions first, then calculate scores to see maturity levels.
                     </p>
                     <div class="empty-action">
-                        <a href="{{ route('assessments.answer', $assessment) }}" class="btn btn-primary">
+                        <a href="{{ route('assessments.take', $assessment) }}" class="btn btn-primary">
                             <i class="ti ti-pencil me-2"></i>Answer Questions
                         </a>
                     </div>

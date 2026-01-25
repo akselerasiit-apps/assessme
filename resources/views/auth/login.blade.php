@@ -22,20 +22,17 @@
                 <div>
                     <h4 class="alert-title">Test Credentials</h4>
                     <div class="text-muted" style="font-size: 0.875rem;">
-                        <strong>Super Admin:</strong><br>
+                        <strong>Super Admin:</strong> (Review & Final Approval)<br>
                         Email: <code>superadmin@assessme.com</code><br>
                         Password: <code>Password123!</code>
                         <hr class="my-2">
-                        <strong>Manager:</strong><br>
-                        Email: <code>manager@assessme.com</code><br>
+                        <strong>Assessor:</strong> (Conduct Assessments)<br>
+                        Email: <code>assessor@assessme.com</code><br>
                         Password: <code>Password123!</code>
                         <hr class="my-2">
-                        <strong>Viewer:</strong><br>
+                        <strong>Viewer:</strong> (Read Only)<br>
                         Email: <code>viewer@assessme.com</code><br>
                         Password: <code>Password123!</code>
-                        <div class="mt-2">
-                            <small><em>Other roles: admin@assessme.com, assessor@assessme.com</em></small>
-                        </div>
                     </div>
                 </div>
             </div>

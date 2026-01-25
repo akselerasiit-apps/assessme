@@ -16,19 +16,18 @@
         <div class="card-body">
             <div class="steps steps-counter">
                 <a href="#step1" class="step-item active" data-step="1">
-                    <span class="step-number">1</span>
                     Basic Information
                 </a>
                 <a href="#step2" class="step-item" data-step="2">
-                    <span class="step-number">2</span>
                     Design Factors
                 </a>
                 <a href="#step3" class="step-item" data-step="3">
-                    <span class="step-number">3</span>
                     GAMO Objectives
                 </a>
                 <a href="#step4" class="step-item" data-step="4">
-                    <span class="step-number">4</span>
+                    Target Levels
+                </a>
+                <a href="#step5" class="step-item" data-step="5">
                     Review & Create
                 </a>
             </div>
@@ -83,31 +82,6 @@
                     </div>
                     
                     <div class="col-md-6">
-                        <label class="form-label required">Assessment Type</label>
-                        <select name="assessment_type" class="form-select @error('assessment_type') is-invalid @enderror" required>
-                            <option value="">Select Type</option>
-                            <option value="initial" {{ old('assessment_type') == 'initial' ? 'selected' : '' }}>Initial Assessment</option>
-                            <option value="periodic" {{ old('assessment_type') == 'periodic' ? 'selected' : '' }}>Periodic Review</option>
-                            <option value="specific" {{ old('assessment_type') == 'specific' ? 'selected' : '' }}>Specific Domain</option>
-                        </select>
-                        @error('assessment_type')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label class="form-label required">Scope Type</label>
-                        <select name="scope_type" class="form-select @error('scope_type') is-invalid @enderror" required>
-                            <option value="">Select Scope</option>
-                            <option value="full" {{ old('scope_type') == 'full' ? 'selected' : '' }}>Full COBIT Assessment</option>
-                            <option value="tailored" {{ old('scope_type') == 'tailored' ? 'selected' : '' }}>Tailored (Custom)</option>
-                        </select>
-                        @error('scope_type')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    
-                    <div class="col-md-6">
                         <label class="form-label required">Period Start</label>
                         <input type="date" name="assessment_period_start" class="form-control @error('assessment_period_start') is-invalid @enderror" value="{{ old('assessment_period_start') }}" required>
                         @error('assessment_period_start')
@@ -128,7 +102,7 @@
                 <a href="{{ route('assessments.index') }}" class="btn btn-link">Cancel</a>
                 <button type="button" class="btn btn-primary" onclick="nextStep(2)">
                     Next: Design Factors
-                    <i class="ti ti-arrow-right ms-1"></i>
+                    <i class="ti ti-arrow-right icon-size-md ms-1"></i>
                 </button>
             </div>
         </div>
@@ -175,12 +149,12 @@
             </div>
             <div class="card-footer d-flex justify-content-between">
                 <button type="button" class="btn btn-link" onclick="prevStep(1)">
-                    <i class="ti ti-arrow-left me-1"></i>
+                    <i class="ti ti-arrow-left icon-size-md me-1"></i>
                     Previous
                 </button>
                 <button type="button" class="btn btn-primary" onclick="nextStep(3)">
                     Next: GAMO Objectives
-                    <i class="ti ti-arrow-right ms-1"></i>
+                    <i class="ti ti-arrow-right icon-size-md ms-1"></i>
                 </button>
             </div>
         </div>
@@ -233,7 +207,7 @@
                     <div class="tab-pane {{ $category == 'EDM' ? 'active show' : '' }}" id="tab-{{ strtolower($category) }}">
                         <div class="mb-4">
                             <div class="d-flex align-items-center gap-2">
-                                <span class="badge bg-{{ $categoryInfo['color'] }}">{{ $category }}</span>
+                                <span class="badge text-white bg-{{ $categoryInfo['color'] }}">{{ $category }}</span>
                                 <h5 class="mb-0">{{ $categoryInfo['name'] }}</h5>
                             </div>
                         </div>
@@ -269,19 +243,52 @@
             </div>
             <div class="card-footer d-flex justify-content-between">
                 <button type="button" class="btn btn-link" onclick="prevStep(2)">
-                    <i class="ti ti-arrow-left me-1"></i>
+                    <i class="ti ti-arrow-left icon-size-md me-1"></i>
                     Previous
                 </button>
                 <button type="button" class="btn btn-primary" onclick="nextStep(4)">
-                    Next: Review
-                    <i class="ti ti-arrow-right ms-1"></i>
+                    Next: Target Levels
+                    <i class="ti ti-arrow-right icon-size-md ms-1"></i>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Step 4: Review & Create -->
+    <!-- Step 4: Set Target Levels -->
     <div class="wizard-step" id="step4" style="display: none;">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Step 4: Set Target Maturity Levels</h3>
+                <div class="card-subtitle">Define target maturity level for each selected GAMO objective</div>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="ti ti-info-circle me-2"></i>
+                    <strong>Target Level</strong> determines which activities will be assessed. For example, selecting <strong>Level 3</strong> means activities from <strong>Level 1, 2, and 3</strong> will be included in the assessment.
+                </div>
+                
+                <div id="target-levels-container">
+                    <p class="text-muted text-center py-4">
+                        <i class="ti ti-alert-circle icon-size-lg mb-2"></i><br>
+                        Please select GAMO objectives in Step 3 first.
+                    </p>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-link" onclick="prevStep(3)">
+                    <i class="ti ti-arrow-left icon-size-md me-1"></i>
+                    Previous
+                </button>
+                <button type="button" class="btn btn-primary" onclick="nextStep(5)">
+                    Next: Review
+                    <i class="ti ti-arrow-right icon-size-md ms-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 5: Review & Create -->
+    <div class="wizard-step" id="step5" style="display: none;">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Step 4: Review & Create</h3>
@@ -304,14 +311,6 @@
                                         <div class="datagrid-content" id="review-company">-</div>
                                     </div>
                                     <div class="datagrid-item">
-                                        <div class="datagrid-title">Type</div>
-                                        <div class="datagrid-content" id="review-type">-</div>
-                                    </div>
-                                    <div class="datagrid-item">
-                                        <div class="datagrid-title">Scope</div>
-                                        <div class="datagrid-content" id="review-scope">-</div>
-                                    </div>
-                                    <div class="datagrid-item">
                                         <div class="datagrid-title">Period</div>
                                         <div class="datagrid-content" id="review-period">-</div>
                                     </div>
@@ -329,13 +328,13 @@
                                     <div class="datagrid-item">
                                         <div class="datagrid-title">Design Factors</div>
                                         <div class="datagrid-content">
-                                            <span class="badge bg-blue" id="review-df-count">0</span>
+                                            <span class="badge bg-blue text-white" id="review-df-count">0</span>
                                         </div>
                                     </div>
                                     <div class="datagrid-item">
                                         <div class="datagrid-title">GAMO Objectives</div>
                                         <div class="datagrid-content">
-                                            <span class="badge bg-green" id="review-gamo-count">0</span>
+                                            <span class="badge bg-green text-white" id="review-gamo-count">0</span>
                                         </div>
                                     </div>
                                 </div>
@@ -358,12 +357,12 @@
                 </div>
             </div>
             <div class="card-footer d-flex justify-content-between">
-                <button type="button" class="btn btn-link" onclick="prevStep(3)">
-                    <i class="ti ti-arrow-left me-1"></i>
+                <button type="button" class="btn btn-link" onclick="prevStep(4)">
+                    <i class="ti ti-arrow-left icon-size-md me-1"></i>
                     Previous
                 </button>
                 <button type="submit" class="btn btn-success">
-                    <i class="ti ti-check me-1"></i>
+                    <i class="ti ti-check icon-size-lg me-1"></i>
                     Create Assessment
                 </button>
             </div>
@@ -390,8 +389,13 @@ function nextStep(step) {
         }
     });
     
-    // Update review if step 4 - ALWAYS sync before showing
+    // Populate target levels if step 4
     if (step === 4) {
+        populateTargetLevels();
+    }
+    
+    // Update review if step 5 - ALWAYS sync before showing
+    if (step === 5) {
         updateReview();
     }
     
@@ -489,6 +493,142 @@ function updateCardStyle(checkbox) {
     }
 }
 
+// Populate target levels based on selected GAMO objectives
+function populateTargetLevels() {
+    const container = document.getElementById('target-levels-container');
+    const gamoChecked = document.querySelectorAll('input[name="gamo_objectives[]"]:checked');
+    
+    if (gamoChecked.length === 0) {
+        container.innerHTML = `
+            <p class="text-muted text-center py-4">
+                <i class="ti ti-alert-circle icon-size-lg mb-2"></i><br>
+                Please select GAMO objectives in Step 3 first.
+            </p>
+        `;
+        return;
+    }
+    
+    let html = '<div class="row g-3">';
+    
+    gamoChecked.forEach(cb => {
+        const parent = cb.closest('label');
+        const badge = parent.querySelector('.badge');
+        const gamoCode = badge ? badge.textContent.trim() : 'N/A';
+        const gamoName = parent.querySelector('.fw-bold')?.textContent.trim() || 'Unknown';
+        const gamoId = cb.value;
+        
+        // Get old value if exists
+        const oldValue = getOldTargetLevel(gamoId);
+        
+        html += `
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <span class="badge bg-blue-lt mb-2">${gamoCode}</span>
+                                <h4 class="mb-0">${gamoName}</h4>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label required">Target Maturity Level</label>
+                            <select name="target_levels[${gamoId}]" class="form-select target-level-select" required data-gamo-id="${gamoId}" data-gamo-code="${gamoCode}" data-gamo-name="${gamoName}">
+                                <option value="">Select Target Level</option>
+                                <option value="1" ${oldValue === '1' ? 'selected' : ''}>Level 1 - Initial</option>
+                                <option value="2" ${oldValue === '2' ? 'selected' : ''}>Level 2 - Managed</option>
+                                <option value="3" ${oldValue === '3' ? 'selected' : ''}>Level 3 - Established</option>
+                                <option value="4" ${oldValue === '4' ? 'selected' : ''}>Level 4 - Predictable</option>
+                                <option value="5" ${oldValue === '5' ? 'selected' : ''}>Level 5 - Optimizing</option>
+                            </select>
+                            <small class="form-hint">Activities from Level 1 up to selected level will be assessed</small>
+                        </div>
+                        <div class="text-muted small" id="activities-info-${gamoId}">
+                            <i class="ti ti-info-circle me-1"></i>
+                            <span>Select a level to see activities count</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+    
+    // Add event listeners for level changes
+    document.querySelectorAll('.target-level-select').forEach(select => {
+        select.addEventListener('change', function() {
+            updateActivitiesInfo(this);
+        });
+        // Initialize info if value already selected
+        if (select.value) {
+            updateActivitiesInfo(select);
+        }
+    });
+}
+
+// Get old target level value from previous submission
+function getOldTargetLevel(gamoId) {
+    const oldInput = document.querySelector(`input[name="target_levels_old[${gamoId}]"]`);
+    return oldInput ? oldInput.value : '';
+}
+
+// Update activities info based on selected level
+function updateActivitiesInfo(selectElement) {
+    const gamoId = selectElement.dataset.gamoId;
+    const level = selectElement.value;
+    const infoDiv = document.getElementById(`activities-info-${gamoId}`);
+    
+    if (!level || !infoDiv) return;
+    
+    // Show loading state
+    infoDiv.innerHTML = `
+        <i class="ti ti-loader me-1 text-muted"></i>
+        <span class="text-muted">Loading activities count...</span>
+    `;
+    
+    // Fetch real activities count from backend - use web route with session auth
+    fetch(`/gamo-objectives/${gamoId}/activities-count?level=${level}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token\"]')?.getAttribute('content') || '',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin'
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                const totalCount = data.total_activities;
+                const breakdown = data.breakdown; // e.g., "3 from L1 + 4 from L2"
+                
+                infoDiv.innerHTML = `
+                    <i class="ti ti-check-circle me-1 text-success"></i>
+                    <span class="text-success">Will assess ${totalCount} activities ${breakdown ? '(' + breakdown + ')' : ''}</span>
+                `;
+            } else {
+                infoDiv.innerHTML = `
+                    <i class="ti ti-alert-circle me-1 text-warning"></i>
+                    <span class="text-warning">Unable to fetch activities count</span>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching activities count:', error);
+            infoDiv.innerHTML = `
+                <i class="ti ti-alert-circle me-1 text-danger"></i>
+                <span class="text-danger">Error loading activities count</span>
+            `;
+        });
+}
+
 function setupTabStyling() {
     // Fix #4: Guard against double-binding
     const tabLinks = document.querySelectorAll('[data-bs-toggle="tab"]');
@@ -528,10 +668,6 @@ function updateReview() {
     document.getElementById('review-title').textContent = document.querySelector('[name="title"]').value || '-';
     const companySelect = document.querySelector('[name="company_id"]');
     document.getElementById('review-company').textContent = companySelect.options[companySelect.selectedIndex]?.text || '-';
-    const typeSelect = document.querySelector('[name="assessment_type"]');
-    document.getElementById('review-type').textContent = typeSelect.options[typeSelect.selectedIndex]?.text || '-';
-    const scopeSelect = document.querySelector('[name="scope_type"]');
-    document.getElementById('review-scope').textContent = scopeSelect.options[scopeSelect.selectedIndex]?.text || '-';
     
     const startDate = document.querySelector('[name="assessment_period_start"]').value;
     const endDate = document.querySelector('[name="assessment_period_end"]').value;
@@ -547,15 +683,19 @@ function updateReview() {
     });
     document.getElementById('review-df-list').innerHTML = dfList.length ? dfList.join(', ') : 'None selected';
     
-    // GAMO Objectives
+    // GAMO Objectives with Target Levels
     const gamoChecked = document.querySelectorAll('input[name="gamo_objectives[]"]:checked');
     document.getElementById('review-gamo-count').textContent = gamoChecked.length;
-    const gamoList = Array.from(gamoChecked).map(cb => {
+    const gamoList = [];
+    gamoChecked.forEach(cb => {
         const parent = cb.closest('label');
         const bold = parent.querySelector('.fw-bold');
-        return bold ? bold.textContent : cb.value;
+        const gamoName = bold ? bold.textContent : cb.value;
+        const gamoId = cb.value;
+        const targetLevel = document.querySelector(`select[name="target_levels[${gamoId}]"]`)?.value || '-';
+        gamoList.push(`${gamoName} (Target: Level ${targetLevel})`);
     });
-    document.getElementById('review-gamo-list').innerHTML = gamoList.length ? gamoList.join(', ') : 'None selected';
+    document.getElementById('review-gamo-list').innerHTML = gamoList.length ? gamoList.join('<br>') : 'None selected';
 }
 
 // Fix #8: Validate required fields and show error notifications
@@ -564,9 +704,6 @@ function setupFormValidation() {
     if (!form) return;
     
     form.addEventListener('submit', function(e) {
-        // Check if we're already on step 4 (review)
-        const currentStep = document.querySelector('.step-item.active')?.dataset.step;
-        
         // Validate design factors and gamo objectives before submit
         const dfChecked = document.querySelectorAll('input[name="design_factors[]"]:checked').length;
         const gamoChecked = document.querySelectorAll('input[name="gamo_objectives[]"]:checked').length;
@@ -582,6 +719,22 @@ function setupFormValidation() {
             e.preventDefault();
             alert('Please select at least one GAMO Objective.');
             nextStep(3);
+            return false;
+        }
+        
+        // Validate target levels
+        const targetLevelSelects = document.querySelectorAll('.target-level-select');
+        let allLevelsSet = true;
+        targetLevelSelects.forEach(select => {
+            if (!select.value) {
+                allLevelsSet = false;
+            }
+        });
+        
+        if (!allLevelsSet && targetLevelSelects.length > 0) {
+            e.preventDefault();
+            alert('Please set target maturity level for all selected GAMO objectives.');
+            nextStep(4);
             return false;
         }
         
@@ -651,35 +804,24 @@ function createErrorElement(id) {
 
 <style>
 /* Step indicator active state - blue color */
-.step-item.active {
+.steps .step-item {
+    color: #626e79;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.steps .step-item.active {
     color: #0d6efd !important;
 }
 
-.step-item.active .step-number {
-    background-color: #0d6efd !important;
-    color: white !important;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    font-weight: bold;
-    font-size: 1.25rem;
-}
-
-.step-number {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    font-weight: bold;
-    font-size: 1.25rem;
+.steps-counter .step-item::before {
     background-color: #e9ecef;
     color: #6c757d;
-    transition: all 0.3s ease;
+}
+
+.steps-counter .step-item.active::before {
+    background-color: #0d6efd !important;
+    color: white !important;
 }
 
 /* Card selection styling for checkboxes */

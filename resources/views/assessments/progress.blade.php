@@ -13,7 +13,7 @@
             <div class="col-auto ms-auto d-print-none">
                 <div class="btn-list">
                     @if(!$stats['is_complete'])
-                    <a href="{{ route('assessments.answer', $assessment) }}" class="btn btn-primary">
+                    <a href="{{ route('assessments.take', $assessment) }}" class="btn btn-primary">
                         <i class="ti ti-pencil me-2"></i>Continue Assessment
                     </a>
                     @endif
@@ -207,7 +207,7 @@
                                 </div>
                             </td>
                             <td>
-                                <a href="{{ route('assessments.answer', $assessment) }}#gamo-{{ $data['gamo']->id }}" 
+                                <a href="{{ route('assessments.take', $assessment) }}#gamo-{{ $data['gamo']->id }}" 
                                    class="btn btn-sm btn-ghost-primary">
                                     <i class="ti ti-pencil"></i>
                                 </a>

@@ -262,4 +262,44 @@ class GamoObjectiveController extends Controller
 
         return GamoObjectiveResource::collection($gamos);
     }
+
+    /**
+     * Get activities count for a GAMO objective by target level
+     * GET /api/gamo-objectives/{id}/activities-count?level={level}
+     */
+    public function getActivitiesCount(Request $request, $id): JsonResponse
+    {
+        $validated = $request->validate([
+            'level' => 'required|integer|min:1|max:5'
+        ]);
+
+        $targetLevel = $validated['level'];
+        
+        // Count activities from level 1 up to target level (cumulative)
+        $activities = DB::table('gamo_questions')
+            ->where('gamo_objective_id', $id)
+            ->where('maturity_level', '<=', $targetLevel)
+            ->where('is_active', true)
+            ->get();
+
+        $totalCount = $activities->count();
+        
+        // Build breakdown by level (e.g., "3 from L1 + 4 from L2")
+        $breakdown = [];
+        for ($level = 1; $level <= $targetLevel; $level++) {
+            $count = $activities->where('maturity_level', $level)->count();
+            if ($count > 0) {
+                $breakdown[] = "{$count} from L{$level}";
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'total_activities' => $totalCount,
+            'breakdown' => !empty($breakdown) ? implode(' + ', $breakdown) : null,
+            'target_level' => $targetLevel,
+            'gamo_objective_id' => $id,
+        ]);
+    }
 }
+

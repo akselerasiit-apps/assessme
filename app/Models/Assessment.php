@@ -104,6 +104,14 @@ class Assessment extends Model
     }
 
     /**
+     * Get GAMO selections (pivot records)
+     */
+    public function gamoSelections(): HasMany
+    {
+        return $this->hasMany(AssessmentGamoSelection::class);
+    }
+
+    /**
      * Get all answers for this assessment
      */
     public function answers(): HasMany
@@ -159,6 +167,30 @@ class Assessment extends Model
         return $this->belongsToMany(User::class, 'assessment_team_members')
             ->withPivot('role', 'responsibilities', 'can_edit', 'can_approve', 'assigned_at', 'assigned_by')
             ->withTimestamps();
+    }
+
+    /**
+     * Get evidence files for this assessment
+     */
+    public function evidenceFiles(): HasMany
+    {
+        return $this->hasMany(AssessmentEvidence::class);
+    }
+
+    /**
+     * Get audit logs for this assessment
+     */
+    public function auditLogs(): HasMany
+    {
+        return $this->hasMany(AssessmentAuditLog::class);
+    }
+
+    /**
+     * Get notes for this assessment
+     */
+    public function assessmentNotes(): HasMany
+    {
+        return $this->hasMany(AssessmentNote::class);
     }
 
     /**

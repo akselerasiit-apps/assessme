@@ -12,6 +12,17 @@
             </div>
             <div class="col-auto ms-auto d-print-none">
                 <div class="btn-list">
+                    <!-- Language Toggle -->
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary {{ $language === 'en' ? 'active' : '' }}" 
+                                onclick="toggleLanguage('en')">
+                            🇬🇧 EN
+                        </button>
+                        <button type="button" class="btn btn-outline-primary {{ $language === 'id' ? 'active' : '' }}" 
+                                onclick="toggleLanguage('id')">
+                            🇮🇩 ID
+                        </button>
+                    </div>
                     <a href="{{ route('assessments.show', $assessment) }}" class="btn btn-outline-secondary">
                         <i class="ti ti-arrow-left me-2"></i>Back to Assessment
                     </a>
@@ -124,8 +135,14 @@
                                             {{ $currentQuestion->gamoObjective->code }}
                                         </span>
                                         <span class="ms-2 text-muted">Level {{ $currentQuestion->maturity_level }}</span>
+                                        <span class="ms-2 badge bg-secondary-lt">{{ $currentQuestion->code }}</span>
                                     </div>
-                                    <h3 class="card-title mt-2">{{ $currentQuestion->question_text }}</h3>
+                                    <h3 class="card-title mt-2" id="questionText">
+                                        {{ $language === 'en' ? $currentQuestion->question_en : $currentQuestion->question_id }}
+                                    </h3>
+                                    <!-- Bilingual Display (hidden, for JS toggle) -->
+                                    <input type="hidden" id="questionTextEn" value="{{ $currentQuestion->question_en }}">
+                                    <input type="hidden" id="questionTextId" value="{{ $currentQuestion->question_id }}">
                                 </div>
                                 <div class="col-auto">
                                     <div class="badge bg-info">
@@ -425,6 +442,46 @@ document.addEventListener('DOMContentLoaded', function() {
             }).catch(err => console.log('Auto-save:', err));
         }
     }, 30000);
+
+    // Language toggle function
+    window.toggleLanguage = function(lang) {
+        fetch('{{ route("assessments.toggle-language") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({ language: lang })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update question text
+                const questionTextEn = document.getElementById('questionTextEn')?.value || '';
+                const questionTextId = document.getElementById('questionTextId')?.value || '';
+                const questionTextElement = document.getElementById('questionText');
+                
+                if (questionTextElement) {
+                    questionTextElement.textContent = lang === 'en' ? questionTextEn : questionTextId;
+                }
+                
+                // Update button states
+                document.querySelectorAll('.btn-group button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                event.target.classList.add('active');
+                
+                // Show toast notification
+                const toast = document.createElement('div');
+                toast.className = 'alert alert-success position-fixed top-0 end-0 m-3';
+                toast.style.zIndex = '9999';
+                toast.innerHTML = `<i class="ti ti-check me-2"></i>${data.message}`;
+                document.body.appendChild(toast);
+                
+                setTimeout(() => toast.remove(), 2000);
+            }
+        });
+    };
 });
 </script>
 @endpush

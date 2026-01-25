@@ -100,43 +100,11 @@ class RolePermissionSeeder extends Seeder
 
         // Create roles and assign permissions based on UAM matrix
 
-        // 1. Super Admin - Full Access (Level 5)
+        // 1. Super Admin - Full Access (Level 4)
         $superAdmin = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
         $superAdmin->syncPermissions(Permission::all());
 
-        // 2. Admin - System and User Management (Level 4)
-        $admin = Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'web']);
-        $admin->syncPermissions([
-            'user.create', 'user.read', 'user.update', 'user.delete',
-            'assessment.create', 'assessment.read', 'assessment.update', 'assessment.delete',
-            'assessment.review', 'assessment.archive',
-            'design_factor.manage',
-            'gamo_objective.read',
-            'question.create', 'question.read', 'question.update', 'question.delete', 'question.bulk_import',
-            'answer.read',
-            'report.generate', 'report.export',
-            'audit.view',
-            'system.configure',
-            'company.manage',
-            'dashboard.view',
-        ]);
-
-        // 3. Manager - Assessment Management and Reporting (Level 3)
-        $manager = Role::firstOrCreate(['name' => 'Manager', 'guard_name' => 'web']);
-        $manager->syncPermissions([
-            'user.read',
-            'assessment.create', 'assessment.read', 'assessment.update',
-            'assessment.assign_assessor',
-            'design_factor.read',
-            'gamo_objective.read',
-            'question.read',
-            'answer.read',
-            'report.generate', 'report.export',
-            'audit.view',
-            'dashboard.view',
-        ]);
-
-        // 4. Assessor - Conduct Assessment (Level 2)
+        // 2. Assessor - Conduct Assessment (Level 2)
         $assessor = Role::firstOrCreate(['name' => 'Assessor', 'guard_name' => 'web']);
         $assessor->syncPermissions([
             'assessment.read',
@@ -146,7 +114,7 @@ class RolePermissionSeeder extends Seeder
             'dashboard.view',
         ]);
 
-        // 5. Viewer - View-only Access (Level 1)
+        // 3. Viewer - View-only Access (Level 1)
         $viewer = Role::firstOrCreate(['name' => 'Viewer', 'guard_name' => 'web']);
         $viewer->syncPermissions([
             'assessment.read',
@@ -156,7 +124,7 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         $this->command->info('✅ Roles and Permissions seeded successfully!');
-        $this->command->info('Created 5 roles: Super Admin, Admin, Manager, Assessor, Viewer');
+        $this->command->info('Created 3 roles: Super Admin, Assessor, Viewer');
         $this->command->info('Created ' . count($permissions) . ' permissions');
     }
 }

@@ -7,8 +7,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const alerts = document.querySelectorAll('.alert:not(.alert-important)');
     alerts.forEach(function(alert) {
         setTimeout(function() {
-            const bsAlert = new bootstrap.Alert(alert);
-            bsAlert.close();
+            // Check if Bootstrap is available
+            if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            } else {
+                // Fallback: just hide the alert
+                alert.style.display = 'none';
+            }
         }, 5000);
     });
 });

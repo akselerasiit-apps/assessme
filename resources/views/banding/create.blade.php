@@ -37,7 +37,7 @@
                             </h4>
                             <div class="text-muted">
                                 Banding is a formal process to appeal assessment scores. You can request a review of maturity levels 
-                                by providing additional evidence, revised answers, or clarifications. The request will be reviewed by administrators.
+                                by providing additional evidence, revised answers, or clarifications. The request will be reviewed by Super Admin.
                             </div>
                         </div>
 
@@ -156,7 +156,7 @@
                         <li>Create banding as <strong>draft</strong></li>
                         <li>Review your request</li>
                         <li><strong>Submit</strong> for approval</li>
-                        <li>Admin/Super Admin reviews</li>
+                        <li>Super Admin reviews</li>
                         <li>Approved or rejected with notes</li>
                     </ol>
                 </div>

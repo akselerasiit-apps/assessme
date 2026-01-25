@@ -241,7 +241,7 @@
                     </div>
                     <div class="card-body">
                         <div class="d-grid gap-2">
-                            <a href="{{ route('assessments.answer', $assessment) }}#gamo-{{ $score->gamo_objective_id }}" 
+                            <a href="{{ route('assessments.take', $assessment) }}#gamo-{{ $score->gamo_objective_id }}" 
                                class="btn btn-primary">
                                 <i class="ti ti-pencil me-2"></i>Edit Answers
                             </a>
