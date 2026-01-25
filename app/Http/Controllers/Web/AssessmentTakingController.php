@@ -294,10 +294,10 @@ class AssessmentTakingController extends Controller
             ? round(($answeredGamoCount / $totalGamoCount) * 100) 
             : 0;
 
-        // Auto-update status based on progress
+        // Auto-update status based on progress (case-insensitive check)
         $newStatus = $assessment->status;
-        if ($answeredGamoCount > 0 && $assessment->status === 'DRAFT') {
-            $newStatus = 'IN_PROGRESS';
+        if ($answeredGamoCount > 0 && strtolower($assessment->status) === 'draft') {
+            $newStatus = 'in_progress';
         }
 
         $assessment->update([
