@@ -53,9 +53,6 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">Tutup</button>
-                <button type="button" class="btn btn-outline-primary" onclick="exportNotes()">
-                    <i class="ti ti-download me-2"></i>Export Notes
-                </button>
             </div>
         </div>
     </div>
@@ -204,17 +201,6 @@ function editNote(activityId) {
     viewNoteDetail(activityId);
 }
 
-// Export notes
-function exportNotes() {
-    const assessmentId = $('input[name="assessment_id"]').val();
-    const gamoId = $('#gamoSelector').val();
-    const filterLevel = $('#notesFilterLevel').val();
-    
-    const params = new URLSearchParams();
-    if (filterLevel) params.append('level', filterLevel);
-    
-    window.location.href = `/assessments/${assessmentId}/gamo/${gamoId}/export-notes?${params.toString()}`;
-}
 
 // Filter handlers
 $('#notesFilterLevel').on('change', loadNotesList);

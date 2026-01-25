@@ -607,18 +607,67 @@ class AssessmentTakingController extends Controller
         $this->authorize('view', $assessment);
 
         $level = $request->input('level');
+        $search = $request->input('search');
 
-        $activities = GamoQuestion::where('gamo_objective_id', $gamo->id)
-            ->where('maturity_level', $level)
+        // Build query for activities
+        $query = GamoQuestion::where('gamo_objective_id', $gamo->id)
             ->where('is_active', true)
-            ->with(['notes' => function($query) use ($assessment) {
-                $query->where('assessment_id', $assessment->id);
-            }])
-            ->get();
+            ->where('maturity_level', '>=', 2); // COBIT 2019: Level 2-5 only
+
+        // Apply level filter if provided
+        if ($level) {
+            $query->where('maturity_level', $level);
+        }
+
+        // Get activities with their answers that have notes
+        $activities = $query->with(['answers' => function($q) use ($assessment) {
+            $q->where('assessment_id', $assessment->id)
+              ->whereNotNull('notes')
+              ->where('notes', '!=', '')
+              ->with('user:id,name');
+        }])->get();
+
+        // Transform to notes format
+        $notes = [];
+        $stats = [
+            'total' => 0,
+            'with_rating' => 0,
+            'without_rating' => 0
+        ];
+
+        foreach ($activities as $activity) {
+            foreach ($activity->answers as $answer) {
+                // Apply search filter
+                if ($search && stripos($answer->notes, $search) === false) {
+                    continue;
+                }
+
+                $texts = explode(' | ', $activity->question_text);
+                $notes[] = [
+                    'activity_id' => $activity->id,
+                    'activity_code' => $activity->code,
+                    'activity_name' => $texts[0] ?? $activity->question_text,
+                    'level' => $activity->maturity_level,
+                    'notes' => $answer->notes,
+                    'rating' => $answer->capability_rating,
+                    'user_name' => $answer->user->name ?? 'Unknown',
+                    'created_at' => $answer->created_at,
+                    'updated_at' => $answer->updated_at,
+                ];
+
+                $stats['total']++;
+                if ($answer->capability_rating && $answer->capability_rating !== 'N/A') {
+                    $stats['with_rating']++;
+                } else {
+                    $stats['without_rating']++;
+                }
+            }
+        }
 
         return response()->json([
             'success' => true,
-            'activities' => $activities,
+            'notes' => $notes,
+            'statistics' => $stats
         ]);
     }
 

@@ -146,7 +146,7 @@
                             ];
                             $color = $statusColors[$assessment->status] ?? 'secondary';
                         @endphp
-                        <span class="badge bg-{{ $color }}">{{ ucfirst(str_replace('_', ' ', $assessment->status)) }}</span>
+                        <span class="badge text-white bg-{{ $color }}">{{ ucfirst(str_replace('_', ' ', $assessment->status)) }}</span>
                     </td>
                     <td>{{ $assessment->created_at->format('d M Y') }}</td>
                     <td>
