@@ -781,9 +781,13 @@ function renderProgressKapabilitas(data) {
         return;
     }
     
-    let html = '';
+    // Clear loading spinner first
+    $('#progressTableBody').empty();
+    
     let totalActivitiesOverall = 0;
     let totalAssessedOverall = 0;
+    let completedRequests = 0;
+    const totalGamos = data.gamos.length;
     
     // Group by category
     const categories = {};
@@ -810,12 +814,13 @@ function renderProgressKapabilitas(data) {
                     success: function(response) {
                         const activities = response.activities || {};
                         
-                        // Count activities per level
+                        // Count activities per level (include ALL levels 1-5)
                         const levelData = {};
                         let totalActivities = 0;
                         let totalAssessed = 0;
                         
-                        for (let level = 2; level <= 5; level++) {
+                        // Count ALL levels including Level 1
+                        for (let level = 1; level <= 5; level++) {
                             const levelActivities = activities[level] || [];
                             const count = levelActivities.length;
                             const assessed = levelActivities.filter(a => a.answer && a.answer.capability_score !== null).length;
@@ -874,31 +879,27 @@ function renderProgressKapabilitas(data) {
                         if ($existingRow.length) {
                             $existingRow.replaceWith($row);
                         } else {
+                            // Remove loading if still exists
+                            $tbody.find('tr:not([data-gamo-code])').remove();
                             $tbody.append($row);
                         }
+                        
+                        // Track completion
+                        completedRequests++;
                         
                         // Update summary cards
                         updateProgressCards();
                     },
                     error: function() {
                         console.error('Failed to load activities for GAMO:', gamo.code);
+                        completedRequests++;
                     }
                 });
+            } else {
+                completedRequests++;
             }
         });
     });
-    
-    // Show loading initially
-    if ($('#progressTableBody tr').length === 1) {
-        $('#progressTableBody').html(`
-            <tr>
-                <td colspan="6" class="text-center">
-                    <div class="spinner-border spinner-border-sm text-muted"></div>
-                    <span class="text-muted ms-2">Loading activities data...</span>
-                </td>
-            </tr>
-        `);
-    }
 }
 
 // Update progress summary cards
