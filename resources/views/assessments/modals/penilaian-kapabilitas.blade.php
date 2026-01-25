@@ -287,6 +287,12 @@ function savePenilaian() {
             } else {
                 location.reload();
             }
+            
+            // Update achieved level
+            const currentGamoId = $('#gamoSelector').val();
+            if (typeof updateAchievedLevel === 'function') {
+                updateAchievedLevel(currentGamoId);
+            }
         },
         error: function(xhr) {
             console.error('Error saving assessment:', xhr);

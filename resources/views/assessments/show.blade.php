@@ -248,7 +248,7 @@
                                             </span>
                                             <span class="text-muted">/</span>
                                             @php
-                                                $resultLevel = $assessment->results->where('gamo_objective_id', $gamo->id)->first()?->capability_level ?? 0;
+                                                $resultLevel = $assessment->results?->where('gamo_objective_id', $gamo->id)->first()?->capability_level ?? 0;
                                                 $resultLevelInt = (int) $resultLevel;
                                             @endphp
                                             @if($resultLevelInt > 0)
@@ -256,9 +256,9 @@
                                                     Level {{ $resultLevelInt }}
                                                 </span>
                                             @else
-                                                <span class="badge bg-secondary-lt">
-                                                    -
-                                                </span>
+                                            <span class="badge bg-secondary-lt" id="result-level-{{ $gamo->id }}">
+                                    <span class="spinner-border spinner-border-sm"></span>
+                                </span>
                                             @endif
                                         </div>
                                     </div>
@@ -309,10 +309,8 @@
             </div>
             <div class="card-body">
                 @php
-                    // Calculate average target, current score, and gap
+                    // Calculate average target
                     $avgTarget = $assessment->gamoObjectives->avg('pivot.target_maturity_level') ?? 0;
-                    $avgCurrentScore = $assessment->gamoScores->avg('current_maturity_level') ?? 0;
-                    $avgGap = $avgTarget - $avgCurrentScore;
                 @endphp
                 
                 <!-- Metrics Summary -->
@@ -334,19 +332,21 @@
                                 <div class="text-muted small mb-1">
                                     <i class="ti ti-chart-line"></i> Current
                                 </div>
-                                <div class="h2 m-0 text-cyan">{{ number_format($avgCurrentScore, 2) }}</div>
+                                <div class="h2 m-0 text-cyan" id="avgCurrentCapability">
+                                    <span class="spinner-border spinner-border-sm"></span>
+                                </div>
                                 {{-- <div class="text-muted small">Average Score</div> --}}
                             </div>
                         </div>
                     </div>
                     <div class="col-4">
-                        <div class="card card-sm {{ $avgGap > 0 ? 'bg-orange-lt' : 'bg-green-lt' }}">
+                        <div class="card card-sm bg-orange-lt" id="gapCard">
                             <div class="card-body text-center p-2">
                                 <div class="text-muted small mb-1">
                                     <i class="ti ti-delta"></i> Gap
                                 </div>
-                                <div class="h2 m-0 {{ $avgGap > 0 ? 'text-orange' : 'text-green' }}">
-                                    {{ $avgGap > 0 ? '+' : '' }}{{ number_format($avgGap, 2) }}
+                                <div class="h2 m-0 text-orange" id="avgGapDisplay">
+                                    <span class="spinner-border spinner-border-sm"></span>
                                 </div>
                                 {{-- <div class="text-muted small">
                                     @if($avgGap > 0)
@@ -565,5 +565,164 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// Calculate capability level for each GAMO
+const assessmentId = {{ $assessment->id }};
+const selectedGamoIds = @json($selectedGamoIds);
+
+$(document).ready(function() {
+    // Calculate capability level for each selected GAMO
+    selectedGamoIds.forEach(gamoId => {
+        calculateGamoCapabilityLevel(gamoId);
+    });
+});
+
+function calculateGamoCapabilityLevel(gamoId) {
+    $.ajax({
+        url: `/assessments/${assessmentId}/gamo/${gamoId}/activities`,
+        method: 'GET',
+        success: function(response) {
+            const activities = response.activities || {};
+            let achievedLevel = 0;
+            let achievedCompliance = 0;
+            
+            // Calculate achieved level based on COBIT 2019 rules
+            // Threshold: 85%, Sequential, Skip empty levels
+            for (let level = 1; level <= 5; level++) {
+                const levelActivities = activities[level] || [];
+                
+                // Skip level jika tidak ada activities
+                if (levelActivities.length === 0) continue;
+                
+                let totalWeight = 0;
+                let weightedScore = 0;
+                
+                levelActivities.forEach(activity => {
+                    const weight = activity.weight || 1;
+                    totalWeight += weight;
+                    
+                    if (activity.answer && activity.answer.capability_score) {
+                        weightedScore += weight * activity.answer.capability_score;
+                    }
+                });
+                
+                // Calculate compliance for this level
+                const compliance = totalWeight > 0 ? ((weightedScore / totalWeight) * 100) : 0;
+                
+                // Level achieved if compliance >= 85% (COBIT 2019)
+                if (compliance >= 85) {
+                    achievedLevel = level;
+                    achievedCompliance = compliance;
+                } else {
+                    // Stop if level not achieved
+                    break;
+                }
+            }
+            
+            // Update display
+            const levelColors = {
+                1: 'bg-red',
+                2: 'bg-orange',
+                3: 'bg-yellow',
+                4: 'bg-cyan',
+                5: 'bg-green'
+            };
+            
+            const $badge = $('#result-level-' + gamoId);
+            if (achievedLevel > 0) {
+                $badge.removeClass('bg-secondary-lt').addClass('text-white ' + levelColors[achievedLevel]);
+                $badge.html('Level ' + achievedLevel);
+            } else {
+                $badge.html('-');
+            }
+        },
+        error: function() {
+            $('#result-level-' + gamoId).html('-');
+        }
+    });
+}
+
+// Calculate overall capability metrics (reuse assessmentId from above)
+const avgTarget = {{ $avgTarget }};
+const selectedGamoIdsForMetrics = @json($selectedGamoIds);
+let capabilityLevels = [];
+let completedMetrics = 0;
+
+selectedGamoIdsForMetrics.forEach(gamoId => {
+    $.ajax({
+        url: `/assessments/${assessmentId}/gamo/${gamoId}/activities`,
+        method: 'GET',
+        success: function(response) {
+            const activities = response.activities || {};
+            let achievedLevel = 0;
+            
+            // Calculate achieved level based on COBIT 2019 rules
+            for (let level = 1; level <= 5; level++) {
+                const levelActivities = activities[level] || [];
+                if (levelActivities.length === 0) continue;
+                
+                let totalWeight = 0;
+                let weightedScore = 0;
+                
+                levelActivities.forEach(activity => {
+                    const weight = activity.weight || 1;
+                    totalWeight += weight;
+                    
+                    if (activity.answer && activity.answer.capability_score) {
+                        weightedScore += weight * activity.answer.capability_score;
+                    }
+                });
+                
+                const compliance = totalWeight > 0 ? ((weightedScore / totalWeight) * 100) : 0;
+                
+                if (compliance >= 85) {
+                    achievedLevel = level;
+                } else {
+                    break;
+                }
+            }
+            
+            capabilityLevels.push(achievedLevel);
+            completedMetrics++;
+            
+            // When all GAMOs calculated, update summary
+            if (completedMetrics === selectedGamoIdsForMetrics.length) {
+                updateCapabilitySummary();
+            }
+        },
+        error: function() {
+            capabilityLevels.push(0);
+            completedMetrics++;
+            
+            if (completedMetrics === selectedGamoIdsForMetrics.length) {
+                updateCapabilitySummary();
+            }
+        }
+    });
+});
+
+function updateCapabilitySummary() {
+    // Calculate average current capability
+    const totalCurrent = capabilityLevels.reduce((a, b) => a + b, 0);
+    const avgCurrent = capabilityLevels.length > 0 ? (totalCurrent / capabilityLevels.length) : 0;
+    
+    // Update Current display
+    $('#avgCurrentCapability').text(avgCurrent.toFixed(2));
+    
+    // Calculate and update Gap
+    const gap = avgTarget - avgCurrent;
+    const gapDisplay = gap > 0 ? '+' + gap.toFixed(2) : gap.toFixed(2);
+    
+    $('#avgGapDisplay').text(gapDisplay);
+    
+    // Update Gap card color
+    if (gap > 0) {
+        $('#gapCard').removeClass('bg-green-lt').addClass('bg-orange-lt');
+        $('#avgGapDisplay').removeClass('text-green').addClass('text-orange');
+    } else {
+        $('#gapCard').removeClass('bg-orange-lt').addClass('bg-green-lt');
+        $('#avgGapDisplay').removeClass('text-orange').addClass('text-green');
+    }
+}
 </script>
 @endpush

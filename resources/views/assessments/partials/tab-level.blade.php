@@ -17,7 +17,7 @@
                     </div>
                 </div>
                 <div class="fw-bold">Level {{ $level }}</div>
-                <div class="text-white small" id="level-{{ $level }}-count">0 Activities</div>
+                <div class="text-black small" id="level-{{ $level }}-count">0 Activities</div>
             </div>
             @if($level < 5)
             <div class="level-connector"></div>

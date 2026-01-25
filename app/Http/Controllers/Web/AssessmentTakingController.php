@@ -30,13 +30,20 @@ class AssessmentTakingController extends Controller
         // Check if user can take this assessment
         $this->authorize('take-assessment', $assessment);
         
-        // Get selected GAMO objectives for this assessment
+        // Get selected GAMO objectives for this assessment with pivot data
         $gamoObjectives = $assessment->gamoSelections()
             ->where('is_selected', true)
             ->with('gamoObjective')
             ->get()
             ->map(function($selection) {
-                return $selection->gamoObjective;
+                $gamo = $selection->gamoObjective;
+                if ($gamo) {
+                    // Attach pivot data to gamoObjective
+                    $gamo->pivot = (object)[
+                        'target_maturity_level' => $selection->target_maturity_level
+                    ];
+                }
+                return $gamo;
             })
             ->filter();
 

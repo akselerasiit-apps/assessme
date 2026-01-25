@@ -16,6 +16,9 @@
         background-color: var(--tblr-primary);
         color: white;
     }
+    .level-card.active .text-black {
+        color: white !important;
+    }
     .level-card.locked {
         opacity: 0.5;
         cursor: not-allowed;
@@ -67,10 +70,10 @@
 @endcannot
 
 <div class="page-header d-print-none sticky-top bg-white border-bottom">
-    <div class="container-xl">
+    <div class="container-xl p-4">
         <div class="row g-2 align-items-center">
             <div class="col">
-                <div class="page-pretitle">{{ $assessment->code }}</div>
+                <div class="page-pretitle"><span class="badge bg-blue-lt">{{ $assessment->code }}</span></div>
                 <h2 class="page-title">{{ $assessment->title }}</h2>
                 @cannot('answer', $assessment)
                     <span class="badge bg-secondary ms-2">Read-Only</span>
@@ -87,11 +90,12 @@
 
         <!-- GAMO Selector -->
         <div class="row mt-3">
-            <div class="col-md-9">
+            <div class="col-md-6">
                 <select class="form-select" id="gamoSelector">
                     @foreach($gamoObjectives as $gamo)
                     <option value="{{ $gamo->id }}" 
                             data-target="{{ $gamo->pivot->target_maturity_level ?? 3 }}"
+                            data-code="{{ $gamo->code }}"
                             {{ $loop->first ? 'selected' : '' }}>
                         {{ $gamo->code }} - {{ $gamo->name }}
                     </option>
@@ -99,15 +103,53 @@
                 </select>
             </div>
             <div class="col-md-3">
-                <div class="card mb-0">
-                    <div class="card-body p-2 text-center">
-                        <div class="text-muted small">Target Level</div>
-                        <div class="fw-bold text-primary" style="font-size: 1.25rem;" id="gamoTargetLevel">
-                            @php
-                                $firstGamo = $gamoObjectives->first();
-                                $targetLevel = $firstGamo->pivot->target_maturity_level ?? 3;
-                            @endphp
-                            Level {{ $targetLevel }}
+                <div class="card mb-0 border-primary shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="ti ti-target text-primary me-2" style="font-size: 1.25rem;"></i>
+                            <span class="text-muted small fw-semibold">TARGET CAPABILITY LEVEL</span>
+                        </div>
+                        <div class="d-flex align-items-baseline justify-content-between">
+                            <div class="fw-bold text-primary" style="font-size: 2.5rem; line-height: 1;" id="gamoTargetLevel">
+                                @php
+                                    $firstGamo = $gamoObjectives->first();
+                                    $targetLevel = $firstGamo->pivot->target_maturity_level ?? 3;
+                                @endphp
+                                {{ $targetLevel }}
+                            </div>
+                            <div class="text-end">
+                                <div class="badge bg-primary-lt">
+                                    <span class="text-uppercase small" id="targetLevelName">
+                                        @php
+                                            $levelNames = ['', 'Performed', 'Managed', 'Established', 'Predictable', 'Optimizing'];
+                                            echo $levelNames[$targetLevel] ?? '';
+                                        @endphp
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card mb-0 border-success shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="ti ti-trending-up text-success me-2" style="font-size: 1.25rem;"></i>
+                            <span class="text-muted small fw-semibold">CURRENT CAPABILITY LEVEL</span>
+                        </div>
+                        <div class="d-flex align-items-baseline justify-content-between">
+                            <div class="d-flex align-items-baseline">
+                                <div class="fw-bold text-success" style="font-size: 2.5rem; line-height: 1;" id="gamoAchievedLevel">
+                                    <span class="spinner-border spinner-border-sm"></span>
+                                </div>
+                                <span class="text-muted ms-2" style="font-size: 1rem;" id="gamoAchievedPercent"></span>
+                            </div>
+                            <div class="text-end">
+                                <div class="badge bg-success-lt" id="achievedLevelBadge" style="visibility: hidden;">
+                                    <span class="text-uppercase small" id="achievedLevelName">-</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -128,7 +170,7 @@
             </li>
             <li class="nav-item" role="presentation">
                 <a href="#tab-summary" class="nav-link" data-bs-toggle="tab" role="tab">
-                    <i class="ti ti-clipboard-text me-2"></i>Summary
+                    <i class="ti ti-clipboard-text me-2"></i>Summary All GAMO Objectives
                 </a>
             </li>
         </ul>
@@ -177,6 +219,12 @@ let currentGamoId = {{ $gamoObjectives->first()->id ?? 'null' }};
 let currentLevel = 2;
 let allActivitiesByLevel = {};
 
+// Create mapping from GAMO code to ID (exposed to window for other scripts)
+window.gamoCodeToId = {};
+@foreach($gamoObjectives as $gamo)
+    window.gamoCodeToId['{{ $gamo->code }}'] = {{ $gamo->id }};
+@endforeach
+
 // Setup AJAX with CSRF token
 $.ajaxSetup({
     headers: {
@@ -213,7 +261,12 @@ $(document).ready(function() {
         const targetLevel = $(this).find('option:selected').data('target');
         
         // Update target level display
-        $('#gamoTargetLevel').text('Level ' + targetLevel);
+        const levelNames = ['', 'Performed', 'Managed', 'Established', 'Predictable', 'Optimizing'];
+        $('#gamoTargetLevel').text(targetLevel);
+        $('#targetLevelName').text(levelNames[targetLevel] || '');
+        
+        // Update achieved level
+        updateAchievedLevel(currentGamoId);
         
         loadActivitiesByLevel(currentLevel);
     });
@@ -251,7 +304,81 @@ $(document).ready(function() {
     } else {
         loadActivitiesByLevel(1);
     }
+    
+    // Initialize achieved level
+    updateAchievedLevel(currentGamoId);
 });
+
+// Update achieved level display based on compliance
+function updateAchievedLevel(gamoId) {
+    $('#gamoAchievedLevel').html('<span class="spinner-border spinner-border-sm"></span>');
+    
+    $.ajax({
+        url: `/assessments/${assessmentId}/gamo/${gamoId}/activities`,
+        method: 'GET',
+        success: function(response) {
+            const activities = response.activities || {};
+            let achievedLevel = 0;
+            let achievedCompliance = 0;
+            
+            // Calculate achieved level based on COBIT 2019 rules
+            // Threshold: 85%, Sequential, Skip empty levels
+            for (let level = 1; level <= 5; level++) {
+                const levelActivities = activities[level] || [];
+                
+                // Skip level jika tidak ada activities
+                if (levelActivities.length === 0) continue;
+                
+                let totalWeight = 0;
+                let weightedScore = 0;
+                
+                levelActivities.forEach(activity => {
+                    const weight = activity.weight || 1;
+                    totalWeight += weight;
+                    
+                    if (activity.answer && activity.answer.capability_score) {
+                        weightedScore += weight * activity.answer.capability_score;
+                    }
+                });
+                
+                // Calculate compliance for this level
+                const compliance = totalWeight > 0 ? ((weightedScore / totalWeight) * 100) : 0;
+                
+                // Level achieved if compliance >= 85% (COBIT 2019)
+                if (compliance >= 85) {
+                    achievedLevel = level;
+                    achievedCompliance = compliance;
+                } else {
+                    // Stop if level not achieved
+                    break;
+                }
+            }
+            
+            // Display: Level integer with percentage info
+            const levelNames = ['', 'Performed', 'Managed', 'Established', 'Predictable', 'Optimizing'];
+            
+            if (achievedLevel > 0) {
+                // Update level number
+                $('#gamoAchievedLevel').text(achievedLevel);
+                
+                // Update percentage next to level
+                $('#gamoAchievedPercent').text('(' + achievedCompliance.toFixed(0) + '%)');
+                
+                // Update badge
+                $('#achievedLevelName').text(levelNames[achievedLevel] || '');
+                $('#achievedLevelBadge').css('visibility', 'visible');
+                
+            } else {
+                $('#gamoAchievedLevel').html('<span class="text-muted">0</span>');
+                $('#gamoAchievedPercent').text('');
+                $('#achievedLevelBadge').css('visibility', 'hidden');
+            }
+        },
+        error: function() {
+            $('#gamoAchievedLevel').html('<span class="text-danger">Err</span>');
+        }
+    });
+}
 
 // Load activities by level
 function loadActivitiesByLevel(level) {

@@ -78,8 +78,8 @@
                             <th class="text-center">Total Activities</th>
                             <th class="text-center">Dinilai</th>
                             <th class="text-center">Progress</th>
-                            <th class="text-center">Avg Score</th>
                             <th class="text-center">Target</th>
+                            <th class="text-center">Current</th>
                             <th class="text-center">Gap</th>
                             <th class="text-end">Status</th>
                         </tr>
@@ -94,13 +94,13 @@
                     </tbody>
                     <tfoot>
                         <tr class="fw-bold">
-                            <td colspan="2">Total</td>
+                            <td colspan="2">Average</td>
                             <td class="text-center" id="totalActivities">0</td>
                             <td class="text-center" id="totalAssessed">0</td>
                             <td class="text-center" id="totalProgress">0%</td>
-                            <td class="text-center" id="totalAvgScore">0.00</td>
-                            <td class="text-center">-</td>
-                            <td class="text-center">-</td>
+                            <td class="text-center" id="avgTargetLevel">0.00</td>
+                            <td class="text-center" id="avgCurrentLevel">0.00</td>
+                            <td class="text-center" id="avgGap">-</td>
                             <td class="text-end"></td>
                         </tr>
                     </tfoot>
@@ -180,6 +180,8 @@ function renderSummaryPenilaian(data) {
     };
     
     if (data.gamos && data.gamos.length > 0) {
+        console.log('GAMO Data:', data.gamos); // Debug log
+        console.log('First GAMO keys:', Object.keys(data.gamos[0])); // Show all keys
         data.gamos.forEach(gamo => {
             totals.activities += gamo.total_activities || 0;
             totals.assessed += gamo.assessed_count || 0;
@@ -191,18 +193,29 @@ function renderSummaryPenilaian(data) {
             const progress = gamo.total_activities > 0 ? ((gamo.assessed_count / gamo.total_activities) * 100).toFixed(0) : 0;
             const progressClass = progress >= 75 ? 'bg-success' : (progress >= 50 ? 'bg-warning' : 'bg-danger');
             
-            const statusBadge = progress >= 100 ? '<span class="badge bg-success">Complete</span>' :
-                                progress >= 75 ? '<span class="badge bg-info">Almost Done</span>' :
-                                progress >= 50 ? '<span class="badge bg-warning">In Progress</span>' :
-                                '<span class="badge bg-secondary">Started</span>';
+            const statusBadge = progress >= 100 ? '<span class="badge text-white bg-success">Complete</span>' :
+                                progress >= 75 ? '<span class="badge text-white bg-info">Almost Done</span>' :
+                                progress >= 50 ? '<span class="badge text-white bg-warning">In Progress</span>' :
+                                '<span class="badge text-white bg-secondary">Started</span>';
             
-            // Calculate Gap (Target - Current Avg Score)
+            // Calculate Gap (Target - Current Level)
             const targetLevel = gamo.target_level || 3;
-            const currentScore = gamo.avg_score ? parseFloat(gamo.avg_score) : 0;
-            const gap = targetLevel - currentScore;
-            const gapFormatted = gap.toFixed(2);
+            const currentLevel = gamo.capability_level || 0;
+            const gap = targetLevel - currentLevel;
+            const gapFormatted = gap > 0 ? `+${gap.toFixed(2)}` : gap.toFixed(2);
             const gapClass = gap > 0 ? 'text-danger' : (gap < 0 ? 'text-success' : 'text-muted');
-            const gapDisplay = gap > 0 ? `+${gapFormatted}` : gapFormatted;
+            
+            // Badge color for current level
+            const levelColors = {
+                0: 'bg-secondary',
+                1: 'bg-red',
+                2: 'bg-orange',
+                3: 'bg-yellow',
+                4: 'bg-cyan',
+                5: 'bg-green'
+            };
+            const currentLevelColor = levelColors[Math.floor(currentLevel)] || 'bg-secondary';
+            const currentLevelDisplay = currentLevel > 0 ? `Level ${currentLevel}` : '-';
             
             html += `
                 <tr>
@@ -216,12 +229,16 @@ function renderSummaryPenilaian(data) {
                         </div>
                         <small>${progress}%</small>
                     </td>
-                    <td class="text-center">${gamo.avg_score ? parseFloat(gamo.avg_score).toFixed(2) : '0.00'}</td>
                     <td class="text-center">
                         <span class="badge badge-outline text-primary">Level ${gamo.target_level || 3}</span>
                     </td>
                     <td class="text-center">
-                        <span class="${gapClass} fw-bold">${gapDisplay}</span>
+                        <span class="badge text-white ${currentLevelColor}" id="current-level-${gamo.code}">
+                            <span class="spinner-border spinner-border-sm" style="width: 1rem; height: 1rem;"></span>
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <span class="${gapClass} fw-bold" id="gap-${gamo.code}">-</span>
                     </td>
                     <td class="text-end">${statusBadge}</td>
                 </tr>
@@ -233,28 +250,52 @@ function renderSummaryPenilaian(data) {
     
     $('#summaryPenilaianTableBody').html(html);
     
+    // Calculate capability level for each GAMO
+    if (data.gamos && data.gamos.length > 0) {
+        let totalTarget = 0;
+        let gamoCount = 0;
+        let completedCount = 0;
+        const totalGamos = data.gamos.length;
+        
+        data.gamos.forEach(gamo => {
+            // Sum target levels
+            totalTarget += (gamo.target_level || 3);
+            gamoCount++;
+            
+            // Lookup GAMO ID from code using global mapping
+            const gamoId = window.gamoCodeToId && window.gamoCodeToId[gamo.code];
+            if (gamoId && !isNaN(gamoId)) {
+                calculateGamoCapabilityLevel(gamoId, gamo.code, gamo.target_level || 3, function() {
+                    completedCount++;
+                    if (completedCount === totalGamos) {
+                        // All GAMOs calculated, now update averages
+                        updateAverages();
+                    }
+                });
+            } else {
+                console.warn('GAMO ID not found for code:', gamo.code);
+                $('#current-level-' + gamo.code).html('-');
+                $('#gap-' + gamo.code).html('-');
+                completedCount++;
+                if (completedCount === totalGamos) {
+                    updateAverages();
+                }
+            }
+        });
+        
+        // Calculate and display average target
+        if (gamoCount > 0) {
+            const avgTarget = (totalTarget / gamoCount).toFixed(2);
+            $('#avgTargetLevel').text(avgTarget);
+        }
+    }
+    
     // Update totals
     const totalProgress = totals.activities > 0 ? ((totals.assessed / totals.activities) * 100).toFixed(0) : 0;
-    const avgScore = totals.gamoCount > 0 ? (totals.score / totals.gamoCount).toFixed(2) : '0.00';
     
     $('#totalActivities').text(totals.activities);
     $('#totalAssessed').text(totals.assessed);
     $('#totalProgress').text(totalProgress + '%');
-    $('#totalAvgScore').text(avgScore);
-    
-    $('#summaryPenilaianTableBody').html(html);
-    
-    // Update totals
-    const avgCompliance = totals.activities > 0 ? (totals.compliance / 4).toFixed(2) : '0.00';
-    $('#totalActivities').text(totals.activities);
-    $('#totalAssessed').text(totals.assessed);
-    $('#totalNotAssessed').text(totals.notAssessed);
-    $('#totalNA').text(totals.na);
-    $('#totalN').text(totals.n);
-    $('#totalP').text(totals.p);
-    $('#totalL').text(totals.l);
-    $('#totalF').text(totals.f);
-    $('#totalCompliance').text(data.overall_compliance || avgCompliance);
 }
 
 // Update statistics cards
@@ -518,4 +559,144 @@ $(document).ready(function() {
         loadSummaryPenilaian();
     }
 });
+
+// Calculate capability level for each GAMO using COBIT 2019 rules
+function calculateGamoCapabilityLevel(gamoId, gamoCode, targetLevel, callback) {
+    const assessmentId = $('input[name="assessment_id"]').val();
+    
+    // Validate gamoId and assessmentId
+    if (!gamoId || !assessmentId || !gamoCode) {
+        console.error('Invalid parameters:', {gamoId, assessmentId, gamoCode});
+        $('#current-level-' + gamoCode).html('-');
+        $('#gap-' + gamoCode).html('-');
+        if (callback) callback();
+        return;
+    }
+    
+    $.ajax({
+        url: `/assessments/${assessmentId}/gamo/${gamoId}/activities`,
+        method: 'GET',
+        success: function(response) {
+            const activities = response.activities || {};
+            let achievedLevel = 0;
+            let achievedCompliance = 0;
+            
+            // Calculate achieved level based on COBIT 2019 rules
+            // Threshold: 85%, Sequential, Skip empty levels
+            for (let level = 1; level <= 5; level++) {
+                const levelActivities = activities[level] || [];
+                
+                // Skip level jika tidak ada activities
+                if (levelActivities.length === 0) continue;
+                
+                let totalWeight = 0;
+                let weightedScore = 0;
+                
+                levelActivities.forEach(activity => {
+                    const weight = activity.weight || 1;
+                    totalWeight += weight;
+                    
+                    if (activity.answer && activity.answer.capability_score) {
+                        weightedScore += weight * activity.answer.capability_score;
+                    }
+                });
+                
+                // Calculate compliance for this level
+                const compliance = totalWeight > 0 ? ((weightedScore / totalWeight) * 100) : 0;
+                
+                // Level achieved if compliance >= 85% (COBIT 2019)
+                if (compliance >= 85) {
+                    achievedLevel = level;
+                    achievedCompliance = compliance;
+                } else {
+                    // Stop if level not achieved
+                    break;
+                }
+            }
+            
+            // Update display
+            const levelColors = {
+                0: 'bg-secondary',
+                1: 'bg-red',
+                2: 'bg-orange',
+                3: 'bg-yellow',
+                4: 'bg-cyan',
+                5: 'bg-green'
+            };
+            
+            const $badge = $('#current-level-' + gamoCode);
+            const $gap = $('#gap-' + gamoCode);
+            
+            if (achievedLevel > 0) {
+                // Update current level badge
+                $badge.removeClass('bg-secondary bg-red bg-orange bg-yellow bg-cyan bg-green')
+                      .addClass('text-white ' + levelColors[achievedLevel]);
+                $badge.html('Level ' + achievedLevel);
+                
+                // Update gap
+                const gap = targetLevel - achievedLevel;
+                const gapDisplay = gap > 0 ? '+' + gap.toFixed(2) : gap.toFixed(2);
+                const gapClass = gap > 0 ? 'text-danger' : (gap < 0 ? 'text-success' : 'text-muted');
+                $gap.removeClass('text-danger text-success text-muted').addClass(gapClass + ' fw-bold');
+                $gap.text(gapDisplay);
+                
+                // Call callback when done
+                if (callback) callback();
+            } else {
+                $badge.removeClass('bg-red bg-orange bg-yellow bg-cyan bg-green')
+                      .addClass('bg-secondary');
+                $badge.html('-');
+                
+                const gap = targetLevel - 0;
+                $gap.removeClass('text-danger text-success text-muted').addClass('text-danger fw-bold');
+                $gap.text('+' + gap.toFixed(2));
+                
+                // Call callback when done
+                if (callback) callback();
+            }
+        },
+        error: function() {
+            $('#current-level-' + gamoCode).html('-');
+            $('#gap-' + gamoCode).html('-');
+            if (callback) callback();
+        }
+    });
+}
+
+// Update average current level and gap (called after all GAMOs calculated)
+function updateAverages() {
+    let totalLevel = 0;
+    let count = 0;
+    
+    // Count ALL GAMOs including those with level 0
+    $('[id^="current-level-"]').each(function() {
+        const text = $(this).text().trim();
+        let level = 0;
+        
+        if (text.startsWith('Level ')) {
+            level = parseInt(text.replace('Level ', ''));
+            if (isNaN(level)) level = 0;
+        } else if (text === '-' || text === '0') {
+            level = 0;
+        }
+        
+        totalLevel += level;
+        count++;
+    });
+    
+    // Update average current level (include all GAMOs, even those with 0)
+    const avgCurrent = count > 0 ? (totalLevel / count).toFixed(2) : '0.00';
+    $('#avgCurrentLevel').text(avgCurrent);
+    
+    // Calculate average gap
+    const avgTarget = parseFloat($('#avgTargetLevel').text()) || 0;
+    const avgCurrentNum = parseFloat(avgCurrent) || 0;
+    const avgGap = avgTarget - avgCurrentNum;
+    const gapDisplay = avgGap > 0 ? '+' + avgGap.toFixed(2) : avgGap.toFixed(2);
+    const gapClass = avgGap > 0 ? 'text-danger' : (avgGap < 0 ? 'text-success' : 'text-muted');
+    
+    $('#avgGap').removeClass('text-danger text-success text-muted')
+                .addClass(gapClass + ' fw-bold')
+                .text(gapDisplay);
+}
 </script>
