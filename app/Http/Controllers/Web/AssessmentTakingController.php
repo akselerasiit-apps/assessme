@@ -1117,6 +1117,11 @@ class AssessmentTakingController extends Controller
 
         return response()->json([
             'success' => true,
+            'gamo' => [
+                'id' => $gamo->id,
+                'code' => $gamo->code,
+                'name' => $gamo->name,
+            ],
             'current_level' => $currentLevel,
             'target_level' => $targetLevel,
             'gap' => $targetLevel - $currentLevel,
