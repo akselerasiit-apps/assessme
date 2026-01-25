@@ -2,7 +2,7 @@
 <div class="card mb-3">
     <div class="card-body">
         <div class="d-flex align-items-center justify-content-between" style="gap: 1rem;">
-            @for($level = 1; $level <= 5; $level++)
+            @for($level = 2; $level <= 5; $level++)
             <div class="level-card text-center p-3 rounded locked" 
                  data-level="{{ $level }}" 
                  data-locked="true"
@@ -29,7 +29,7 @@
 
 <!-- Level Title and Action Menu -->
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 id="currentLevelTitle">Level 1</h3>
+    <h3 id="currentLevelTitle">Level 2</h3>
     <div class="dropdown">
         <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
             <i class="ti ti-dots-vertical"></i>

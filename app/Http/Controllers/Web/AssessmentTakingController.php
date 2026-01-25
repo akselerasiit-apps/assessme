@@ -283,7 +283,9 @@ class AssessmentTakingController extends Controller
     {
         $totalQuestions = GamoQuestion::whereIn('gamo_objective_id',
             $assessment->gamoSelections()->pluck('gamo_objective_id')->toArray()
-        )->where('is_active', true)->count();
+        )->where('is_active', true)
+         ->where('maturity_level', '>=', 2) // COBIT 2019: Level 2-5 only
+         ->count();
 
         $answeredQuestions = AssessmentAnswer::where('assessment_id', $assessment->id)
             ->whereNotNull('answered_at')
@@ -332,6 +334,7 @@ class AssessmentTakingController extends Controller
 
         $activities = GamoQuestion::where('gamo_objective_id', $gamo->id)
             ->where('is_active', true)
+            ->where('maturity_level', '>=', 2) // COBIT 2019: Level 2-5 only
             ->orderBy('maturity_level')
             ->orderBy('question_order')
             ->get()
@@ -844,7 +847,8 @@ class AssessmentTakingController extends Controller
         $gamos = $assessment->gamoObjectives()
             ->withPivot('target_maturity_level')
             ->with(['questions' => function($query) {
-                $query->where('is_active', true);
+                $query->where('is_active', true)
+                      ->where('maturity_level', '>=', 2); // COBIT 2019: Level 2-5 only
             }])->get();
 
         $summaryData = [];
