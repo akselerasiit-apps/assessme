@@ -123,46 +123,94 @@
 
     <!-- Tab Progress Kapabilitas -->
     <div class="tab-pane" id="summaryProgress" role="tabpanel">
+        <div class="mb-3">
+            <h3 class="mb-1">Summary Progress Kapabilitas</h3>
+            <p class="text-muted">Rekapitulasi dari Activites Kapabilitas Asesment</p>
+        </div>
+        
         <!-- Progress Cards -->
-        <div class="row row-cards mb-3">
+        <div class="row row-cards mb-4">
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <div class="subheader">Current Avg Score</div>
-                        <div class="h1 mb-0 text-primary" id="currentCapabilityLevel">-</div>
-                        <div class="text-muted small">Across all GAMOs</div>
+                        <div class="d-flex align-items-center">
+                            <span class="avatar bg-blue-lt me-3">
+                                <i class="ti ti-clipboard-list"></i>
+                            </span>
+                            <div>
+                                <div class="h1 mb-0" id="progressTotalActivities">0</div>
+                                <div class="text-muted">Total Activities</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <div class="subheader">Avg Target Level</div>
-                        <div class="h1 mb-0 text-success" id="targetLevel">-</div>
-                        <div class="text-muted small">Goal to achieve</div>
+                        <div class="d-flex align-items-center">
+                            <span class="avatar bg-cyan-lt me-3">
+                                <i class="ti ti-clipboard-check"></i>
+                            </span>
+                            <div>
+                                <div class="h1 mb-0 text-cyan" id="progressAssessedActivities">0</div>
+                                <div class="text-muted">Total Activities Sudah Dinilai</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <div class="subheader">Progress to Target</div>
-                        <div class="h1 mb-0 text-info" id="progressPercent">0%</div>
-                        <div class="progress progress-sm mt-2">
-                            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                        <div class="d-flex align-items-center">
+                            <span class="avatar bg-blue me-3 text-white">
+                                <i class="ti ti-chart-line"></i>
+                            </span>
+                            <div>
+                                <div class="h1 mb-0 text-blue" id="progressPercentage">0%</div>
+                                <div class="text-muted">Progress Kapabilitas Asesment</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Level Progress Chart -->
-        <div class="card mb-3">
-            <div class="card-header">
-                <h3 class="card-title">Capability Maturity Progress (Realisasi vs Target)</h3>
-            </div>
-            <div class="card-body" style="height: 400px;">
-                <canvas id="capabilityChart"></canvas>
+        <!-- Summary Progress Table -->
+        <div class="mb-3">
+            <h3 class="mb-1">Summary Progress</h3>
+            <p class="text-muted">Rekapitulasi dari Progress Kapabilitas Asesment</p>
+        </div>
+        
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table table-bordered">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="text-center align-middle" style="min-width: 200px;">
+                                <div>Governance and Management</div>
+                                <div>Objectives</div>
+                            </th>
+                            <th colspan="5" class="text-center bg-blue-lt">Jumlah Activities</th>
+                        </tr>
+                        <tr>
+                            <th class="text-center" style="min-width: 100px;">Level 2</th>
+                            <th class="text-center" style="min-width: 100px;">Level 3</th>
+                            <th class="text-center" style="min-width: 100px;">Level 4</th>
+                            <th class="text-center" style="min-width: 100px;">Level 5</th>
+                            <th class="text-center bg-blue text-white" style="min-width: 100px;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="progressTableBody">
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
+                                <span class="text-muted ms-2">Loading progress data...</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -558,6 +606,32 @@ $(document).ready(function() {
     if ($('#summaryPenilaian').hasClass('active') && $('#tab-summary').hasClass('active')) {
         loadSummaryPenilaian();
     }
+    
+    // Handle Progress Kapabilitas tab click
+    $('a[href="#summaryProgress"]').on('shown.bs.tab', function() {
+        loadProgressKapabilitasData();
+    });
+    
+    // Load Progress Kapabilitas data
+    window.loadProgressKapabilitasData = function() {
+        const assessmentId = $('input[name="assessment_id"]').val();
+        
+        $.ajax({
+            url: `/assessments/${assessmentId}/summary-all-gamos`,
+            method: 'GET',
+            success: function(response) {
+                renderProgressKapabilitas(response);
+            },
+            error: function(xhr) {
+                console.error('Error loading progress data:', xhr);
+                $('#progressTableBody').html(`
+                    <tr>
+                        <td colspan="6" class="text-center text-danger">Error loading progress data</td>
+                    </tr>
+                `);
+            }
+        });
+    };
 });
 
 // Calculate capability level for each GAMO using COBIT 2019 rules
@@ -699,4 +773,157 @@ function updateAverages() {
                 .addClass(gapClass + ' fw-bold')
                 .text(gapDisplay);
 }
+
+// Render Progress Kapabilitas table
+function renderProgressKapabilitas(data) {
+    if (!data.gamos || data.gamos.length === 0) {
+        $('#progressTableBody').html('<tr><td colspan="6" class="text-center text-muted">No data available</td></tr>');
+        return;
+    }
+    
+    let html = '';
+    let totalActivitiesOverall = 0;
+    let totalAssessedOverall = 0;
+    
+    // Group by category
+    const categories = {};
+    data.gamos.forEach(gamo => {
+        const category = gamo.category || 'Other';
+        if (!categories[category]) {
+            categories[category] = [];
+        }
+        categories[category].push(gamo);
+    });
+    
+    // Render each category
+    Object.keys(categories).sort().forEach(category => {
+        const gamos = categories[category];
+        
+        gamos.forEach(gamo => {
+            const gamoId = window.gamoCodeToId && window.gamoCodeToId[gamo.code];
+            
+            // Fetch activities breakdown per level
+            if (gamoId) {
+                $.ajax({
+                    url: `/assessments/${assessmentId}/gamo/${gamoId}/activities`,
+                    method: 'GET',
+                    success: function(response) {
+                        const activities = response.activities || {};
+                        
+                        // Count activities per level
+                        const levelData = {};
+                        let totalActivities = 0;
+                        let totalAssessed = 0;
+                        
+                        for (let level = 2; level <= 5; level++) {
+                            const levelActivities = activities[level] || [];
+                            const count = levelActivities.length;
+                            const assessed = levelActivities.filter(a => a.answer && a.answer.capability_score !== null).length;
+                            
+                            levelData[level] = { count, assessed };
+                            totalActivities += count;
+                            totalAssessed += assessed;
+                        }
+                        
+                        totalActivitiesOverall += totalActivities;
+                        totalAssessedOverall += totalAssessed;
+                        
+                        // Build table row
+                        let rowHtml = `
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">${gamo.code}</div>
+                                    <div class="text-muted small">${gamo.name}</div>
+                                </td>
+                        `;
+                        
+                        // Level 2-5 columns
+                        for (let level = 2; level <= 5; level++) {
+                            const data = levelData[level];
+                            const isComplete = data.count > 0 && data.assessed === data.count;
+                            const badgeClass = isComplete ? 'bg-cyan-lt text-cyan' : '';
+                            
+                            rowHtml += `
+                                <td class="text-center ${badgeClass}">
+                                    <div class="h4 mb-1">${data.count}</div>
+                                    <div class="text-muted small">${data.assessed} Sudah Dinilai</div>
+                                </td>
+                            `;
+                        }
+                        
+                        // Total column
+                        const totalComplete = totalActivities > 0 && totalAssessed === totalActivities;
+                        const totalBadgeClass = totalComplete ? 'bg-cyan-lt text-cyan' : '';
+                        
+                        rowHtml += `
+                                <td class="text-center ${totalBadgeClass}">
+                                    <div class="h4 mb-1 fw-bold">${totalActivities}</div>
+                                    <div class="text-muted small">${totalAssessed} Sudah Dinilai</div>
+                                </td>
+                            </tr>
+                        `;
+                        
+                        // Append row (use data attribute to maintain order)
+                        const $row = $(rowHtml);
+                        $row.attr('data-gamo-code', gamo.code);
+                        
+                        // Insert in correct position
+                        const $tbody = $('#progressTableBody');
+                        const $existingRow = $tbody.find(`tr[data-gamo-code="${gamo.code}"]`);
+                        
+                        if ($existingRow.length) {
+                            $existingRow.replaceWith($row);
+                        } else {
+                            $tbody.append($row);
+                        }
+                        
+                        // Update summary cards
+                        updateProgressCards();
+                    },
+                    error: function() {
+                        console.error('Failed to load activities for GAMO:', gamo.code);
+                    }
+                });
+            }
+        });
+    });
+    
+    // Show loading initially
+    if ($('#progressTableBody tr').length === 1) {
+        $('#progressTableBody').html(`
+            <tr>
+                <td colspan="6" class="text-center">
+                    <div class="spinner-border spinner-border-sm text-muted"></div>
+                    <span class="text-muted ms-2">Loading activities data...</span>
+                </td>
+            </tr>
+        `);
+    }
+}
+
+// Update progress summary cards
+function updateProgressCards() {
+    let totalActivities = 0;
+    let totalAssessed = 0;
+    
+    // Calculate from table data
+    $('#progressTableBody tr[data-gamo-code]').each(function() {
+        const $lastCell = $(this).find('td').last();
+        const activitiesText = $lastCell.find('.h4').text().trim();
+        const assessedText = $lastCell.find('.small').text().trim();
+        
+        const activities = parseInt(activitiesText) || 0;
+        const assessed = parseInt(assessedText.split(' ')[0]) || 0;
+        
+        totalActivities += activities;
+        totalAssessed += assessed;
+    });
+    
+    const progress = totalActivities > 0 ? ((totalAssessed / totalActivities) * 100).toFixed(2) : 0;
+    
+    $('#progressTotalActivities').text(totalActivities);
+    $('#progressAssessedActivities').text(totalAssessed);
+    $('#progressPercentage').text(progress + '%');
+}
 </script>
+
