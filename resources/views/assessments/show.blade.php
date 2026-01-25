@@ -15,10 +15,11 @@
                     <i class="ti ti-clipboard-check me-1"></i>
                     Answer Assessment
                 </a>
-                {{-- <a href="{{ route('assessments.take', $assessment) }}" class="btn btn-outline-secondary">
-                    <i class="ti ti-clipboard-text me-1"></i>
-                    Old Version
-                </a> --}}
+                @elsecan('take-assessment', $assessment)
+                <a href="{{ route('assessments.answer-new', $assessment) }}" class="btn btn-info">
+                    <i class="ti ti-eye me-1"></i>
+                    View Details (Evidence, Summary, OFI)
+                </a>
                 @endcan
                 
                 @can('update', $assessment)

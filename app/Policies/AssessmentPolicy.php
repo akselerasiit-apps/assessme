@@ -138,10 +138,16 @@ class AssessmentPolicy
 
     /**
      * Determine whether the user can take/fill the assessment.
-     * Alias for answer() method
+     * Updated to allow Viewer read-only access
      */
     public function takeAssessment(User $user, Assessment $assessment): bool
     {
+        // Viewer: read-only access to view evidence, summary, OFI
+        if ($user->hasRole('Viewer')) {
+            return $user->company_id === $assessment->company_id;
+        }
+        
+        // For other roles, use answer policy
         return $this->answer($user, $assessment);
     }
 
