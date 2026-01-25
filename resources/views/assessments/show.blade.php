@@ -282,18 +282,24 @@
                 <h3 class="card-title">Progress Summary</h3>
             </div>
             <div class="card-body">
-                <div class="h1 m-0 mb-1">{{ $assessment->progress_percentage }}%</div>
+                @php
+                    // Hitung GAMO yang sudah dijawab (unique GAMO IDs dari answers)
+                    $answeredGamoCount = $assessment->answers->pluck('gamo_objective_id')->unique()->count();
+                    $totalGamoCount = $assessment->gamoObjectives->count();
+                    $progressPercentage = $totalGamoCount > 0 ? round(($answeredGamoCount / $totalGamoCount) * 100) : 0;
+                @endphp
+                <div class="h1 m-0 mb-1">{{ $progressPercentage }}%</div>
                 <div class="progress progress-sm mb-3">
-                    <div class="progress-bar bg-primary" style="width: {{ $assessment->progress_percentage }}%" role="progressbar"></div>
+                    <div class="progress-bar bg-primary" style="width: {{ $progressPercentage }}%" role="progressbar"></div>
                 </div>
                 <div class="row">
                     <div class="col-6">
                         <div class="text-muted small">Answered</div>
-                        <div class="h3 m-0">{{ $assessment->answers->count() }}</div>
+                        <div class="h3 m-0">{{ $answeredGamoCount }}</div>
                     </div>
                     <div class="col-6">
                         <div class="text-muted small">Objectives</div>
-                        <div class="h3 m-0">{{ $assessment->gamoObjectives->count() }}</div>
+                        <div class="h3 m-0">{{ $totalGamoCount }}</div>
                     </div>
                 </div>
             </div>
