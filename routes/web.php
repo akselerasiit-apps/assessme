@@ -95,6 +95,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{assessment}/activity/{activity}/evidence', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'uploadEvidence'])->name('upload-evidence');
         Route::get('/{assessment}/evidence/{evidence}/download', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'downloadEvidence'])->name('evidence-download');
         
+        // OFI (Opportunity for Improvement) Routes
+        Route::get('/{assessment}/gamo/{gamo}/ofi', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getOFIData'])->name('ofi-data');
+        Route::post('/{assessment}/gamo/{gamo}/ofi/generate', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'generateAutoOFI'])->name('ofi-generate');
+        Route::post('/{assessment}/gamo/{gamo}/ofi', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'storeOFI'])->name('ofi-store');
+        Route::put('/{assessment}/ofi/{ofi}', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'updateOFI'])->name('ofi-update');
+        Route::delete('/{assessment}/ofi/{ofi}', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'deleteOFI'])->name('ofi-delete');
+        
         // Legacy answer routes
         Route::get('/{assessment}/answer', [AssessmentWebController::class, 'answer'])->name('answer-legacy');
         Route::post('/{assessment}/submit-answer', [AssessmentWebController::class, 'submitAnswer'])->name('submit-answer-legacy');

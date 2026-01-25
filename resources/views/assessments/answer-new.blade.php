@@ -90,7 +90,7 @@
 
         <!-- GAMO Selector -->
         <div class="row mt-3">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <select class="form-select" id="gamoSelector">
                     @foreach($gamoObjectives as $gamo)
                     <option value="{{ $gamo->id }}" 
@@ -102,7 +102,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="card mb-0 border-primary shadow-sm">
                     <div class="card-body p-3">
                         <div class="d-flex align-items-center mb-2">
@@ -131,7 +131,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="card mb-0 border-success shadow-sm">
                     <div class="card-body p-3">
                         <div class="d-flex align-items-center mb-2">
@@ -151,6 +151,20 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card mb-0 border-info shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="ti ti-bulb text-info me-2" style="font-size: 1.25rem;"></i>
+                            <span class="text-muted small fw-semibold">OPPORTUNITY</span>
+                        </div>
+                        <button type="button" class="btn btn-info w-100" onclick="showOFIModal(document.getElementById('gamoObjectiveSelect').value)">
+                            <i class="ti ti-edit me-1"></i>
+                            <span class="d-none d-lg-inline">OFI</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -207,6 +221,7 @@
 @include('assessments.modals.nilai-rata-rata')
 @include('assessments.modals.daftar-catatan')
 @include('assessments.modals.daftar-evidence')
+@include('assessments.modals.ofi')
 
 @endsection
 

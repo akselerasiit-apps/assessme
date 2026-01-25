@@ -9,6 +9,7 @@ use App\Models\AssessmentAuditLog;
 use App\Models\AssessmentEvidence;
 use App\Models\AssessmentGamoSelection;
 use App\Models\AssessmentNote;
+use App\Models\AssessmentOfi;
 use App\Models\GamoObjective;
 use App\Models\GamoQuestion;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -1076,6 +1077,283 @@ class AssessmentTakingController extends Controller
             'level' => $level,
             'activities' => $activities,
         ]);
+    }
+
+    /**
+     * Get OFI data for a GAMO objective
+     */
+    public function getOFIData(Assessment $assessment, GamoObjective $gamo)
+    {
+        $this->authorize('take-assessment', $assessment);
+
+        // Get current and target levels
+        $selection = AssessmentGamoSelection::where('assessment_id', $assessment->id)
+            ->where('gamo_objective_id', $gamo->id)
+            ->first();
+
+        if (!$selection) {
+            return response()->json(['error' => 'GAMO not selected'], 404);
+        }
+
+        $targetLevel = $selection->target_maturity_level;
+        
+        // Calculate current level based on answers
+        $currentLevel = $this->calculateCurrentLevel($assessment, $gamo);
+
+        // Get auto-generated OFIs
+        $autoOFIs = AssessmentOfi::where('assessment_id', $assessment->id)
+            ->where('gamo_objective_id', $gamo->id)
+            ->where('type', 'auto')
+            ->with('gamoObjective')
+            ->get();
+
+        // Get manual OFIs
+        $manualOFIs = AssessmentOfi::where('assessment_id', $assessment->id)
+            ->where('gamo_objective_id', $gamo->id)
+            ->where('type', 'manual')
+            ->with('gamoObjective')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'current_level' => $currentLevel,
+            'target_level' => $targetLevel,
+            'gap' => $targetLevel - $currentLevel,
+            'auto_ofis' => $autoOFIs,
+            'manual_ofis' => $manualOFIs,
+        ]);
+    }
+
+    /**
+     * Generate auto OFI recommendations
+     */
+    public function generateAutoOFI(Assessment $assessment, GamoObjective $gamo)
+    {
+        $this->authorize('take-assessment', $assessment);
+
+        // Get current and target levels
+        $selection = AssessmentGamoSelection::where('assessment_id', $assessment->id)
+            ->where('gamo_objective_id', $gamo->id)
+            ->first();
+
+        if (!$selection) {
+            return response()->json(['error' => 'GAMO not selected'], 404);
+        }
+
+        $targetLevel = $selection->target_maturity_level;
+        $currentLevel = $this->calculateCurrentLevel($assessment, $gamo);
+
+        // Delete existing auto OFIs
+        AssessmentOfi::where('assessment_id', $assessment->id)
+            ->where('gamo_objective_id', $gamo->id)
+            ->where('type', 'auto')
+            ->delete();
+
+        $recommendations = [];
+
+        // Generate recommendations for gap levels
+        if ($currentLevel < $targetLevel) {
+            // Get activities for levels between current+1 and target
+            for ($level = $currentLevel + 1; $level <= $targetLevel; $level++) {
+                $activities = GamoQuestion::where('gamo_objective_id', $gamo->id)
+                    ->where('maturity_level', $level)
+                    ->get();
+
+                foreach ($activities as $activity) {
+                    // Get answer for this activity
+                    $answer = AssessmentAnswer::where('assessment_id', $assessment->id)
+                        ->where('question_id', $activity->id)
+                        ->first();
+
+                    $compliance = $answer ? $answer->compliance_percentage : 0;
+
+                    // Recommend if not fully achieved (< 85%)
+                    if ($compliance < 85) {
+                        $parts = explode(' | ', $activity->question_text);
+                        $activityNameId = $parts[1] ?? $parts[0];
+
+                        $recommendations[] = [
+                            'level' => $level,
+                            'activity_code' => $activity->code,
+                            'activity_name' => $activityNameId,
+                            'current_compliance' => $compliance,
+                        ];
+                    }
+                }
+            }
+
+            // Create summary OFI record
+            if (!empty($recommendations)) {
+                $description = "<p><strong>Kesenjangan Kapabilitas: Level {$currentLevel} → Level {$targetLevel}</strong></p>";
+                $description .= "<p>Untuk mencapai target level, disarankan untuk meningkatkan aktivitas berikut:</p>";
+                $description .= "<ul>";
+                
+                foreach ($recommendations as $rec) {
+                    $description .= "<li>";
+                    $description .= "<strong>[{$rec['activity_code']}]</strong> {$rec['activity_name']} ";
+                    $description .= "(Level {$rec['level']}, Kepatuhan saat ini: {$rec['current_compliance']}%)";
+                    $description .= "</li>";
+                }
+                
+                $description .= "</ul>";
+
+                $gapScore = $targetLevel - $currentLevel;
+                
+                AssessmentOfi::create([
+                    'assessment_id' => $assessment->id,
+                    'gamo_objective_id' => $gamo->id,
+                    'title' => "Rekomendasi Peningkatan Level {$currentLevel} ke Level {$targetLevel}",
+                    'description' => $description,
+                    'type' => 'auto',
+                    'priority' => $gapScore >= 2 ? 'high' : 'medium',
+                    'status' => 'open',
+                    'category' => 'Process',
+                    'current_level' => $currentLevel,
+                    'target_level' => $targetLevel,
+                    'gap_score' => $gapScore,
+                    'created_by' => Auth::id(),
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Auto OFI generated successfully',
+            'recommendations_count' => count($recommendations),
+        ]);
+    }
+
+    /**
+     * Store new manual OFI
+     */
+    public function storeOFI(Request $request, Assessment $assessment, GamoObjective $gamo)
+    {
+        $this->authorize('take-assessment', $assessment);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'priority' => 'required|in:low,medium,high,critical',
+            'status' => 'required|in:open,in_progress,resolved,closed',
+            'category' => 'nullable|string|max:100',
+            'target_date' => 'nullable|date',
+        ]);
+
+        $ofi = AssessmentOfi::create([
+            'assessment_id' => $assessment->id,
+            'gamo_objective_id' => $gamo->id,
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'type' => 'manual',
+            'priority' => $validated['priority'],
+            'status' => $validated['status'],
+            'category' => $validated['category'] ?? null,
+            'target_date' => $validated['target_date'] ?? null,
+            'created_by' => Auth::id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'OFI created successfully',
+            'ofi' => $ofi,
+        ]);
+    }
+
+    /**
+     * Update existing OFI
+     */
+    public function updateOFI(Request $request, Assessment $assessment, AssessmentOfi $ofi)
+    {
+        $this->authorize('take-assessment', $assessment);
+
+        // Only allow updating manual OFIs
+        if ($ofi->type === 'auto') {
+            return response()->json(['error' => 'Cannot edit auto-generated OFI'], 403);
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'priority' => 'required|in:low,medium,high,critical',
+            'status' => 'required|in:open,in_progress,resolved,closed',
+            'category' => 'nullable|string|max:100',
+            'target_date' => 'nullable|date',
+        ]);
+
+        $ofi->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'priority' => $validated['priority'],
+            'status' => $validated['status'],
+            'category' => $validated['category'] ?? null,
+            'target_date' => $validated['target_date'] ?? null,
+            'updated_by' => Auth::id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'OFI updated successfully',
+            'ofi' => $ofi,
+        ]);
+    }
+
+    /**
+     * Delete OFI
+     */
+    public function deleteOFI(Assessment $assessment, AssessmentOfi $ofi)
+    {
+        $this->authorize('take-assessment', $assessment);
+
+        // Only allow deleting manual OFIs
+        if ($ofi->type === 'auto') {
+            return response()->json(['error' => 'Cannot delete auto-generated OFI'], 403);
+        }
+
+        $ofi->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'OFI deleted successfully',
+        ]);
+    }
+
+    /**
+     * Calculate current capability level for a GAMO
+     */
+    private function calculateCurrentLevel(Assessment $assessment, GamoObjective $gamo): int
+    {
+        // Get all answered questions for this GAMO, ordered by level
+        $answers = AssessmentAnswer::where('assessment_id', $assessment->id)
+            ->where('gamo_objective_id', $gamo->id)
+            ->whereNotNull('answered_at')
+            ->with('question')
+            ->get();
+
+        if ($answers->isEmpty()) {
+            return 0; // No answers yet
+        }
+
+        // Check each level from 2 to 5
+        for ($level = 5; $level >= 2; $level--) {
+            $levelAnswers = $answers->filter(function($answer) use ($level) {
+                return $answer->question->maturity_level == $level;
+            });
+
+            if ($levelAnswers->isEmpty()) {
+                continue; // No questions answered at this level
+            }
+
+            // Calculate average compliance for this level
+            $avgCompliance = $levelAnswers->avg('compliance_percentage');
+
+            // Consider level achieved if average compliance >= 85%
+            if ($avgCompliance >= 85) {
+                return $level;
+            }
+        }
+
+        return 1; // Default to level 1 if no level meets criteria
     }
 }
 
