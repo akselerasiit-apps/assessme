@@ -623,8 +623,7 @@ class AssessmentTakingController extends Controller
         $activities = $query->with(['answers' => function($q) use ($assessment) {
             $q->where('assessment_id', $assessment->id)
               ->whereNotNull('notes')
-              ->where('notes', '!=', '')
-              ->with('user:id,name');
+              ->where('notes', '!=', '');
         }])->get();
 
         // Transform to notes format
@@ -642,6 +641,13 @@ class AssessmentTakingController extends Controller
                     continue;
                 }
 
+                // Get user name
+                $userName = 'Unknown';
+                if ($answer->answered_by) {
+                    $user = \App\Models\User::find($answer->answered_by);
+                    $userName = $user ? $user->name : 'Unknown';
+                }
+
                 $texts = explode(' | ', $activity->question_text);
                 $notes[] = [
                     'activity_id' => $activity->id,
@@ -650,7 +656,7 @@ class AssessmentTakingController extends Controller
                     'level' => $activity->maturity_level,
                     'notes' => $answer->notes,
                     'rating' => $answer->capability_rating,
-                    'user_name' => $answer->user->name ?? 'Unknown',
+                    'user_name' => $userName,
                     'created_at' => $answer->created_at,
                     'updated_at' => $answer->updated_at,
                 ];
