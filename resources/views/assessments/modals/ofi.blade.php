@@ -93,21 +93,12 @@
                                     <input type="hidden" id="ofiAssessmentId" name="assessment_id">
                                     <input type="hidden" id="ofiGamoId" name="gamo_objective_id">
                                     
-                                    <div class="row mb-3">
-                                        <div class="col-md-8">
-                                            <label class="form-label required">Judul OFI</label>
-                                            <input type="text" class="form-control" id="ofiTitle" name="title" required 
-                                                   placeholder="Contoh: Implementasi dokumentasi proses bisnis">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label required">Priority</label>
-                                            <select class="form-select" id="ofiPriority" name="priority" required>
-                                                <option value="low">Low</option>
-                                                <option value="medium" selected>Medium</option>
-                                                <option value="high">High</option>
-                                                <option value="critical">Critical</option>
-                                            </select>
-                                        </div>
+                                    <div class="mb-3">
+                                        <label class="form-label required">Judul OFI</label>
+                                        <input type="text" class="form-control" id="ofiTitle" name="title" required 
+                                               placeholder="Contoh: Implementasi dokumentasi proses bisnis">
+                                        <!-- Priority hidden, default to medium -->
+                                        <input type="hidden" id="ofiPriority" name="priority" value="medium">
                                     </div>
 
                                     <div class="mb-3">
@@ -117,7 +108,7 @@
                                     </div>
 
                                     <div class="row mb-3">
-                                        <div class="col-md-4">
+                                        <div class="col-md-6">
                                             <label class="form-label">Kategori</label>
                                             <select class="form-select" id="ofiCategory" name="category">
                                                 <option value="">Pilih kategori...</option>
@@ -127,19 +118,12 @@
                                                 <option value="Governance">Governance</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label">Status</label>
-                                            <select class="form-select" id="ofiStatus" name="status">
-                                                <option value="open" selected>Open</option>
-                                                <option value="in_progress">In Progress</option>
-                                                <option value="resolved">Resolved</option>
-                                                <option value="closed">Closed</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-6">
                                             <label class="form-label">Target Date</label>
                                             <input type="date" class="form-control" id="ofiTargetDate" name="target_date">
                                         </div>
+                                        <!-- Status hidden, default to open -->
+                                        <input type="hidden" id="ofiStatus" name="status" value="open">
                                     </div>
 
                                     <div class="d-flex gap-2">
@@ -322,8 +306,6 @@ function renderManualOFIs(ofis) {
                     <div>
                         <h4 class="mb-1">${ofi.title}</h4>
                         <div class="d-flex gap-2 flex-wrap">
-                            <span class="badge bg-${priorityColors[ofi.priority]}">${ofi.priority.toUpperCase()}</span>
-                            <span class="badge bg-${statusColors[ofi.status]}">${ofi.status.replace('_', ' ').toUpperCase()}</span>
                             ${ofi.category ? `<span class="badge bg-blue-lt">${ofi.category}</span>` : ''}
                             ${ofi.target_date ? `<span class="badge bg-orange-lt"><i class="ti ti-calendar me-1"></i>${ofi.target_date}</span>` : ''}
                         </div>
