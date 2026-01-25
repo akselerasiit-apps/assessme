@@ -84,9 +84,14 @@
                                     Tambahkan improvement points kustom sesuai kebutuhan organisasi
                                 </p>
                             </div>
-                            <button class="btn btn-primary btn-sm" onclick="showAddOFIForm()">
-                                <i class="ti ti-plus me-1"></i>Tambah OFI
-                            </button>
+                            <div class="btn-group">
+                                <button class="btn btn-primary btn-sm" onclick="showAddOFIForm()">
+                                    <i class="ti ti-plus me-1"></i>Tambah OFI
+                                </button>
+                                <button class="btn btn-outline-primary btn-sm" onclick="copyManualOFI()">
+                                    <i class="ti ti-copy me-1"></i>Salin
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Add/Edit Form (Hidden by default) -->
@@ -110,25 +115,11 @@
                                         <div id="ofiDescriptionEditor" style="height: 200px;"></div>
                                         <input type="hidden" id="ofiDescription" name="description">
                                     </div>
-
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label">Kategori</label>
-                                            <select class="form-select" id="ofiCategory" name="category">
-                                                <option value="">Pilih kategori...</option>
-                                                <option value="Process">Process</option>
-                                                <option value="People">People</option>
-                                                <option value="Technology">Technology</option>
-                                                <option value="Governance">Governance</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Target Date</label>
-                                            <input type="date" class="form-control" id="ofiTargetDate" name="target_date">
-                                        </div>
-                                        <!-- Status hidden, default to open -->
-                                        <input type="hidden" id="ofiStatus" name="status" value="open">
-                                    </div>
+                                    
+                                    <!-- Hidden fields -->
+                                    <input type="hidden" id="ofiCategory" name="category" value="">
+                                    <input type="hidden" id="ofiTargetDate" name="target_date" value="">
+                                    <input type="hidden" id="ofiStatus" name="status" value="open">
 
                                     <div class="d-flex gap-2">
                                         <button type="submit" class="btn btn-primary">
@@ -312,12 +303,8 @@ function renderManualOFIs(ofis) {
         html += `
             <div class="list-group-item">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div>
+                    <div class="flex-grow-1">
                         <h4 class="mb-1">${ofi.title}</h4>
-                        <div class="d-flex gap-2 flex-wrap">
-                            ${ofi.category ? `<span class="badge bg-blue-lt">${ofi.category}</span>` : ''}
-                            ${ofi.target_date ? `<span class="badge bg-orange-lt"><i class="ti ti-calendar me-1"></i>${ofi.target_date}</span>` : ''}
-                        </div>
                     </div>
                     <div class="btn-list">
                         <button class="btn btn-sm btn-icon btn-ghost-primary" onclick="editOFI(${ofi.id})" title="Edit">
@@ -372,9 +359,11 @@ $('#ofiForm').on('submit', function(e) {
     
     const formData = $(this).serialize();
     const ofiId = $('#ofiId').val();
+    const gamoId = $('#ofiGamoId').val();
+    
     const url = ofiId ? 
         `/assessments/${assessmentId}/ofi/${ofiId}` : 
-        `/assessments/${assessmentId}/ofi`;
+        `/assessments/${assessmentId}/gamo/${gamoId}/ofi`;
     const method = ofiId ? 'PUT' : 'POST';
     
     $.ajax({
@@ -480,6 +469,22 @@ function copyAutoOFI() {
     const content = $('#ofiAutoContent').text().trim();
     navigator.clipboard.writeText(content).then(() => {
         toastr.success('OFI recommendations copied to clipboard');
+    }).catch(err => {
+        toastr.error('Failed to copy');
+    });
+}
+
+// Copy Manual OFI
+function copyManualOFI() {
+    const content = $('#ofiManualContent').text().trim();
+    
+    if (!content || content === 'Belum ada OFI manual') {
+        toastr.warning('Tidak ada OFI manual untuk disalin');
+        return;
+    }
+    
+    navigator.clipboard.writeText(content).then(() => {
+        toastr.success('Manual OFI copied to clipboard');
     }).catch(err => {
         toastr.error('Failed to copy');
     });
