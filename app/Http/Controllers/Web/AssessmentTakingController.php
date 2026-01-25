@@ -281,21 +281,29 @@ class AssessmentTakingController extends Controller
      */
     private function updateAssessmentProgress(Assessment $assessment): void
     {
-        $totalQuestions = GamoQuestion::whereIn('gamo_objective_id',
-            $assessment->gamoSelections()->pluck('gamo_objective_id')->toArray()
-        )->where('is_active', true)
-         ->where('maturity_level', '>=', 2) // COBIT 2019: Level 2-5 only
-         ->count();
-
-        $answeredQuestions = AssessmentAnswer::where('assessment_id', $assessment->id)
+        // GAMO-based progress calculation (matching show.blade.php)
+        $totalGamoCount = $assessment->gamoObjectives()->count();
+        
+        // Count unique GAMO IDs that have been answered
+        $answeredGamoCount = AssessmentAnswer::where('assessment_id', $assessment->id)
             ->whereNotNull('answered_at')
-            ->count();
+            ->distinct('gamo_objective_id')
+            ->count('gamo_objective_id');
 
-        $progressPercentage = $totalQuestions > 0 
-            ? round(($answeredQuestions / $totalQuestions) * 100) 
+        $progressPercentage = $totalGamoCount > 0 
+            ? round(($answeredGamoCount / $totalGamoCount) * 100) 
             : 0;
 
-        $assessment->update(['progress_percentage' => $progressPercentage]);
+        // Auto-update status based on progress
+        $newStatus = $assessment->status;
+        if ($answeredGamoCount > 0 && $assessment->status === 'DRAFT') {
+            $newStatus = 'IN_PROGRESS';
+        }
+
+        $assessment->update([
+            'progress_percentage' => $progressPercentage,
+            'status' => $newStatus
+        ]);
     }
 
     /**

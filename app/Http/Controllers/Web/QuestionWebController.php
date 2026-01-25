@@ -50,7 +50,7 @@ class QuestionWebController extends Controller
             ->get();
         
         $categories = ['EDM', 'APO', 'BAI', 'DSS', 'MEA'];
-        $maturityLevels = [1, 2, 3, 4, 5];
+        $maturityLevels = [2, 3, 4, 5]; // COBIT 2019: Level 2-5 only
 
         // Get statistics
         $totalQuestions = GamoQuestion::count();
@@ -64,7 +64,7 @@ class QuestionWebController extends Controller
     /**
      * Show the form for creating a new question
      */
-    public function create()
+    public function create(Request $request)
     {
         $gamoObjectives = GamoObjective::where('is_active', true)
             ->orderBy('category')
@@ -72,9 +72,12 @@ class QuestionWebController extends Controller
             ->get();
         
         $questionTypes = ['text', 'rating', 'multiple_choice', 'yes_no', 'evidence'];
-        $maturityLevels = [1, 2, 3, 4, 5];
+        $maturityLevels = [2, 3, 4, 5]; // COBIT 2019: Level 2-5 only
+        
+        // Preselect GAMO if passed from GAMO Objectives page
+        $selectedGamoId = $request->get('gamo_id');
 
-        return view('questions.create', compact('gamoObjectives', 'questionTypes', 'maturityLevels'));
+        return view('questions.create', compact('gamoObjectives', 'questionTypes', 'maturityLevels', 'selectedGamoId'));
     }
 
     /**
@@ -118,10 +121,12 @@ class QuestionWebController extends Controller
         $question->load('gamoObjective');
         
         // Count usages
-        $usageCount = $question->answers()->count();
-        $assessmentCount = $question->answers()->distinct('assessment_id')->count('assessment_id');
+        $usageStats = [
+            'answer_count' => $question->answers()->count(),
+            'assessment_count' => $question->answers()->distinct('assessment_id')->count('assessment_id')
+        ];
 
-        return view('questions.show', compact('question', 'usageCount', 'assessmentCount'));
+        return view('questions.show', compact('question', 'usageStats'));
     }
 
     /**
@@ -135,7 +140,7 @@ class QuestionWebController extends Controller
             ->get();
         
         $questionTypes = ['text', 'rating', 'multiple_choice', 'yes_no', 'evidence'];
-        $maturityLevels = [1, 2, 3, 4, 5];
+        $maturityLevels = [2, 3, 4, 5]; // COBIT 2019: Level 2-5 only
 
         return view('questions.edit', compact('question', 'gamoObjectives', 'questionTypes', 'maturityLevels'));
     }

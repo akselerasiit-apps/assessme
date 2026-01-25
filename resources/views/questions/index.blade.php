@@ -1,22 +1,22 @@
 @extends('layouts.app')
 
-@section('title', 'Question Management')
+@section('title', 'Aktifitas Management')
 
 @section('content')
 <div class="page-header d-print-none">
     <div class="container-xl">
         <div class="row g-2 align-items-center">
             <div class="col">
-                <div class="page-pretitle">Question Bank</div>
-                <h2 class="page-title">Question Management</h2>
+                <div class="page-pretitle">Master Data</div>
+                <h2 class="page-title">Aktifitas Management</h2>
             </div>
             <div class="col-auto ms-auto d-print-none">
                 @can('create questions')
                 <div class="btn-group" role="group">
                     <a href="{{ route('master-data.questions.create') }}" class="btn btn-primary">
-                        <i class="ti ti-plus icon-size-lg me-2"></i>Add Question
+                        <i class="ti ti-plus icon-size-lg me-2"></i>Tambah Aktifitas
                     </a>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkImportModal" title="Import questions from CSV">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkImportModal" title="Import aktifitas dari CSV">
                         <i class="ti ti-file-import icon-size-lg me-2"></i>Bulk Import
                     </button>
                 </div>
@@ -59,11 +59,11 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="flex-fill">
-                                <div class="text-muted">Total Questions</div>
+                                <div class="text-muted">Total Aktifitas</div>
                                 <div class="h3 mb-0">{{ $totalQuestions ?? 0 }}</div>
                             </div>
                             <div class="bg-primary-lt p-3 rounded">
-                                <i class="ti ti-help-circle text-primary" style="font-size: 1.5rem;"></i>
+                                <i class="ti ti-list-check text-primary" style="font-size: 1.5rem;"></i>
                             </div>
                         </div>
                     </div>
@@ -217,7 +217,7 @@
                                     <form action="{{ route('master-data.questions.toggle-active', $question) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="badge border-0 cursor-pointer {{ $question->is_active ? 'bg-success' : 'bg-secondary' }}" 
+                                        <button type="submit" class="badge text-white border-0 cursor-pointer {{ $question->is_active ? 'bg-success' : 'bg-secondary' }}" 
                                                 title="Toggle status">
                                             {{ $question->is_active ? 'Active' : 'Inactive' }}
                                         </button>

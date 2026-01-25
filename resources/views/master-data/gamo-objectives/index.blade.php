@@ -153,6 +153,11 @@
                                 </td>
                                 <td>
                                     <div class="btn-list flex-nowrap">
+                                        <a href="{{ route('master-data.questions.index', ['gamo_id' => $objective->id]) }}" 
+                                           class="btn btn-sm btn-icon btn-ghost-primary" 
+                                           title="Lihat Aktifitas">
+                                            <i class="ti ti-list-check"></i>
+                                        </a>
                                         <a href="{{ route('master-data.gamo-objectives.edit', $objective) }}" class="btn btn-sm btn-icon btn-ghost-secondary">
                                             <i class="ti ti-edit"></i>
                                         </a>

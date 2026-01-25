@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Question')
+@section('title', 'Edit Aktifitas')
 
 @section('content')
 <div class="page-header d-print-none">
     <div class="container-xl">
         <div class="row g-2 align-items-center">
             <div class="col">
-                <div class="page-pretitle">Question Bank</div>
-                <h2 class="page-title">Edit Question</h2>
+                <div class="page-pretitle">Master Data</div>
+                <h2 class="page-title">Edit Aktifitas</h2>
             </div>
             <div class="col-auto ms-auto d-print-none">
                 <a href="{{ route('master-data.questions.show', $question) }}" class="btn btn-ghost-secondary me-2">
@@ -32,7 +32,7 @@
                 <div class="col-lg-8">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Question Details</h3>
+                            <h3 class="card-title">Detail Aktifitas</h3>
                         </div>
                         <div class="card-body">
                             <!-- GAMO Objective -->
@@ -54,7 +54,7 @@
 
                             <!-- Code -->
                             <div class="mb-3">
-                                <label class="form-label required">Question Code</label>
+                                <label class="form-label required">Kode Aktifitas</label>
                                 <input type="text" name="code" id="questionCodeInput" class="form-control @error('code') is-invalid @enderror" 
                                        value="{{ old('code', $question->code) }}" required>
                                 <small class="form-hint">Based on GAMO Objective and Level</small>
@@ -66,7 +66,7 @@
                             <!-- Question Text English -->
                             <div class="mb-3">
                                 <label class="form-label required">
-                                    <i class="ti ti-language me-1"></i>Question Text (English)
+                                    <i class="ti ti-language me-1"></i>Teks Aktifitas (English)
                                 </label>
                                 <textarea name="question_text_en" rows="3" 
                                           class="form-control @error('question_text_en') is-invalid @enderror" 
@@ -79,7 +79,7 @@
                             <!-- Question Text Indonesian -->
                             <div class="mb-3">
                                 <label class="form-label required">
-                                    <i class="ti ti-language me-1"></i>Question Text (Bahasa Indonesia)
+                                    <i class="ti ti-language me-1"></i>Teks Aktifitas (Bahasa Indonesia)
                                 </label>
                                 <textarea name="question_text_id" rows="3" 
                                           class="form-control @error('question_text_id') is-invalid @enderror" 
@@ -91,10 +91,10 @@
 
                             <!-- Guidance -->
                             <div class="mb-3">
-                                <label class="form-label">Guidance <span class="form-label-description">Optional</span></label>
+                                <label class="form-label">Panduan <span class="form-label-description">Optional</span></label>
                                 <textarea name="guidance" rows="3" 
                                           class="form-control @error('guidance') is-invalid @enderror">{{ old('guidance', $question->guidance) }}</textarea>
-                                <small class="form-hint">Help text to guide assessors</small>
+                                <small class="form-hint">Panduan untuk melakukan aktifitas</small>
                                 @error('guidance')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -128,7 +128,7 @@
                                     <option value="">Select level...</option>
                                     @foreach($maturityLevels as $level)
                                         <option value="{{ $level }}" {{ old('maturity_level', $question->maturity_level) == $level ? 'selected' : '' }}>
-                                            Level {{ $level }} - {{ ['Initial', 'Managed', 'Defined', 'Quantitatively Managed', 'Optimizing'][$level - 1] ?? 'N/A' }}
+                                            Level {{ $level }} - {{ [2 => 'Managed', 3 => 'Established', 4 => 'Predictable', 5 => 'Optimizing'][$level] ?? 'N/A' }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -144,9 +144,9 @@
                                 <label class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" name="required" value="1" 
                                            {{ old('required', $question->required) ? 'checked' : '' }}>
-                                    <span class="form-check-label">Required Question</span>
+                                    <span class="form-check-label">Aktifitas Wajib</span>
                                 </label>
-                                <small class="form-hint d-block">Must be answered in assessments</small>
+                                <small class="form-hint d-block">Harus dinilai dalam asesmen</small>
                             </div>
 
                             <!-- Active Checkbox -->
@@ -166,9 +166,9 @@
                         <div class="card-body">
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="ti ti-check me-2"></i>Update Question
+                                    <i class="ti ti-check me-2"></i>Update Aktifitas
                                 </button>
-                                <a href="{{ route('questions.show', $question) }}" class="btn btn-ghost-secondary">
+                                <a href="{{ route('master-data.questions.show', $question) }}" class="btn btn-ghost-secondary">
                                     Cancel
                                 </a>
                             </div>

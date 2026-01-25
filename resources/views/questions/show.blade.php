@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Question Detail')
+@section('title', 'Detail Aktifitas')
 
 @section('content')
 <div class="page-header d-print-none">
     <div class="container-xl">
         <div class="row g-2 align-items-center">
             <div class="col">
-                <div class="page-pretitle">Question Bank</div>
-                <h2 class="page-title">Question Detail</h2>
+                <div class="page-pretitle">Master Data</div>
+                <h2 class="page-title">Detail Aktifitas</h2>
             </div>
             <div class="col-auto ms-auto d-print-none">
                 @can('update questions')
@@ -196,18 +196,18 @@
                         @if($usageStats['answer_count'] > 0)
                         <div class="alert alert-info mb-0 mt-3">
                             <i class="ti ti-info-circle me-2"></i>
-                            This question has been answered <strong>{{ $usageStats['answer_count'] }}</strong> time(s) 
-                            across <strong>{{ $usageStats['assessment_count'] }}</strong> assessment(s).
+                            Aktifitas ini sudah dinilai <strong>{{ $usageStats['answer_count'] }}</strong> kali 
+                            pada <strong>{{ $usageStats['assessment_count'] }}</strong> asesmen.
                             @can('delete questions')
                                 @if($usageStats['answer_count'] > 0)
-                                    <br>Cannot be deleted while in use.
+                                    <br>Tidak dapat dihapus karena sedang digunakan.
                                 @endif
                             @endcan
                         </div>
                         @else
                         <div class="alert alert-warning mb-0 mt-3">
                             <i class="ti ti-alert-triangle me-2"></i>
-                            This question hasn't been used in any assessments yet.
+                            Aktifitas ini belum pernah dinilai dalam asesmen.
                         </div>
                         @endif
                     </div>
@@ -223,8 +223,8 @@
                     <div class="card-body">
                         <div class="d-grid gap-2">
                             @can('update questions')
-                            <a href="{{ route('questions.edit', $question) }}" class="btn btn-primary">
-                                <i class="ti ti-edit me-2"></i>Edit Question
+                            <a href="{{ route('master-data.questions.edit', $question) }}" class="btn btn-primary">
+                                <i class="ti ti-edit me-2"></i>Edit Aktifitas
                             </a>
                             
                             <form action="{{ route('master-data.questions.toggle-active', $question) }}" method="POST">
@@ -239,17 +239,17 @@
                             
                             @can('delete questions')
                             <form action="{{ route('master-data.questions.destroy', $question) }}" method="POST" 
-                                  onsubmit="return confirm('Are you sure you want to delete this question? This action cannot be undone.');">
+                                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus aktifitas ini? Tindakan ini tidak dapat dibatalkan.');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger w-100" 
                                         {{ $usageStats['answer_count'] > 0 ? 'disabled' : '' }}>
-                                    <i class="ti ti-trash me-2"></i>Delete Question
+                                    <i class="ti ti-trash me-2"></i>Hapus Aktifitas
                                 </button>
                             </form>
                             @if($usageStats['answer_count'] > 0)
                                 <small class="text-muted">
-                                    Cannot delete: question is being used in assessments
+                                    Tidak dapat dihapus: aktifitas sedang digunakan dalam asesmen
                                 </small>
                             @endif
                             @endcan

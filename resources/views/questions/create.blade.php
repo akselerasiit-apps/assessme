@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Create Question')
+@section('title', 'Tambah Aktifitas')
 
 @section('content')
 <div class="page-header d-print-none">
     <div class="container-xl">
         <div class="row g-2 align-items-center">
             <div class="col">
-                <div class="page-pretitle">Question Bank</div>
-                <h2 class="page-title">Create New Question</h2>
+                <div class="page-pretitle">Master Data</div>
+                <h2 class="page-title">Tambah Aktifitas Baru</h2>
             </div>
             <div class="col-auto ms-auto d-print-none">
                 <a href="{{ route('master-data.questions.index') }}" class="btn btn-ghost-secondary">
@@ -27,7 +27,7 @@
                 <div class="col-lg-8">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Question Details</h3>
+                            <h3 class="card-title">Detail Aktifitas</h3>
                         </div>
                         <div class="card-body">
                             <!-- GAMO Objective -->
@@ -36,7 +36,8 @@
                                 <select name="gamo_objective_id" id="gamoObjectiveSelect" class="form-select @error('gamo_objective_id') is-invalid @enderror" required>
                                     <option value="" data-code="">Select GAMO Objective...</option>
                                     @foreach($gamoObjectives as $gamo)
-                                        <option value="{{ $gamo->id }}" data-code="{{ $gamo->code }}" {{ old('gamo_objective_id') == $gamo->id ? 'selected' : '' }}>
+                                        <option value="{{ $gamo->id }}" data-code="{{ $gamo->code }}" 
+                                                {{ (old('gamo_objective_id', $selectedGamoId ?? null) == $gamo->id) ? 'selected' : '' }}>
                                             [{{ $gamo->category }}] {{ $gamo->code }} - {{ $gamo->name }}
                                         </option>
                                     @endforeach
@@ -48,7 +49,7 @@
 
                             <!-- Code -->
                             <div class="mb-3">
-                                <label class="form-label required">Question Code</label>
+                                <label class="form-label required">Kode Aktifitas</label>
                                 <input type="text" name="code" id="questionCodeInput" class="form-control @error('code') is-invalid @enderror" 
                                        placeholder="e.g., EDM01.02.001" value="{{ old('code') }}" required>
                                 <small class="form-hint">Auto-filled based on GAMO Objective</small>
@@ -60,11 +61,11 @@
                             <!-- Question Text English -->
                             <div class="mb-3">
                                 <label class="form-label required">
-                                    <i class="ti ti-language me-1"></i>Question Text (English)
+                                    <i class="ti ti-language me-1"></i>Teks Aktifitas (English)
                                 </label>
                                 <textarea name="question_text_en" rows="3" 
                                           class="form-control @error('question_text_en') is-invalid @enderror" 
-                                          placeholder="Enter question text in English..." required>{{ old('question_text_en') }}</textarea>
+                                          placeholder="Enter activity text in English..." required>{{ old('question_text_en') }}</textarea>
                                 @error('question_text_en')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -73,11 +74,11 @@
                             <!-- Question Text Indonesian -->
                             <div class="mb-3">
                                 <label class="form-label required">
-                                    <i class="ti ti-language me-1"></i>Question Text (Bahasa Indonesia)
+                                    <i class="ti ti-language me-1"></i>Teks Aktifitas (Bahasa Indonesia)
                                 </label>
                                 <textarea name="question_text_id" rows="3" 
                                           class="form-control @error('question_text_id') is-invalid @enderror" 
-                                          placeholder="Masukkan teks pertanyaan dalam Bahasa Indonesia..." required>{{ old('question_text_id') }}</textarea>
+                                          placeholder="Masukkan teks aktifitas dalam Bahasa Indonesia..." required>{{ old('question_text_id') }}</textarea>
                                 @error('question_text_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -85,10 +86,10 @@
 
                             <!-- Guidance -->
                             <div class="mb-3">
-                                <label class="form-label">Guidance <span class="form-label-description">Optional</span></label>
+                                <label class="form-label">Panduan <span class="form-label-description">Optional</span></label>
                                 <textarea name="guidance" rows="3" 
                                           class="form-control @error('guidance') is-invalid @enderror" 
-                                          placeholder="Additional guidance or hints for answering this question...">{{ old('guidance') }}</textarea>
+                                          placeholder="Panduan tambahan untuk melakukan aktifitas ini...">{{ old('guidance') }}</textarea>
                                 <small class="form-hint">Help text to guide assessors</small>
                                 @error('guidance')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -124,7 +125,7 @@
                                     <option value="">Select level...</option>
                                     @foreach($maturityLevels as $level)
                                         <option value="{{ $level }}" {{ old('maturity_level') == $level ? 'selected' : '' }}>
-                                            Level {{ $level }} - {{ ['Initial', 'Managed', 'Defined', 'Quantitatively Managed', 'Optimizing'][$level - 1] ?? 'N/A' }}
+                                            Level {{ $level }} - {{ [2 => 'Managed', 3 => 'Established', 4 => 'Predictable', 5 => 'Optimizing'][$level] ?? 'N/A' }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -140,9 +141,9 @@
                                 <label class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" name="required" value="1" 
                                            {{ old('required', true) ? 'checked' : '' }}>
-                                    <span class="form-check-label">Required Question</span>
+                                    <span class="form-check-label">Aktifitas Wajib</span>
                                 </label>
-                                <small class="form-hint d-block">Must be answered in assessments</small>
+                                <small class="form-hint d-block">Harus dinilai dalam asesmen</small>
                             </div>
 
                             <!-- Active Checkbox -->
@@ -162,7 +163,7 @@
                         <div class="card-body">
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="ti ti-check me-2"></i>Create Question
+                                    <i class="ti ti-check me-2"></i>Simpan Aktifitas
                                 </button>
                                 <a href="{{ route('master-data.questions.index') }}" class="btn btn-ghost-secondary">
                                     Cancel
