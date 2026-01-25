@@ -69,9 +69,11 @@
                                     Create Assessment
                                 </a>
                                 @endcan
+                                @unlessrole('Viewer')
                                 <a class="dropdown-item" href="{{ route('assessments.my') }}">
                                     My Assessments
                                 </a>
+                                @endunlessrole
                             </div>
                         </div>
                     </div>

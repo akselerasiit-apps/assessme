@@ -23,7 +23,7 @@ class AssessmentPolicy
      * - Super Admin, Admin: All assessments
      * - Manager: Own company assessments + team assessments
      * - Assessor: Assigned assessments only
-     * - Viewer: Published assessments only
+     * - Viewer: All assessments from own company (read-only)
      */
     public function view(User $user, Assessment $assessment): bool
     {
@@ -37,16 +37,15 @@ class AssessmentPolicy
             return $user->company_id === $assessment->company_id;
         }
 
+        // Viewer: view all assessments from own company (read-only)
+        if ($user->hasRole('Viewer')) {
+            return $user->company_id === $assessment->company_id;
+        }
+
         // Assessor: view assigned assessments only
         if ($user->hasRole('Assessor')) {
             return $assessment->created_by === $user->id 
                 || $assessment->answers()->where('answered_by', $user->id)->exists();
-        }
-
-        // Viewer: view published/completed assessments only
-        if ($user->hasRole('Viewer')) {
-            return in_array($assessment->status, ['completed', 'reviewed', 'approved'])
-                && $user->company_id === $assessment->company_id;
         }
 
         return false;
