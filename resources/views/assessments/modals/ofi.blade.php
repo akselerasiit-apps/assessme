@@ -161,7 +161,7 @@
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 <script>
 let quillEditor;
-// currentGamoId and currentAssessmentId are declared in answer-new.blade.php
+// assessmentId and currentGamoId are declared in answer-new.blade.php
 
 // Initialize Quill editor
 function initQuillEditor() {
@@ -183,9 +183,7 @@ function initQuillEditor() {
 
 // Show OFI Modal
 function showOFIModal(gamoId) {
-    currentGamoId = gamoId;
-    currentAssessmentId = $('input[name="assessment_id"]').val();
-    
+    // Don't modify global currentGamoId - use parameter only
     $('#ofiModal').modal('show');
     
     // Initialize Quill if not yet initialized
@@ -198,11 +196,12 @@ function showOFIModal(gamoId) {
 
 // Load OFI Data
 function loadOFIData(gamoId) {
-    const assessmentId = $('input[name="assessment_id"]').val();
+    // Use global assessmentId from answer-new.blade.php
+    const ofiAssessmentId = typeof assessmentId !== 'undefined' ? assessmentId : {{ request()->route('assessment')->id ?? 'null' }};
     
     // Load GAMO info
     $.ajax({
-        url: `/assessments/${assessmentId}/gamo/${gamoId}/ofi`,
+        url: `/assessments/${ofiAssessmentId}/gamo/${gamoId}/ofi`,
         method: 'GET',
         success: function(response) {
             // Update header info
@@ -223,7 +222,7 @@ function loadOFIData(gamoId) {
             renderManualOFIs(response.manual_ofis);
             
             // Store for form
-            $('#ofiAssessmentId').val(assessmentId);
+            $('#ofiAssessmentId').val(ofiAssessmentId);
             $('#ofiGamoId').val(gamoId);
         },
         error: function(xhr) {
@@ -363,8 +362,8 @@ $('#ofiForm').on('submit', function(e) {
     const formData = $(this).serialize();
     const ofiId = $('#ofiId').val();
     const url = ofiId ? 
-        `/assessments/${currentAssessmentId}/ofi/${ofiId}` : 
-        `/assessments/${currentAssessmentId}/ofi`;
+        `/assessments/${assessmentId}/ofi/${ofiId}` : 
+        `/assessments/${assessmentId}/ofi`;
     const method = ofiId ? 'PUT' : 'POST';
     
     $.ajax({
@@ -386,7 +385,7 @@ $('#ofiForm').on('submit', function(e) {
 // Edit OFI
 function editOFI(ofiId) {
     $.ajax({
-        url: `/assessments/${currentAssessmentId}/ofi/${ofiId}`,
+        url: `/assessments/${assessmentId}/ofi/${ofiId}`,
         method: 'GET',
         success: function(ofi) {
             $('#ofiId').val(ofi.id);
@@ -413,7 +412,7 @@ function deleteOFI(ofiId) {
     if (!confirm('Apakah Anda yakin ingin menghapus OFI ini?')) return;
     
     $.ajax({
-        url: `/assessments/${currentAssessmentId}/ofi/${ofiId}`,
+        url: `/assessments/${assessmentId}/ofi/${ofiId}`,
         method: 'DELETE',
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
