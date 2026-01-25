@@ -256,7 +256,6 @@ function renderSummaryPenilaian(data) {
             // Badge color for current level
             const levelColors = {
                 0: 'bg-secondary',
-                1: 'bg-red',
                 2: 'bg-orange',
                 3: 'bg-yellow',
                 4: 'bg-cyan',
@@ -657,7 +656,8 @@ function calculateGamoCapabilityLevel(gamoId, gamoCode, targetLevel, callback) {
             
             // Calculate achieved level based on COBIT 2019 rules
             // Threshold: 85%, Sequential, Skip empty levels
-            for (let level = 1; level <= 5; level++) {
+            // COBIT 2019: Levels start from 2 (Managed) to 5 (Optimizing)
+            for (let level = 2; level <= 5; level++) {
                 const levelActivities = activities[level] || [];
                 
                 // Skip level jika tidak ada activities
@@ -691,7 +691,6 @@ function calculateGamoCapabilityLevel(gamoId, gamoCode, targetLevel, callback) {
             // Update display
             const levelColors = {
                 0: 'bg-secondary',
-                1: 'bg-red',
                 2: 'bg-orange',
                 3: 'bg-yellow',
                 4: 'bg-cyan',
@@ -819,8 +818,8 @@ function renderProgressKapabilitas(data) {
                         let totalActivities = 0;
                         let totalAssessed = 0;
                         
-                        // Count ALL levels including Level 1
-                        for (let level = 1; level <= 5; level++) {
+                        // Count activities per level (COBIT 2019: Level 2-5)
+                        for (let level = 2; level <= 5; level++) {
                             const levelActivities = activities[level] || [];
                             const count = levelActivities.length;
                             const assessed = levelActivities.filter(a => a.answer && a.answer.capability_score !== null).length;

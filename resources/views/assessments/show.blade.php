@@ -33,13 +33,13 @@
                         <i class="ti ti-dots-vertical"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href="#">
+                        {{-- <a class="dropdown-item" href="#">
                             <i class="ti ti-file-download me-2"></i>Export PDF
                         </a>
                         <a class="dropdown-item" href="#">
                             <i class="ti ti-table-export me-2"></i>Export Excel
-                        </a>
-                        <div class="dropdown-divider"></div>
+                        </a> --}}
+                        {{-- <div class="dropdown-divider"></div> --}}
                         @can('delete', $assessment)
                         <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); if(confirm('Delete this assessment?')) document.getElementById('delete-form').submit();">
                             <i class="ti ti-trash me-2"></i>Delete
@@ -594,7 +594,8 @@ function calculateGamoCapabilityLevel(gamoId) {
             
             // Calculate achieved level based on COBIT 2019 rules
             // Threshold: 85%, Sequential, Skip empty levels
-            for (let level = 1; level <= 5; level++) {
+            // COBIT 2019: Levels start from 2 (Managed) to 5 (Optimizing)
+            for (let level = 2; level <= 5; level++) {
                 const levelActivities = activities[level] || [];
                 
                 // Skip level jika tidak ada activities
@@ -627,7 +628,6 @@ function calculateGamoCapabilityLevel(gamoId) {
             
             // Update display
             const levelColors = {
-                1: 'bg-red',
                 2: 'bg-orange',
                 3: 'bg-yellow',
                 4: 'bg-cyan',
@@ -663,7 +663,8 @@ selectedGamoIdsForMetrics.forEach(gamoId => {
             let achievedLevel = 0;
             
             // Calculate achieved level based on COBIT 2019 rules
-            for (let level = 1; level <= 5; level++) {
+            // COBIT 2019: Levels start from 2 (Managed) to 5 (Optimizing)
+            for (let level = 2; level <= 5; level++) {
                 const levelActivities = activities[level] || [];
                 if (levelActivities.length === 0) continue;
                 

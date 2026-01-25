@@ -293,8 +293,8 @@ $(document).ready(function() {
 
     // Initialize - load first level with activities
     if (typeof allActivitiesByLevel !== 'undefined' && allActivitiesByLevel) {
-        let firstLevel = 1;
-        for (let level = 1; level <= 5; level++) {
+        let firstLevel = 2;
+        for (let level = 2; level <= 5; level++) {
             if (allActivitiesByLevel[level] && allActivitiesByLevel[level].length > 0) {
                 firstLevel = level;
                 break;
@@ -302,7 +302,7 @@ $(document).ready(function() {
         }
         loadActivitiesByLevel(firstLevel);
     } else {
-        loadActivitiesByLevel(1);
+        loadActivitiesByLevel(2);
     }
     
     // Initialize achieved level
@@ -323,7 +323,8 @@ function updateAchievedLevel(gamoId) {
             
             // Calculate achieved level based on COBIT 2019 rules
             // Threshold: 85%, Sequential, Skip empty levels
-            for (let level = 1; level <= 5; level++) {
+            // COBIT 2019: Levels start from 2 (Managed) to 5 (Optimizing)
+            for (let level = 2; level <= 5; level++) {
                 const levelActivities = activities[level] || [];
                 
                 // Skip level jika tidak ada activities
@@ -519,7 +520,7 @@ function updateSummary(activities) {
 
 // Update level counts for all levels
 function updateLevelCounts(allActivitiesByLevel) {
-    for (let level = 1; level <= 5; level++) {
+    for (let level = 2; level <= 5; level++) {
         const activities = allActivitiesByLevel[level] || [];
         const count = activities.length;
         $(`#level-${level}-count`).text(`${count} ${count === 1 ? 'Activity' : 'Activities'}`);
@@ -534,7 +535,7 @@ function checkAndUpdateLevelAccess() {
     
     // Find first level with activities (starting point)
     let firstActiveLevel = null;
-    for (let level = 1; level <= 5; level++) {
+    for (let level = 2; level <= 5; level++) {
         const activities = allActivitiesByLevel[level] || [];
         if (activities.length > 0) {
             firstActiveLevel = level;
@@ -544,7 +545,7 @@ function checkAndUpdateLevelAccess() {
     
     // If no activities at all, unlock all (shouldn't happen)
     if (!firstActiveLevel) {
-        for (let level = 1; level <= 5; level++) {
+        for (let level = 2; level <= 5; level++) {
             updateLevelLockState(level, false);
         }
         return;
@@ -554,7 +555,7 @@ function checkAndUpdateLevelAccess() {
     updateLevelLockState(firstActiveLevel, false);
     
     // Check subsequent levels
-    for (let level = 1; level <= 5; level++) {
+    for (let level = 2; level <= 5; level++) {
         if (level === firstActiveLevel) continue; // Already handled
         
         const activities = allActivitiesByLevel[level] || [];
