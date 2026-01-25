@@ -26,7 +26,6 @@
                                         <span class="text-muted mx-2">→</span>
                                         <span class="text-primary" id="ofiTargetLevel">-</span>
                                     </div>
-                                    <div class="text-muted small">Target Level (P/T2: <span id="ofiTargetYear">-</span>)</div>
                                 </div>
                             </div>
                         </div>
@@ -38,13 +37,13 @@
                     <li class="nav-item">
                         <a class="nav-link active" data-bs-toggle="tab" href="#ofiAutoTab" role="tab">
                             <i class="ti ti-sparkles me-2"></i>Auto-Generated
-                            <span class="badge bg-primary ms-2" id="ofiAutoCount">0</span>
+                            <span class="badge text-white bg-primary ms-2" id="ofiAutoCount">0</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-bs-toggle="tab" href="#ofiManualTab" role="tab">
                             <i class="ti ti-edit me-2"></i>Manual / Custom
-                            <span class="badge bg-cyan ms-2" id="ofiManualCount">0</span>
+                            <span class="badge text-white bg-cyan ms-2" id="ofiManualCount">0</span>
                         </a>
                     </li>
                 </ul>
@@ -59,9 +58,14 @@
                                     Rekomendasi aktivitas yang dapat dilakukan untuk mencapai tingkat kematangan target
                                 </p>
                             </div>
-                            <button class="btn btn-outline-primary btn-sm" onclick="copyAutoOFI()">
-                                <i class="ti ti-copy me-1"></i>Salin Semua
-                            </button>
+                            <div class="btn-group">
+                                <button class="btn btn-primary btn-sm" onclick="generateAutoOFI()">
+                                    <i class="ti ti-sparkles me-1"></i>Generate
+                                </button>
+                                <button class="btn btn-outline-primary btn-sm" onclick="copyAutoOFI()">
+                                    <i class="ti ti-copy me-1"></i>Salin
+                                </button>
+                            </div>
                         </div>
                         
                         <div id="ofiAutoContent">
@@ -207,9 +211,11 @@ function loadOFIData(gamoId) {
             // Update header info
             $('#ofiGamoCode').text(response.gamo.code);
             $('#ofiGamoName').text(response.gamo.name);
-            $('#ofiCurrentLevel').text('Level ' + (response.current_level || '-'));
-            $('#ofiTargetLevel').text('Level ' + (response.target_level || '-'));
-            $('#ofiTargetYear').text(response.target_year || '4');
+            
+            // Current level display
+            const currentLevelText = response.current_level > 0 ? 'Level ' + response.current_level : 'Not Achieved';
+            $('#ofiCurrentLevel').text(currentLevelText);
+            $('#ofiTargetLevel').text('Level ' + response.target_level);
             
             // Update counts
             $('#ofiAutoCount').text(response.auto_ofis.length);
@@ -235,9 +241,14 @@ function loadOFIData(gamoId) {
 function renderAutoOFIs(ofis) {
     if (ofis.length === 0) {
         $('#ofiAutoContent').html(`
-            <div class="alert alert-info">
-                <i class="ti ti-info-circle me-2"></i>
-                Tidak ada gap yang perlu diperbaiki. Current level sudah mencapai atau melebihi target.
+            <div class="alert alert-info mb-0">
+                <div class="d-flex align-items-start">
+                    <i class="ti ti-info-circle me-2" style="font-size: 1.5rem;"></i>
+                    <div>
+                        <strong>Belum ada rekomendasi otomatis</strong>
+                        <p class="mb-0 mt-1">Klik tombol "Generate" untuk membuat rekomendasi berdasarkan gap analysis antara current level dan target level.</p>
+                    </div>
+                </div>
             </div>
         `);
         return;
@@ -423,6 +434,43 @@ function deleteOFI(ofiId) {
         },
         error: function(xhr) {
             toastr.error('Error deleting OFI');
+        }
+    });
+}
+
+// Generate Auto OFI
+function generateAutoOFI() {
+    const gamoId = $('#ofiGamoId').val();
+    
+    if (!gamoId) {
+        toastr.error('GAMO ID not found');
+        return;
+    }
+    
+    // Show loading
+    $('#ofiAutoContent').html(`
+        <div class="text-center py-5 text-muted">
+            <div class="spinner-border spinner-border-sm mb-2" role="status"></div>
+            <div>Generating recommendations...</div>
+        </div>
+    `);
+    
+    $.ajax({
+        url: `/assessments/${assessmentId}/gamo/${gamoId}/ofi/generate`,
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            toastr.success(response.message || 'Auto OFI generated successfully');
+            // Reload OFI data to show new auto-generated OFIs
+            loadOFIData(gamoId);
+        },
+        error: function(xhr) {
+            toastr.error('Error generating auto OFI');
+            console.error(xhr);
+            // Show empty state
+            renderAutoOFIs([]);
         }
     });
 }

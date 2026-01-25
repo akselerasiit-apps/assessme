@@ -400,6 +400,11 @@ function updateAchievedLevel(gamoId) {
 function loadActivitiesByLevel(level) {
     currentLevel = level;
     
+    // Auto-recovery: ensure currentGamoId is valid
+    if (!currentGamoId || currentGamoId === 'null') {
+        currentGamoId = $('#gamoSelector').val() || {{ $gamoObjectives->first()->id ?? 'null' }};
+    }
+    
     $('#activitiesTableBody').html(`
         <tr>
             <td colspan="8" class="text-center">

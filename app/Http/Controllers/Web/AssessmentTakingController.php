@@ -1358,7 +1358,8 @@ class AssessmentTakingController extends Controller
             }
         }
 
-        return 1; // Default to level 1 if no level meets criteria
+        // Return 0 (not level 1) for COBIT 2019 - Level 1 doesn't exist
+        return 0;
     }
 }
 
