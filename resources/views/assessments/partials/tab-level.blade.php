@@ -40,13 +40,11 @@
                     <i class="ti ti-history me-2"></i>Lihat History Perubahan Data
                 </a>
             </li>
-            @can('answer', $assessment)
             <li>
                 <a class="dropdown-item" href="#" onclick="showNotesModal(); return false;">
                     <i class="ti ti-notes me-2"></i>Lihat Daftar Catatan / Note Penilaian
                 </a>
             </li>
-            @endcan
         </ul>
     </div>
 </div>

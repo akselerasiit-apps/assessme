@@ -34,13 +34,6 @@
                         <i class="ti ti-dots-vertical"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        {{-- <a class="dropdown-item" href="#">
-                            <i class="ti ti-file-download me-2"></i>Export PDF
-                        </a>
-                        <a class="dropdown-item" href="#">
-                            <i class="ti ti-table-export me-2"></i>Export Excel
-                        </a> --}}
-                        {{-- <div class="dropdown-divider"></div> --}}
                         @can('delete', $assessment)
                         <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); if(confirm('Delete this assessment?')) document.getElementById('delete-form').submit();">
                             <i class="ti ti-trash me-2"></i>Delete
@@ -249,7 +242,8 @@
                                             </span>
                                             <span class="text-muted">/</span>
                                             @php
-                                                $resultLevel = $assessment->results?->where('gamo_objective_id', $gamo->id)->first()?->capability_level ?? 0;
+                                                $gamoScore = $assessment->gamoScores->where('gamo_objective_id', $gamo->id)->first();
+                                                $resultLevel = $gamoScore?->capability_level ?? $gamoScore?->current_maturity_level ?? 0;
                                                 $resultLevelInt = (int) $resultLevel;
                                             @endphp
                                             @if($resultLevelInt > 0)

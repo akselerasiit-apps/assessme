@@ -177,27 +177,27 @@
                 <ul class="nav nav-tabs mb-3" data-bs-toggle="tabs">
                     <li class="nav-item">
                         <a href="#tab-edm" class="nav-link active" data-bs-toggle="tab">
-                            <i class="ti ti-shield-check me-1"></i>EDM (5)
+                            <i class="ti ti-shield-check me-1"></i>EDM ({{ $gamoObjectives->where('category', 'EDM')->count() }})
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="#tab-apo" class="nav-link" data-bs-toggle="tab">
-                            <i class="ti ti-target me-1"></i>APO (7)
+                            <i class="ti ti-target me-1"></i>APO ({{ $gamoObjectives->where('category', 'APO')->count() }})
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="#tab-bai" class="nav-link" data-bs-toggle="tab">
-                            <i class="ti ti-tool me-1"></i>BAI (4)
+                            <i class="ti ti-tool me-1"></i>BAI ({{ $gamoObjectives->where('category', 'BAI')->count() }})
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="#tab-dss" class="nav-link" data-bs-toggle="tab">
-                            <i class="ti ti-server me-1"></i>DSS (4)
+                            <i class="ti ti-server me-1"></i>DSS ({{ $gamoObjectives->where('category', 'DSS')->count() }})
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="#tab-mea" class="nav-link" data-bs-toggle="tab">
-                            <i class="ti ti-chart-line me-1"></i>MEA (3)
+                            <i class="ti ti-chart-line me-1"></i>MEA ({{ $gamoObjectives->where('category', 'MEA')->count() }})
                         </a>
                     </li>
                 </ul>
@@ -257,9 +257,15 @@
     <!-- Step 4: Set Target Levels -->
     <div class="wizard-step" id="step4" style="display: none;">
         <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Step 4: Set Target Maturity Levels</h3>
-                <div class="card-subtitle">Define target maturity level for each selected GAMO objective</div>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="card-title">Step 4: Set Target Maturity Levels</h3>
+                    <div class="card-subtitle">Define target maturity level for each selected GAMO objective</div>
+                </div>
+                <div class="text-end">
+                    <div class="text-muted small mb-1">Target Akumulatif (Rata-rata):</div>
+                    <h2 class="mb-0 text-primary" id="avg-target-level">0.00</h2>
+                </div>
             </div>
             <div class="card-body">
                 <div class="alert alert-info">
@@ -335,6 +341,12 @@
                                         <div class="datagrid-title">GAMO Objectives</div>
                                         <div class="datagrid-content">
                                             <span class="badge bg-green text-white" id="review-gamo-count">0</span>
+                                        </div>
+                                    </div>
+                                    <div class="datagrid-item">
+                                        <div class="datagrid-title">Target Akumulatif (Rata-rata)</div>
+                                        <div class="datagrid-content">
+                                            <span class="badge bg-primary text-white" id="review-avg-target">0.00</span>
                                         </div>
                                     </div>
                                 </div>
@@ -559,12 +571,16 @@ function populateTargetLevels() {
     document.querySelectorAll('.target-level-select').forEach(select => {
         select.addEventListener('change', function() {
             updateActivitiesInfo(this);
+            updateAverageTargetLevel();
         });
         // Initialize info if value already selected
         if (select.value) {
             updateActivitiesInfo(select);
         }
     });
+    
+    // Calculate initial average
+    updateAverageTargetLevel();
 }
 
 // Get old target level value from previous submission
@@ -696,6 +712,36 @@ function updateReview() {
         gamoList.push(`${gamoName} (Target: Level ${targetLevel})`);
     });
     document.getElementById('review-gamo-list').innerHTML = gamoList.length ? gamoList.join('<br>') : 'None selected';
+    
+    // Update average target level in review
+    const avgTarget = calculateAverageTargetLevel();
+    document.getElementById('review-avg-target').textContent = avgTarget.toFixed(2);
+}
+
+// Calculate average target level
+function calculateAverageTargetLevel() {
+    const targetSelects = document.querySelectorAll('.target-level-select');
+    let total = 0;
+    let count = 0;
+    
+    targetSelects.forEach(select => {
+        const value = parseInt(select.value);
+        if (!isNaN(value) && value > 0) {
+            total += value;
+            count++;
+        }
+    });
+    
+    return count > 0 ? total / count : 0;
+}
+
+// Update average target level display in Step 4
+function updateAverageTargetLevel() {
+    const avg = calculateAverageTargetLevel();
+    const avgDisplay = document.getElementById('avg-target-level');
+    if (avgDisplay) {
+        avgDisplay.textContent = avg.toFixed(2);
+    }
 }
 
 // Fix #8: Validate required fields and show error notifications

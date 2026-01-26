@@ -48,7 +48,7 @@
                     </a>
                 </li>
                 
-                @canany(['view assessments', 'create assessments'])
+                @if(auth()->user()->hasAnyRole(['Viewer', 'Asesi', 'Manager', 'Assessor', 'Admin', 'Super Admin']))
                 <li class="nav-item dropdown {{ request()->is('assessments*') ? 'active' : '' }}">
                     <a class="nav-link dropdown-toggle" href="#navbar-assessments" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -59,26 +59,24 @@
                     <div class="dropdown-menu {{ request()->is('assessments*') ? 'show' : '' }}">
                         <div class="dropdown-menu-columns">
                             <div class="dropdown-menu-column">
-                                @can('view assessments')
                                 <a class="dropdown-item {{ request()->routeIs('assessments.index') ? 'active' : '' }}" href="{{ route('assessments.index') }}">
                                     All Assessments
                                 </a>
-                                @endcan
                                 @can('create assessments')
                                 <a class="dropdown-item {{ request()->routeIs('assessments.create') ? 'active' : '' }}" href="{{ route('assessments.create') }}">
                                     Create Assessment
                                 </a>
                                 @endcan
-                                @unlessrole('Viewer')
+                                @if(!auth()->user()->hasAnyRole(['Viewer', 'Asesi']))
                                 <a class="dropdown-item" href="{{ route('assessments.my') }}">
                                     My Assessments
                                 </a>
-                                @endunlessrole
+                                @endif
                             </div>
                         </div>
                     </div>
                 </li>
-                @endcanany
+                @endif
                 
                 @can('view reports')
                 <li class="nav-item {{ request()->is('reports*') ? 'active' : '' }}">

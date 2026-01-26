@@ -37,8 +37,8 @@ class AssessmentPolicy
             return $user->company_id === $assessment->company_id;
         }
 
-        // Viewer: view all assessments from own company (read-only)
-        if ($user->hasRole('Viewer')) {
+        // Viewer & Asesi: view all assessments from own company (read-only)
+        if ($user->hasAnyRole(['Viewer', 'Asesi'])) {
             return $user->company_id === $assessment->company_id;
         }
 
@@ -138,16 +138,32 @@ class AssessmentPolicy
 
     /**
      * Determine whether the user can take/fill the assessment.
-     * Updated to allow Viewer read-only access
+     * Updated to allow Viewer and Asesi read-only access
      */
     public function takeAssessment(User $user, Assessment $assessment): bool
     {
-        // Viewer: read-only access to view evidence, summary, OFI
-        if ($user->hasRole('Viewer')) {
+        // Viewer & Asesi: read-only access to view evidence, summary, OFI
+        // Asesi can also upload evidence via uploadEvidence policy
+        if ($user->hasAnyRole(['Viewer', 'Asesi'])) {
             return $user->company_id === $assessment->company_id;
         }
         
         // For other roles, use answer policy
+        return $this->answer($user, $assessment);
+    }
+
+    /**
+     * Determine whether the user can upload evidence.
+     * Asesi can upload evidence even though they can't answer questions
+     */
+    public function uploadEvidence(User $user, Assessment $assessment): bool
+    {
+        // Asesi: can upload evidence for own company assessments
+        if ($user->hasRole('Asesi')) {
+            return $user->company_id === $assessment->company_id;
+        }
+        
+        // For other roles, same as answer permission
         return $this->answer($user, $assessment);
     }
 

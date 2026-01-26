@@ -288,7 +288,7 @@ class AssessmentTakingController extends Controller
         // Count unique GAMO IDs that have been answered
         $answeredGamoCount = AssessmentAnswer::where('assessment_id', $assessment->id)
             ->whereNotNull('answered_at')
-            ->distinct('gamo_objective_id')
+            ->distinct()
             ->count('gamo_objective_id');
 
         $progressPercentage = $totalGamoCount > 0 
@@ -474,6 +474,9 @@ class AssessmentTakingController extends Controller
 
         // Update assessment progress
         $this->updateAssessmentProgress($assessment);
+
+        // Auto-calculate GAMO score for this objective
+        $this->updateGamoScore($assessment, $activity->gamo_objective_id);
 
         return response()->json([
             'success' => true,
@@ -734,7 +737,8 @@ class AssessmentTakingController extends Controller
      */
     public function uploadEvidence(Request $request, Assessment $assessment, GamoQuestion $activity)
     {
-        $this->authorize('take-assessment', $assessment);
+        // Check if user can upload evidence (Asesi can, Viewer cannot)
+        $this->authorize('uploadEvidence', $assessment);
 
         $validated = $request->validate([
             'evidence_name' => 'required|string|max:255',
@@ -1360,6 +1364,115 @@ class AssessmentTakingController extends Controller
 
         // Return 0 (not level 1) for COBIT 2019 - Level 1 doesn't exist
         return 0;
+    }
+
+    /**
+     * Auto-update GAMO score after answer is saved
+     */
+    private function updateGamoScore(Assessment $assessment, int $gamoObjectiveId): void
+    {
+        // Get all answers for this GAMO
+        $answers = AssessmentAnswer::where('assessment_id', $assessment->id)
+            ->where('gamo_objective_id', $gamoObjectiveId)
+            ->whereNotNull('answered_at')
+            ->with('question')
+            ->get();
+
+        if ($answers->isEmpty()) {
+            return; // No answers yet, skip
+        }
+
+        // Calculate capability level based on COBIT 2019 rules (85% compliance threshold)
+        $achievedLevel = 0;
+        
+        // Check each level sequentially from 2 to 5
+        for ($level = 2; $level <= 5; $level--) {
+            $levelAnswers = $answers->filter(function($answer) use ($level) {
+                return $answer->question && $answer->question->maturity_level == $level;
+            });
+
+            // Skip if no activities at this level
+            if ($levelAnswers->isEmpty()) {
+                continue;
+            }
+
+            // Calculate weighted average score for this level
+            $totalWeight = 0;
+            $weightedScore = 0;
+
+            foreach ($levelAnswers as $answer) {
+                $weight = 1; // Default weight
+                $totalWeight += $weight;
+                $weightedScore += $weight * ($answer->capability_score ?? 0);
+            }
+
+            // Calculate compliance percentage
+            $compliance = $totalWeight > 0 ? (($weightedScore / $totalWeight) * 100) : 0;
+
+            // Level is achieved if compliance >= 85%
+            if ($compliance >= 85) {
+                $achievedLevel = $level;
+            } else {
+                // Stop checking higher levels if current level not achieved
+                break;
+            }
+        }
+
+        // Calculate average maturity and capability scores
+        $avgMaturity = $answers->avg(function($answer) {
+            // Convert capability_score to maturity level equivalent
+            $score = $answer->capability_score ?? 0;
+            $level = $answer->question->maturity_level ?? 0;
+            return $score * $level;
+        });
+        
+        $avgCapability = $answers->avg('capability_score') ?? 0;
+
+        // Calculate completion percentage
+        $totalQuestions = \App\Models\GamoQuestion::where('gamo_objective_id', $gamoObjectiveId)
+            ->where('is_active', true)
+            ->count();
+        $answeredQuestions = $answers->count();
+        $completionPercentage = $totalQuestions > 0 
+            ? round(($answeredQuestions / $totalQuestions) * 100) 
+            : 0;
+
+        // Determine status
+        $status = 'not_started';
+        if ($completionPercentage >= 100) {
+            $status = 'completed';
+        } elseif ($completionPercentage > 0) {
+            $status = 'in_progress';
+        }
+
+        // Get target level from assessment
+        $targetLevel = $assessment->gamoSelections()
+            ->where('gamo_objective_id', $gamoObjectiveId)
+            ->value('target_maturity_level') ?? 3;
+
+        // Create or update GAMO score
+        \App\Models\GamoScore::updateOrCreate(
+            [
+                'assessment_id' => $assessment->id,
+                'gamo_objective_id' => $gamoObjectiveId,
+            ],
+            [
+                'current_maturity_level' => round($avgMaturity, 2),
+                'target_maturity_level' => $targetLevel,
+                'capability_score' => round($avgCapability, 2),
+                'capability_level' => $achievedLevel, // This is the actual achieved level based on 85% rule
+                'percentage_complete' => $completionPercentage,
+                'status' => $status,
+            ]
+        );
+
+        // Update overall assessment maturity
+        $overallMaturity = \App\Models\GamoScore::where('assessment_id', $assessment->id)
+            ->avg('capability_level');
+        
+        $assessment->update([
+            'overall_maturity_level' => round($overallMaturity ?? 0, 2),
+        ]);
     }
 }
 

@@ -13,48 +13,63 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+        $isGlobalAdmin = $user->hasAnyRole(['Super Admin', 'Admin']);
+        $isViewer = $user->hasAnyRole(['Viewer', 'Asesi']);
+        
+        // Build base query based on role
+        $baseQuery = Assessment::query();
+        
+        // Role-based filtering
+        if ($user->hasAnyRole(['Viewer', 'Asesi', 'Manager'])) {
+            // Viewer, Asesi and Manager: only see their company's assessments
+            $baseQuery->where('company_id', $user->company_id);
+        } elseif ($user->hasRole('Assessor')) {
+            // Assessor: see their own assessments
+            $baseQuery->where('created_by', $user->id);
+        }
+        // Super Admin and Admin: see all assessments (no filter)
+        
         // Get comprehensive statistics
         $stats = [
-            'total_assessments' => Assessment::count(),
-            'draft' => Assessment::where('status', 'draft')->count(),
-            'in_progress' => Assessment::where('status', 'in_progress')->count(),
-            'reviewed' => Assessment::where('status', 'reviewed')->count(),
-            'completed' => Assessment::where('status', 'completed')->count(),
-            'approved' => Assessment::where('status', 'approved')->count(),
-            'archived' => Assessment::where('status', 'archived')->count(),
-            'completion_rate' => $this->getCompletionRate(),
-            'average_maturity' => Assessment::whereNotNull('overall_maturity_level')->avg('overall_maturity_level') ?? 0,
+            'total_assessments' => (clone $baseQuery)->count(),
+            'draft' => (clone $baseQuery)->where('status', 'draft')->count(),
+            'in_progress' => (clone $baseQuery)->where('status', 'in_progress')->count(),
+            'completed' => (clone $baseQuery)->where('status', 'completed')->count(),
+            'approved' => (clone $baseQuery)->where('status', 'approved')->count(),
+            'archived' => (clone $baseQuery)->where('status', 'archived')->count(),
+            'completion_rate' => $this->getCompletionRate($baseQuery),
+            'average_maturity' => (clone $baseQuery)->whereNotNull('overall_maturity_level')->avg('overall_maturity_level') ?? 0,
         ];
         
         // Get assessment status counts for charts
         $statusCounts = [
             'draft' => $stats['draft'],
             'in_progress' => $stats['in_progress'],
-            'reviewed' => $stats['reviewed'],
             'completed' => $stats['completed'],
             'approved' => $stats['approved'],
         ];
         
-        // Get maturity distribution
+        // Get maturity distribution (COBIT 2019: Level 2-5 only)
         $maturityDistribution = [];
-        for ($i = 0; $i <= 5; $i++) {
-            $maturityDistribution[$i] = Assessment::whereBetween('overall_maturity_level', [$i, $i + 0.99])->count();
+        for ($i = 2; $i <= 5; $i++) {
+            $maturityDistribution[$i] = (clone $baseQuery)->whereBetween('overall_maturity_level', [$i, $i + 0.99])->count();
         }
         
         // Get GAMO category distribution
-        $gamoDistribution = $this->getGamoDistribution();
+        $gamoDistribution = $this->getGamoDistribution($baseQuery);
         
         // Get recent assessments with relations
-        $recentAssessments = Assessment::with(['company', 'creator'])
+        $recentAssessments = (clone $baseQuery)->with(['company', 'creator'])
             ->latest()
             ->limit(8)
             ->get();
         
-        // Get assessments by company
-        $assessmentsByCompany = $this->getAssessmentsByCompany();
+        // Get assessments by company (only for global admins)
+        $assessmentsByCompany = $isGlobalAdmin ? $this->getAssessmentsByCompany() : collect();
         
         // Get completion trend (last 7 days)
-        $completionTrend = $this->getCompletionTrend();
+        $completionTrend = $this->getCompletionTrend($baseQuery);
         
         return view('dashboard.index', compact(
             'stats',
@@ -63,17 +78,31 @@ class DashboardController extends Controller
             'gamoDistribution',
             'recentAssessments',
             'assessmentsByCompany',
-            'completionTrend'
+            'completionTrend',
+            'isGlobalAdmin',
+            'isViewer'
         ));
     }
     
     /**
      * Get overall completion rate
      */
-    private function getCompletionRate(): float
+    private function getCompletionRate($baseQuery): float
     {
-        $totalQuestions = DB::table('assessment_answers')->count();
-        $answeredQuestions = DB::table('assessment_answers')->whereNotNull('answered_at')->count();
+        $assessmentIds = $baseQuery->pluck('id');
+        
+        if ($assessmentIds->isEmpty()) {
+            return 0;
+        }
+        
+        $totalQuestions = DB::table('assessment_answers')
+            ->whereIn('assessment_id', $assessmentIds)
+            ->count();
+            
+        $answeredQuestions = DB::table('assessment_answers')
+            ->whereIn('assessment_id', $assessmentIds)
+            ->whereNotNull('answered_at')
+            ->count();
         
         return $totalQuestions > 0 ? round(($answeredQuestions / $totalQuestions) * 100, 1) : 0;
     }
@@ -81,26 +110,43 @@ class DashboardController extends Controller
     /**
      * Get GAMO distribution
      */
-    private function getGamoDistribution(): array
+    private function getGamoDistribution($baseQuery): array
     {
+        $assessmentIds = $baseQuery->pluck('id');
+        
+        if ($assessmentIds->isEmpty()) {
+            return [
+                'EDM' => 0,
+                'APO' => 0,
+                'BAI' => 0,
+                'DSS' => 0,
+                'MEA' => 0,
+            ];
+        }
+        
         return [
             'EDM' => DB::table('assessment_gamo_selections')
+                ->whereIn('assessment_id', $assessmentIds)
                 ->join('gamo_objectives', 'assessment_gamo_selections.gamo_objective_id', '=', 'gamo_objectives.id')
                 ->where('gamo_objectives.category', 'EDM')
                 ->count(),
             'APO' => DB::table('assessment_gamo_selections')
+                ->whereIn('assessment_id', $assessmentIds)
                 ->join('gamo_objectives', 'assessment_gamo_selections.gamo_objective_id', '=', 'gamo_objectives.id')
                 ->where('gamo_objectives.category', 'APO')
                 ->count(),
             'BAI' => DB::table('assessment_gamo_selections')
+                ->whereIn('assessment_id', $assessmentIds)
                 ->join('gamo_objectives', 'assessment_gamo_selections.gamo_objective_id', '=', 'gamo_objectives.id')
                 ->where('gamo_objectives.category', 'BAI')
                 ->count(),
             'DSS' => DB::table('assessment_gamo_selections')
+                ->whereIn('assessment_id', $assessmentIds)
                 ->join('gamo_objectives', 'assessment_gamo_selections.gamo_objective_id', '=', 'gamo_objectives.id')
                 ->where('gamo_objectives.category', 'DSS')
                 ->count(),
             'MEA' => DB::table('assessment_gamo_selections')
+                ->whereIn('assessment_id', $assessmentIds)
                 ->join('gamo_objectives', 'assessment_gamo_selections.gamo_objective_id', '=', 'gamo_objectives.id')
                 ->where('gamo_objectives.category', 'MEA')
                 ->count(),
@@ -123,12 +169,15 @@ class DashboardController extends Controller
     /**
      * Get completion trend for last 7 days
      */
-    private function getCompletionTrend(): array
+    private function getCompletionTrend($baseQuery): array
     {
+        $assessmentIds = $baseQuery->pluck('id');
         $trend = [];
+        
         for ($i = 6; $i >= 0; $i--) {
             $date = now()->subDays($i);
-            $count = Assessment::whereDate('updated_at', $date->format('Y-m-d'))
+            $count = Assessment::whereIn('id', $assessmentIds)
+                ->whereDate('updated_at', $date->format('Y-m-d'))
                 ->where('status', '=', 'completed')
                 ->count();
             $trend[$date->format('M d')] = $count;

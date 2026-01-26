@@ -230,6 +230,7 @@
 // Global variables
 const assessmentId = {{ $assessment->id }};
 const canAnswer = {{ auth()->user()->can('answer', $assessment) ? 'true' : 'false' }};
+const canUploadEvidence = {{ auth()->user()->can('uploadEvidence', $assessment) ? 'true' : 'false' }};
 let currentGamoId = {{ $gamoObjectives->first()->id ?? 'null' }};
 let currentLevel = 2;
 let allActivitiesByLevel = {};
@@ -266,8 +267,12 @@ $(document).ready(function() {
     if (!canAnswer) {
         $('input[name="capability_rating"]').attr('disabled', true);
         $('textarea[name="notes"]').attr('disabled', true);
-        $('#evidenceUploadForm input, #evidenceUploadForm select, #evidenceUploadForm button').attr('disabled', true);
-        $('#evidenceUploadFormModal input, #evidenceUploadFormModal select, #evidenceUploadFormModal button').attr('disabled', true);
+        
+        // Asesi can upload evidence, Viewer cannot
+        if (!canUploadEvidence) {
+            $('#evidenceUploadForm input, #evidenceUploadForm select, #evidenceUploadForm button').attr('disabled', true);
+            $('#evidenceUploadFormModal input, #evidenceUploadFormModal select, #evidenceUploadFormModal button').attr('disabled', true);
+        }
     }
 
     // GAMO Selector change
@@ -472,7 +477,7 @@ function renderActivities(activities) {
         const evidenceCount = activity.evidence_count || 0;
         const evidenceIcon = evidenceCount > 0
             ? `<span class="badge bg-success text-white cursor-pointer" onclick="showEvidence(${activity.id})">${evidenceCount}</span>`
-            : `<span class="text-muted cursor-pointer" onclick="showEvidence(${activity.id})">-</span>`;
+            : `<span class="text-white badge bg-warning cursor-pointer" onclick="showEvidence(${activity.id})">Upload</span>`;
         
         const rating = activity.answer?.capability_rating || null;
         let ratingBadge = '-';
@@ -486,8 +491,8 @@ function renderActivities(activities) {
                 'N/A': 'bg-secondary'
             };
             const ratingClass = ratingColors[rating] || 'bg-secondary';
-            const clickAction = canAnswer ? `onclick="openAssessmentModal(${activity.id})"` : '';
-            ratingBadge = `<span class="badge text-white ${ratingClass} ${canAnswer ? 'cursor-pointer' : ''}" ${clickAction}>${rating}</span>`;
+            // Allow both Viewer and Assessor to view details (modal will be read-only for Viewer)
+            ratingBadge = `<span class="badge text-white ${ratingClass} cursor-pointer" onclick="openAssessmentModal(${activity.id})">${rating}</span>`;
         } else {
             if (canAnswer) {
                 ratingBadge = `<button class="btn btn-sm btn-outline-primary" onclick="openAssessmentModal(${activity.id})">Rate</button>`;

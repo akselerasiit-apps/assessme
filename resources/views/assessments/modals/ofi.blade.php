@@ -59,9 +59,11 @@
                                 </p>
                             </div>
                             <div class="btn-group">
+                                @can('answer', $assessment)
                                 <button class="btn btn-primary btn-sm" onclick="generateAutoOFI()">
                                     <i class="ti ti-sparkles me-1"></i>Generate
                                 </button>
+                                @endcan
                                 <button class="btn btn-outline-primary btn-sm" onclick="copyAutoOFI()">
                                     <i class="ti ti-copy me-1"></i>Salin
                                 </button>
@@ -85,9 +87,11 @@
                                 </p>
                             </div>
                             <div class="btn-group">
+                                @can('answer', $assessment)
                                 <button class="btn btn-primary btn-sm" onclick="showAddOFIForm()">
                                     <i class="ti ti-plus me-1"></i>Tambah OFI
                                 </button>
+                                @endcan
                                 <button class="btn btn-outline-primary btn-sm" onclick="copyManualOFI()">
                                     <i class="ti ti-copy me-1"></i>Salin
                                 </button>

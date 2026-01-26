@@ -33,7 +33,7 @@
                     </li>
                     
                     <!-- Assessments -->
-                    @if(auth()->user()->hasAnyRole(['Super Admin', 'Assessor', 'Viewer']))
+                    @if(auth()->user()->hasAnyRole(['Viewer', 'Asesi', 'Manager', 'Assessor', 'Admin', 'Super Admin']))
                     <li class="nav-item dropdown {{ request()->is('assessments*') ? 'active' : '' }}">
                         <a class="nav-link dropdown-toggle" href="#navbar-assessments" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -45,14 +45,16 @@
                             <a class="dropdown-item {{ request()->routeIs('assessments.index') ? 'active' : '' }}" href="{{ route('assessments.index') }}">
                                 <i class="ti ti-list me-2"></i>All Assessments
                             </a>
-                            @if(auth()->user()->hasAnyRole(['Super Admin', 'Assessor']))
+                            @if(auth()->user()->hasAnyRole(['Super Admin', 'Admin', 'Assessor']))
                             <a class="dropdown-item {{ request()->routeIs('assessments.create') ? 'active' : '' }}" href="{{ route('assessments.create') }}">
                                 <i class="ti ti-plus me-2"></i>Create Assessment
                             </a>
                             @endif
+                            @if(!auth()->user()->hasAnyRole(['Viewer', 'Asesi']))
                             <a class="dropdown-item {{ request()->routeIs('assessments.my') ? 'active' : '' }}" href="{{ route('assessments.my') }}">
                                 <i class="ti ti-user-check me-2"></i>My Assessments
                             </a>
+                            @endif
                         </div>
                     </li>
                     @endif

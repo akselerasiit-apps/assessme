@@ -41,8 +41,8 @@ class AssessmentWebController extends Controller
             } elseif (auth()->user()->hasRole('Manager')) {
                 // Manager can see own company assessments
                 $query->where('company_id', auth()->user()->company_id);
-            } elseif (auth()->user()->hasRole('Viewer')) {
-                // Viewer can see all assessments from their company
+            } elseif (auth()->user()->hasAnyRole(['Viewer', 'Asesi'])) {
+                // Viewer & Asesi can see all assessments from their company
                 $query->where('company_id', auth()->user()->company_id);
             } else {
                 // Assessor can see own or participated assessments

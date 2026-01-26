@@ -53,7 +53,7 @@
                     </div>
                 </div>
 
-                @can('answer', $assessment)
+                @can('uploadEvidence', $assessment)
                 <!-- Upload Evidence Form -->
                 <div class="card mb-3" id="evidenceUploadSection">
                     <div class="card-header">

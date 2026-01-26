@@ -207,7 +207,7 @@ class GamoObjectiveSeeder extends Seeder
                 'category' => 'DSS',
                 'objective_order' => 5,
             ],
-            // MEA (3 objectives)
+            // MEA (Monitor, Evaluate and Assess) - 4 objectives
             [
                 'code' => 'MEA01',
                 'name' => 'Monitor, Evaluate and Assess Performance and Conformance',
@@ -234,6 +234,15 @@ class GamoObjectiveSeeder extends Seeder
                 'description_id' => 'Pantau kepatuhan IT terhadap hukum, regulasi, dan standar eksternal',
                 'category' => 'MEA',
                 'objective_order' => 3,
+            ],
+            [
+                'code' => 'MEA04',
+                'name' => 'Managed Assurance',
+                'name_id' => 'Pengelolaan Jaminan',
+                'description' => 'Managed Assurance',
+                'description_id' => 'Pengelolaan Jaminan',
+                'category' => 'MEA',
+                'objective_order' => 4,
             ],
         ];
 
