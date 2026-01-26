@@ -520,6 +520,14 @@ function populateTargetLevels() {
         return;
     }
     
+    // Save current target level values before regenerating HTML
+    const currentTargetLevels = {};
+    document.querySelectorAll('.target-level-select').forEach(select => {
+        if (select.value) {
+            currentTargetLevels[select.dataset.gamoId] = select.value;
+        }
+    });
+    
     let html = '<div class="row g-3">';
     
     gamoChecked.forEach(cb => {
@@ -529,8 +537,8 @@ function populateTargetLevels() {
         const gamoName = parent.querySelector('.fw-bold')?.textContent.trim() || 'Unknown';
         const gamoId = cb.value;
         
-        // Get old value if exists
-        const oldValue = getOldTargetLevel(gamoId);
+        // Get saved value or old form value
+        const savedValue = currentTargetLevels[gamoId] || getOldTargetLevel(gamoId);
         
         html += `
             <div class="col-md-6">
@@ -546,11 +554,11 @@ function populateTargetLevels() {
                             <label class="form-label required">Target Maturity Level</label>
                             <select name="target_levels[${gamoId}]" class="form-select target-level-select" required data-gamo-id="${gamoId}" data-gamo-code="${gamoCode}" data-gamo-name="${gamoName}">
                                 <option value="">Select Target Level</option>
-                                <option value="1" ${oldValue === '1' ? 'selected' : ''}>Level 1 - Initial</option>
-                                <option value="2" ${oldValue === '2' ? 'selected' : ''}>Level 2 - Managed</option>
-                                <option value="3" ${oldValue === '3' ? 'selected' : ''}>Level 3 - Established</option>
-                                <option value="4" ${oldValue === '4' ? 'selected' : ''}>Level 4 - Predictable</option>
-                                <option value="5" ${oldValue === '5' ? 'selected' : ''}>Level 5 - Optimizing</option>
+                                <option value="1" ${savedValue === '1' ? 'selected' : ''}>Level 1 - Initial</option>
+                                <option value="2" ${savedValue === '2' ? 'selected' : ''}>Level 2 - Managed</option>
+                                <option value="3" ${savedValue === '3' ? 'selected' : ''}>Level 3 - Established</option>
+                                <option value="4" ${savedValue === '4' ? 'selected' : ''}>Level 4 - Predictable</option>
+                                <option value="5" ${savedValue === '5' ? 'selected' : ''}>Level 5 - Optimizing</option>
                             </select>
                             <small class="form-hint">Activities from Level 1 up to selected level will be assessed</small>
                         </div>
