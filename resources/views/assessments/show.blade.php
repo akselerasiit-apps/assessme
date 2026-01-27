@@ -452,6 +452,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const gamoObjectives = @json($assessment->gamoObjectives);
     const gamoScores = @json($assessment->gamoScores);
     
+    console.log('GAMO Objectives:', gamoObjectives);
+    console.log('GAMO Scores:', gamoScores);
+    
     if (!gamoObjectives || gamoObjectives.length === 0) {
         ctx.getContext('2d').fillText('No GAMO objectives selected', 10, 50);
         return;
@@ -459,9 +462,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Create score map for quick lookup
     const scoreMap = {};
-    if (gamoScores) {
+    if (gamoScores && gamoScores.length > 0) {
         gamoScores.forEach(score => {
-            scoreMap[score.gamo_objective_id] = score.current_maturity_level || 0;
+            scoreMap[score.gamo_objective_id] = parseFloat(score.current_maturity_level) || 0;
+            console.log(`Score for GAMO ${score.gamo_objective_id}:`, score.current_maturity_level);
         });
     }
     
@@ -472,9 +476,17 @@ document.addEventListener('DOMContentLoaded', function() {
     
     gamoObjectives.forEach(gamo => {
         labels.push(gamo.code);
-        realizationData.push(scoreMap[gamo.id] || 0);
-        targetData.push(gamo.pivot?.target_maturity_level || 3);
+        const currentLevel = scoreMap[gamo.id] || 0;
+        const targetLevel = parseFloat(gamo.pivot?.target_maturity_level) || 3;
+        
+        realizationData.push(currentLevel);
+        targetData.push(targetLevel);
+        
+        console.log(`${gamo.code} - Current: ${currentLevel}, Target: ${targetLevel}`);
     });
+    
+    console.log('Chart Data - Realization:', realizationData);
+    console.log('Chart Data - Target:', targetData);
     
     // Create radar chart
     new Chart(ctx, {
@@ -483,8 +495,8 @@ document.addEventListener('DOMContentLoaded', function() {
             labels: labels,
             datasets: [
                 {
-                    label: 'Realisasi',
-                    data: realizationData,
+                    label: 'Target',
+                    data: targetData,
                     backgroundColor: 'rgba(32, 107, 196, 0.2)',
                     borderColor: 'rgba(32, 107, 196, 1)',
                     borderWidth: 2,
@@ -496,8 +508,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     pointHoverRadius: 6
                 },
                 {
-                    label: 'Target',
-                    data: targetData,
+                    label: 'Realisasi',
+                    data: realizationData,
                     backgroundColor: 'rgba(76, 175, 80, 0.2)',
                     borderColor: 'rgba(76, 175, 80, 1)',
                     borderWidth: 2,
