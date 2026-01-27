@@ -451,6 +451,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Prepare data from assessment
     const gamoObjectives = @json($assessment->gamoObjectives);
     const gamoScores = @json($assessment->gamoScores);
+    const assessmentId = @json($assessment->id);
+    const selectedGamos = @json($selectedGamoIds);
     
     console.log('GAMO Objectives:', gamoObjectives);
     console.log('GAMO Scores:', gamoScores);
@@ -460,36 +462,24 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
-    // Create score map for quick lookup
-    const scoreMap = {};
-    if (gamoScores && gamoScores.length > 0) {
-        gamoScores.forEach(score => {
-            scoreMap[score.gamo_objective_id] = parseFloat(score.current_maturity_level) || 0;
-            console.log(`Score for GAMO ${score.gamo_objective_id}:`, score.current_maturity_level);
-        });
-    }
-    
     // Prepare chart data
     const labels = [];
     const realizationData = [];
     const targetData = [];
     
+    // Track AJAX calls for realization data
+    let completedCalls = 0;
+    const totalCalls = gamoObjectives.length;
+    
+    // Collect target data first (synchronous)
     gamoObjectives.forEach(gamo => {
         labels.push(gamo.code);
-        const currentLevel = scoreMap[gamo.id] || 0;
-        const targetLevel = parseFloat(gamo.pivot?.target_maturity_level) || 3;
-        
-        realizationData.push(currentLevel);
-        targetData.push(targetLevel);
-        
-        console.log(`${gamo.code} - Current: ${currentLevel}, Target: ${targetLevel}`);
+        targetData.push(parseFloat(gamo.pivot?.target_maturity_level) || 3);
+        realizationData.push(0); // Initialize with 0, will be updated
     });
     
-    console.log('Chart Data - Realization:', realizationData);
-    console.log('Chart Data - Target:', targetData);
-    
-    // Create radar chart
-    new Chart(ctx, {
+    // Create chart first with initial data
+    const radarChart = new Chart(ctx, {
         type: 'radar',
         data: {
             labels: labels,
@@ -576,6 +566,60 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         }
+    });
+    
+    // Fetch capability levels for all GAMOs and update chart
+    gamoObjectives.forEach((gamo, index) => {
+        $.ajax({
+            url: `/assessments/${assessmentId}/gamo/${gamo.id}/activities`,
+            method: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                let achievedLevel = 0;
+                const activities = response.activities || {};
+                
+                // Calculate achieved level based on COBIT 2019 rules
+                // COBIT 2019: Levels start from 2 (Managed) to 5 (Optimizing)
+                for (let level = 2; level <= 5; level++) {
+                    const levelActivities = activities[level] || [];
+                    
+                    // Skip level if no activities
+                    if (levelActivities.length === 0) continue;
+                    
+                    let totalWeight = 0;
+                    let weightedScore = 0;
+                    
+                    levelActivities.forEach(activity => {
+                        const weight = activity.weight || 1;
+                        totalWeight += weight;
+                        
+                        if (activity.answer && activity.answer.capability_score) {
+                            weightedScore += weight * activity.answer.capability_score;
+                        }
+                    });
+                    
+                    // Calculate compliance for this level
+                    const compliance = totalWeight > 0 ? ((weightedScore / totalWeight) * 100) : 0;
+                    
+                    // Level achieved if compliance >= 85% (COBIT 2019)
+                    if (compliance >= 85) {
+                        achievedLevel = level;
+                    } else {
+                        // Stop if level not achieved
+                        break;
+                    }
+                }
+                
+                console.log(`${gamo.code} - Realization Level: ${achievedLevel}`);
+                
+                // Update chart data
+                radarChart.data.datasets[1].data[index] = achievedLevel;
+                radarChart.update();
+            },
+            error: function(xhr, status, error) {
+                console.error(`Error fetching ${gamo.code} capability:`, error);
+            }
+        });
     });
 });
 
