@@ -23,6 +23,7 @@ class AuditPageView
             Auth::check() &&
             $response->getStatusCode() === 200 &&
             !$request->ajax() &&
+            !$request->wantsJson() &&
             !$this->shouldSkipLogging($request)
         ) {
             try {
