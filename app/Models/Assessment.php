@@ -25,8 +25,6 @@ class Assessment extends Model
         'progress_percentage',
         'is_encrypted',
         'created_by',
-        'reviewed_by',
-        'approved_by',
     ];
 
     protected $casts = [
@@ -59,30 +57,6 @@ class Assessment extends Model
     public function creator(): BelongsTo
     {
         return $this->createdBy();
-    }
-
-    /**
-     * Get the user who reviewed this assessment
-     */
-    public function reviewedBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'reviewed_by');
-    }
-
-    /**
-     * Alias for reviewedBy (backward compatibility)
-     */
-    public function reviewer(): BelongsTo
-    {
-        return $this->reviewedBy();
-    }
-
-    /**
-     * Get the user who approved this assessment
-     */
-    public function approvedBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'approved_by');
     }
 
     /**

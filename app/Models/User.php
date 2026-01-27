@@ -81,22 +81,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Get assessments reviewed by this user
-     */
-    public function reviewedAssessments(): HasMany
-    {
-        return $this->hasMany(Assessment::class, 'reviewed_by');
-    }
-
-    /**
-     * Get assessments approved by this user
-     */
-    public function approvedAssessments(): HasMany
-    {
-        return $this->hasMany(Assessment::class, 'approved_by');
-    }
-
-    /**
      * Get the company that owns the user
      */
     public function company()
