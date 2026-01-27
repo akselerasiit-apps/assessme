@@ -71,35 +71,9 @@
                     </li>
                     @endcan
                     
-                    <!-- Administration -->
-                    @role('Super Admin')
-                    <li class="nav-item dropdown {{ request()->is('admin*') ? 'active' : '' }}">
-                        <a class="nav-link dropdown-toggle" href="#navbar-admin" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
-                            <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                <i class="ti ti-settings"></i>
-                            </span>
-                            <span class="nav-link-title">Administration</span>
-                        </a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item {{ request()->routeIs('admin.users') ? 'active' : '' }}" href="{{ route('admin.users') }}">
-                                <i class="ti ti-users me-2"></i>Users
-                            </a>
-                            <a class="dropdown-item {{ request()->routeIs('admin.roles') ? 'active' : '' }}" href="{{ route('admin.roles') }}">
-                                <i class="ti ti-shield-lock me-2"></i>Roles & Permissions
-                            </a>
-                            <a class="dropdown-item {{ request()->routeIs('admin.audit-logs') ? 'active' : '' }}" href="{{ route('admin.audit-logs') }}">
-                                <i class="ti ti-file-search me-2"></i>Audit Logs
-                            </a>
-                            <a class="dropdown-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}" href="{{ route('admin.settings') }}">
-                                <i class="ti ti-adjustments me-2"></i>System Settings
-                            </a>
-                        </div>
-                    </li>
-                    @endrole
-                    
                     <!-- Master Data -->
                     @role('Super Admin')
-                    <li class="nav-item dropdown {{ request()->is('master-data*') ? 'active' : '' }}">
+                    <li class="nav-item dropdown {{ request()->is('master-data*') || request()->is('admin/users*') || request()->is('admin/roles*') ? 'active' : '' }}">
                         <a class="nav-link dropdown-toggle" href="#navbar-master-data" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <i class="ti ti-database"></i>
@@ -116,7 +90,38 @@
                             <a class="dropdown-item {{ request()->routeIs('master-data.gamo-objectives*') ? 'active' : '' }}" href="{{ route('master-data.gamo-objectives.index') }}">
                                 <i class="ti ti-target me-2"></i>GAMO Objectives
                             </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item {{ request()->routeIs('admin.users') ? 'active' : '' }}" href="{{ route('admin.users') }}">
+                                <i class="ti ti-users me-2"></i>Users
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('admin.roles') ? 'active' : '' }}" href="{{ route('admin.roles') }}">
+                                <i class="ti ti-shield-lock me-2"></i>Roles & Permissions
+                            </a>
                         </div>
+                    </li>
+                    @endrole
+                    
+                    <!-- Audit Logs -->
+                    @role('Super Admin')
+                    <li class="nav-item {{ request()->routeIs('admin.audit-logs') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.audit-logs') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <i class="ti ti-file-search"></i>
+                            </span>
+                            <span class="nav-link-title">Audit Logs</span>
+                        </a>
+                    </li>
+                    @endrole
+                    
+                    <!-- System Settings -->
+                    @role('Super Admin')
+                    <li class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.settings') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <i class="ti ti-adjustments"></i>
+                            </span>
+                            <span class="nav-link-title">System Settings</span>
+                        </a>
                     </li>
                     @endrole
                 </ul>

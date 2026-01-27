@@ -96,13 +96,30 @@ class ProfileController extends Controller
     {
         $validated = $request->validate([
             'current_password' => 'required',
-            'password' => ['required', 'confirmed', Password::defaults()],
+            'password' => [
+                'required',
+                'confirmed',
+                'min:10',
+                'regex:/[a-z]/',
+                'regex:/[A-Z]/',
+                'regex:/[@$!%*?&#]/',
+            ],
+        ], [
+            'password.min' => 'Password must be at least 10 characters.',
+            'password.regex' => 'Password must contain uppercase, lowercase, and special characters.',
         ]);
 
         $user = auth()->user();
 
         // Verify current password
         if (!Hash::check($validated['current_password'], $user->password)) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Current password is incorrect.',
+                    'errors' => ['current_password' => ['Current password is incorrect.']]
+                ], 422);
+            }
             return back()->withErrors(['current_password' => 'Current password is incorrect.']);
         }
 
@@ -114,6 +131,14 @@ class ProfileController extends Controller
         activity()
             ->performedOn($user)
             ->log('Password changed');
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Password has been changed successfully!',
+                'redirect' => route('profile.index')
+            ]);
+        }
 
         return redirect()->route('profile.index')
             ->with('success', 'Password changed successfully.');
