@@ -57,57 +57,17 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label required">Company</label>
-                        <select 
-                            name="company_id" 
-                            class="form-select @error('company_id') is-invalid @enderror"
-                            required
+                        <label class="form-label">Company</label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            value="{{ $assessment->company->name }}"
+                            readonly
+                            disabled
                         >
-                            <option value="">Select Company</option>
-                            @foreach($companies as $company)
-                            <option value="{{ $company->id }}" {{ old('company_id', $assessment->company_id) == $company->id ? 'selected' : '' }}>
-                                {{ $company->name }}
-                            </option>
-                            @endforeach
-                        </select>
-                        @error('company_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label required">Assessment Type</label>
-                            <select 
-                                name="assessment_type" 
-                                class="form-select @error('assessment_type') is-invalid @enderror"
-                                required
-                            >
-                                <option value="">Select Type</option>
-                                <option value="initial" {{ old('assessment_type', $assessment->assessment_type) == 'initial' ? 'selected' : '' }}>Initial Assessment</option>
-                                <option value="periodic" {{ old('assessment_type', $assessment->assessment_type) == 'periodic' ? 'selected' : '' }}>Periodic Review</option>
-                                <option value="specific" {{ old('assessment_type', $assessment->assessment_type) == 'specific' ? 'selected' : '' }}>Specific Focus</option>
-                            </select>
-                            @error('assessment_type')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label required">Scope Type</label>
-                            <select 
-                                name="scope_type" 
-                                class="form-select @error('scope_type') is-invalid @enderror"
-                                required
-                            >
-                                <option value="">Select Scope</option>
-                                <option value="full" {{ old('scope_type', $assessment->scope_type) == 'full' ? 'selected' : '' }}>Full Scope</option>
-                                <option value="tailored" {{ old('scope_type', $assessment->scope_type) == 'tailored' ? 'selected' : '' }}>Tailored</option>
-                            </select>
-                            @error('scope_type')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        <input type="hidden" name="company_id" value="{{ $assessment->company_id }}">
+                        <input type="hidden" name="assessment_type" value="{{ $assessment->assessment_type }}">
+                        <input type="hidden" name="scope_type" value="{{ $assessment->scope_type }}">
                     </div>
                     
                     <div class="row">
