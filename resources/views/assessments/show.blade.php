@@ -23,6 +23,13 @@
                 @endcan
                 
                 @can('update', $assessment)
+                @if($assessment->status === 'in_progress')
+                <button type="button" class="btn btn-success" onclick="markAsComplete()">
+                    <i class="ti ti-circle-check me-1"></i>
+                    Mark as Complete
+                </button>
+                @endif
+                
                 <a href="{{ route('assessments.edit', $assessment) }}" class="btn btn-outline-primary">
                     <i class="ti ti-edit me-1"></i>
                     Edit
@@ -52,7 +59,7 @@
 
 @section('content')
 <!-- Status Banner -->
-<div class="alert alert-{{ $assessment->status == 'approved' ? 'success' : ($assessment->status == 'draft' ? 'secondary' : 'info') }} mb-3">
+<div class="alert alert-{{ $assessment->status == 'completed' ? 'success' : ($assessment->status == 'draft' ? 'secondary' : 'info') }} mb-3">
     <div class="d-flex">
         <div>
             <i class="ti ti-info-circle icon alert-icon"></i>
@@ -65,9 +72,7 @@
                 @elseif($assessment->status == 'in_progress')
                     Assessment is in progress. Continue answering questions.
                 @elseif($assessment->status == 'completed')
-                    Assessment is completed and ready for review.
-                @elseif($assessment->status == 'approved')
-                    This assessment has been approved.
+                    Assessment is completed.
                 @endif
             </div>
         </div>
@@ -392,44 +397,6 @@
                         </div>
                     </div>
                 </div>
-                
-                @if($assessment->reviewed_by)
-                <div class="list-group-item">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="avatar bg-info-lt">
-                                <i class="ti ti-eye-check"></i>
-                            </span>
-                        </div>
-                        <div class="col">
-                            <div class="text-truncate">
-                                <strong>Reviewed</strong>
-                            </div>
-                            <div class="text-muted small">{{ $assessment->reviewed_at?->format('d M Y H:i') }}</div>
-                            <div class="text-muted small">by {{ $assessment->reviewedBy?->name }}</div>
-                        </div>
-                    </div>
-                </div>
-                @endif
-                
-                @if($assessment->approved_by)
-                <div class="list-group-item">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="avatar bg-success-lt">
-                                <i class="ti ti-check"></i>
-                            </span>
-                        </div>
-                        <div class="col">
-                            <div class="text-truncate">
-                                <strong>Approved</strong>
-                            </div>
-                            <div class="text-muted small">{{ $assessment->approved_at?->format('d M Y H:i') }}</div>
-                            <div class="text-muted small">by {{ $assessment->approvedBy?->name }}</div>
-                        </div>
-                    </div>
-                </div>
-                @endif
             </div>
         </div>
     </div>
@@ -781,6 +748,35 @@ function updateCapabilitySummary() {
         $('#gapCard').removeClass('bg-orange-lt').addClass('bg-green-lt');
         $('#avgGapDisplay').removeClass('text-orange').addClass('text-green');
     }
+}
+
+function markAsComplete() {
+    if (!confirm('Are you sure you want to mark this assessment as complete?')) {
+        return;
+    }
+    
+    fetch('/api/assessments/{{ $assessment->id }}/status', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            status: 'completed'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+            window.location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to update status. Please try again.');
+    });
 }
 </script>
 @endpush

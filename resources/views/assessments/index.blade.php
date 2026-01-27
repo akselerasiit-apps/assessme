@@ -45,18 +45,6 @@
                     <span class="badge text-white bg-success ms-1">{{ $statusCounts['completed'] }}</span>
                 </a>
             </li>
-            <li class="nav-item" role="presentation">
-                <a href="{{ route('assessments.index', ['status' => 'reviewed']) }}" class="nav-link {{ request('status') == 'reviewed' ? 'active' : '' }}">
-                    <i class="ti ti-eye-check me-1"></i>Reviewed
-                    <span class="badge text-white bg-info ms-1">{{ $statusCounts['reviewed'] }}</span>
-                </a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a href="{{ route('assessments.index', ['status' => 'approved']) }}" class="nav-link {{ request('status') == 'approved' ? 'active' : '' }}">
-                    <i class="ti ti-rosette me-1"></i>Approved
-                    <span class="badge text-white bg-purple ms-1">{{ $statusCounts['approved'] }}</span>
-                </a>
-            </li>
         </ul>
     </div>
 </div>
@@ -136,10 +124,7 @@
                             $statusColors = [
                                 'draft' => 'secondary',
                                 'in_progress' => 'blue',
-                                'completed' => 'success',
-                                'reviewed' => 'info',
-                                'approved' => 'purple',
-                                'archived' => 'dark'
+                                'completed' => 'success'
                             ];
                             $color = $statusColors[$assessment->status] ?? 'secondary';
                         @endphp

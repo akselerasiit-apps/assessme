@@ -377,7 +377,7 @@ class AssessmentController extends Controller
             $this->authorize('update', $assessment);
             
             $validated = $request->validate([
-                'status' => ['required', 'in:draft,in_progress,completed,reviewed,approved'],
+                'status' => ['required', 'in:draft,in_progress,completed'],
             ]);
             
             $oldStatus = $assessment->status;
