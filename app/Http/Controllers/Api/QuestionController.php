@@ -298,6 +298,7 @@ class QuestionController extends Controller
             'questions.*.gamo_objective_id' => 'required|exists:gamo_objectives,id',
             'questions.*.question_text' => 'required|string|min:10',
             'questions.*.guidance' => 'nullable|string',
+            'questions.*.document_requirements' => 'nullable|string',
             'questions.*.evidence_requirement' => 'nullable|string',
             'questions.*.question_type' => 'required|in:text,rating,multiple_choice,yes_no,evidence',
             'questions.*.maturity_level' => 'required|integer|min:0|max:5',

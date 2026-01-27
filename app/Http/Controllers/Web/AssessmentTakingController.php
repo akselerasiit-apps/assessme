@@ -370,6 +370,8 @@ class AssessmentTakingController extends Controller
                     'translated_text' => $textId,
                     'level' => $question->maturity_level,
                     'weight' => 1, // Default weight, bisa ditambahkan kolom jika perlu
+                    'guidance' => $question->guidance,
+                    'document_requirements' => $question->document_requirements,
                     'evidence_count' => $evidenceCount,
                     'answer' => $answer ? [
                         'capability_rating' => $answer->capability_rating,

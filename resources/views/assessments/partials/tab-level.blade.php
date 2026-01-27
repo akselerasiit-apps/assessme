@@ -55,6 +55,7 @@
         <table class="table table-vcenter card-table">
             <thead>
                 <tr>
+                    <th style="width: 40px;"></th>
                     <th>Urutan</th>
                     <th>Management Practice Code</th>
                     <th>Activities</th>
@@ -67,7 +68,7 @@
             </thead>
             <tbody id="activitiesTableBody">
                 <tr>
-                    <td colspan="8" class="text-center">
+                    <td colspan="9" class="text-center">
                         <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
                         <span class="text-muted ms-2">Loading activities...</span>
                     </td>

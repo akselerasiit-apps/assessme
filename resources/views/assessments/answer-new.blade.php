@@ -464,7 +464,7 @@ function renderActivities(activities) {
     if (activities.length === 0) {
         tbody.append(`
             <tr>
-                <td colspan="8" class="text-center text-muted py-4">
+                <td colspan="9" class="text-center text-muted py-4">
                     <i class="ti ti-inbox-off icon mb-2" style="font-size: 2rem;"></i>
                     <div>No activities for this level</div>
                 </td>
@@ -500,9 +500,16 @@ function renderActivities(activities) {
                 ratingBadge = `<span class="text-muted">-</span>`;
             }
         }
+        
+        // Check if has guidance or document requirements
+        const hasDetails = activity.guidance || activity.document_requirements;
+        const expandIcon = hasDetails 
+            ? `<i class="ti ti-chevron-right cursor-pointer text-muted expand-icon" onclick="toggleActivityDetail(${activity.id})" style="font-size: 1.2rem;"></i>`
+            : `<span class="text-muted">-</span>`;
 
         tbody.append(`
-            <tr>
+            <tr data-activity-id="${activity.id}">
+                <td class="text-center">${expandIcon}</td>
                 <td class="text-center">${index + 1}</td>
                 <td><code>${activity.code || '-'}</code></td>
                 <td>${activity.name || '-'}</td>
@@ -512,7 +519,61 @@ function renderActivities(activities) {
                 <td class="text-center">${activity.weight || 1}</td>
             </tr>
         `);
+        
+        // Add detail row (hidden by default)
+        if (hasDetails) {
+            let detailContent = '';
+            
+            if (activity.guidance) {
+                detailContent += `
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="ti ti-info-circle me-2 text-blue"></i>
+                            <strong class="text-blue">Guidance / Penjelasan:</strong>
+                        </div>
+                        <div class="ms-4 text-muted">${activity.guidance}</div>
+                    </div>
+                `;
+            }
+            
+            if (activity.document_requirements) {
+                detailContent += `
+                    <div class="mb-2">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="ti ti-file-text me-2 text-green"></i>
+                            <strong class="text-green">Document Requirements / Kebutuhan Dokumen:</strong>
+                        </div>
+                        <div class="ms-4 text-muted">${activity.document_requirements}</div>
+                    </div>
+                `;
+            }
+            
+            tbody.append(`
+                <tr id="detail-${activity.id}" class="activity-detail-row" style="display: none;">
+                    <td></td>
+                    <td colspan="8">
+                        <div class="p-3 bg-light rounded">
+                            ${detailContent}
+                        </div>
+                    </td>
+                </tr>
+            `);
+        }
     });
+}
+
+// Toggle activity detail row
+function toggleActivityDetail(activityId) {
+    const detailRow = $(`#detail-${activityId}`);
+    const icon = $(`tr[data-activity-id="${activityId}"] .expand-icon`);
+    
+    if (detailRow.is(':visible')) {
+        detailRow.slideUp(200);
+        icon.removeClass('ti-chevron-down').addClass('ti-chevron-right');
+    } else {
+        detailRow.slideDown(200);
+        icon.removeClass('ti-chevron-right').addClass('ti-chevron-down');
+    }
 }
 
 // Update summary when activities change
