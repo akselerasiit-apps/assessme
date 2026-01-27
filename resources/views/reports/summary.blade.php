@@ -71,18 +71,6 @@
                         <div class="datagrid-title">Created Date</div>
                         <div class="datagrid-content">{{ $assessment->created_at->format('d M Y H:i') }}</div>
                     </div>
-                    @if($assessment->reviewedBy)
-                    <div class="datagrid-item">
-                        <div class="datagrid-title">Reviewed By</div>
-                        <div class="datagrid-content">{{ $assessment->reviewedBy->name }}</div>
-                    </div>
-                    @endif
-                    @if($assessment->approvedBy)
-                    <div class="datagrid-item">
-                        <div class="datagrid-title">Approved By</div>
-                        <div class="datagrid-content">{{ $assessment->approvedBy->name }}</div>
-                    </div>
-                    @endif
                 </div>
             </div>
         </div>

@@ -166,18 +166,6 @@
                 <td>Created By</td>
                 <td>{{ $assessment->createdBy?->name ?? 'N/A' }}</td>
             </tr>
-            @if($assessment->reviewed_by)
-            <tr>
-                <td>Reviewed By</td>
-                <td>{{ $assessment->reviewedBy?->name ?? 'N/A' }}</td>
-            </tr>
-            @endif
-            @if($assessment->approved_by)
-            <tr>
-                <td>Approved By</td>
-                <td>{{ $assessment->approvedBy->name }}</td>
-            </tr>
-            @endif
         </table>
     </div>
 
