@@ -114,7 +114,9 @@
                                 <td>
                                     <div class="btn-list flex-nowrap">
                                         <button type="button" class="btn btn-sm btn-primary" 
-                                                onclick="editUser({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}', {{ $user->company_id ?? 'null' }}, {{ $user->is_active ? 'true' : 'false' }}, {{ json_encode($user->roles->pluck('name')) }})">
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editUserModal"
+                                                onclick="editUser({{ $user->id }}, '{{ addslashes($user->name) }}', '{{ $user->email }}', {{ $user->company_id ?? 'null' }}, {{ $user->is_active ? 'true' : 'false' }}, {{ json_encode($user->roles->pluck('name')) }})">
                                             Edit
                                         </button>
                                         <form method="POST" action="{{ route('admin.users.toggle', $user) }}" class="d-inline">
@@ -309,9 +311,6 @@ function editUser(id, name, email, companyId, isActive, roles) {
             checkbox.checked = true;
         }
     });
-    
-    // Show modal
-    new bootstrap.Modal(document.getElementById('editUserModal')).show();
 }
 </script>
 @endsection
