@@ -1390,7 +1390,7 @@ class AssessmentTakingController extends Controller
         $achievedLevel = 0;
         
         // Check each level sequentially from 2 to 5
-        for ($level = 2; $level <= 5; $level--) {
+        for ($level = 2; $level <= 5; $level++) {
             $levelAnswers = $answers->filter(function($answer) use ($level) {
                 return $answer->question && $answer->question->maturity_level == $level;
             });
@@ -1474,7 +1474,7 @@ class AssessmentTakingController extends Controller
         $overallMaturity = \App\Models\GamoScore::where('assessment_id', $assessment->id)
             ->avg('capability_level');
         
-        $assessment->update([
+        $assessment->updateQuietly([
             'overall_maturity_level' => round($overallMaturity ?? 0, 2),
         ]);
     }
