@@ -21,8 +21,6 @@ class ProfileController extends Controller
         // Get user statistics
         $stats = [
             'assessments_created' => $user->createdAssessments()->count(),
-            'assessments_reviewed' => $user->reviewedAssessments()->count(),
-            'assessments_approved' => $user->approvedAssessments()->count(),
             'answers_submitted' => \App\Models\AssessmentAnswer::where('answered_by', $user->id)->count(),
         ];
         
