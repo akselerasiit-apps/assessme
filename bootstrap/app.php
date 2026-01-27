@@ -17,6 +17,16 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
+        
+        // Allow access from any host in local environment
+        $middleware->validateCsrfTokens(except: [
+            // Add any routes that should bypass CSRF if needed
+        ]);
+        
+        // Add audit logging middleware for web routes
+        $middleware->web(append: [
+            \App\Http\Middleware\AuditPageView::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -87,7 +87,7 @@
                                         {{ ucfirst($log->action) }}
                                     </span>
                                 </td>
-                                <td>{{ $log->record_id }}</td>
+                                <td>{{ $log->entity_id ?? '-' }}</td>
                                 <td>{{ $log->ip_address ?? '-' }}</td>
                                 <td>
                                     <button type="button" class="btn btn-sm btn-ghost-secondary" 

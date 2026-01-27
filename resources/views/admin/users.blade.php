@@ -106,7 +106,7 @@
                                     @endforeach
                                 </td>
                                 <td>
-                                    <span class="badge bg-{{ $user->is_active ? 'success' : 'secondary' }}">
+                                    <span class="badge text-white bg-{{ $user->is_active ? 'success' : 'secondary' }}">
                                         {{ $user->is_active ? 'Active' : 'Inactive' }}
                                     </span>
                                 </td>
