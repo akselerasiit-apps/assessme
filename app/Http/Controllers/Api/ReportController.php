@@ -34,8 +34,6 @@ class ReportController extends Controller
         $assessment->load([
             'company',
             'createdBy',
-            'reviewedBy',
-            'approvedBy',
             'designFactors',
             'gamoObjectives',
             'gamoScores.gamoObjective'

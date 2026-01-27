@@ -164,8 +164,6 @@ class ReportWebController extends Controller
         $assessment->load([
             'company',
             'createdBy',
-            'reviewedBy',
-            'approvedBy',
             'designFactors',
             'gamoObjectives',
             'answers',
@@ -233,8 +231,6 @@ class ReportWebController extends Controller
         $assessment->load([
             'company',
             'createdBy',
-            'reviewedBy',
-            'approvedBy',
             'designFactors',
             'gamoObjectives',
             'gamoScores.gamoObjective',
@@ -311,8 +307,6 @@ class ReportWebController extends Controller
         $assessment->load([
             'company',
             'createdBy',
-            'reviewedBy',
-            'approvedBy',
             'designFactors',
             'gamoObjectives',
             'gamoScores.gamoObjective',

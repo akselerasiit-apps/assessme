@@ -209,8 +209,6 @@ class AssessmentWebController extends Controller
         $assessment->load([
             'company',
             'createdBy',
-            'reviewedBy',
-            'approvedBy',
             'designFactors',
             'gamoObjectives' => function($query) {
                 $query->withPivot('target_maturity_level');
