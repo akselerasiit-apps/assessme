@@ -144,7 +144,7 @@
         <div class="col-lg-8">
             <!-- Statistics Cards -->
             <div class="row row-cards mb-3">
-                <div class="col-sm-6 col-lg-3">
+                <div class="col-sm-6 col-lg-6">
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex align-items-center">
@@ -155,29 +155,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-6 col-lg-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="subheader">Reviewed</div>
-                            </div>
-                            <div class="h1 mb-3">{{ $stats['assessments_reviewed'] }}</div>
-                            <div class="text-secondary">Assessments reviewed</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-lg-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="subheader">Approved</div>
-                            </div>
-                            <div class="h1 mb-3">{{ $stats['assessments_approved'] }}</div>
-                            <div class="text-secondary">Assessments approved</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-lg-3">
+                <div class="col-sm-6 col-lg-6">
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex align-items-center">
