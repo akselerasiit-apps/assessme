@@ -21,8 +21,7 @@ class UserManagementController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'company_id' => 'nullable|exists:companies,id',
-            'roles' => 'required|array',
-            'roles.*' => 'exists:roles,name',
+            'role' => 'required|exists:roles,name',
         ]);
         
         DB::beginTransaction();
@@ -35,7 +34,7 @@ class UserManagementController extends Controller
                 'is_active' => true,
             ]);
             
-            $user->syncRoles($validated['roles']);
+            $user->syncRoles([$validated['role']]);
             
             DB::commit();
             
@@ -56,8 +55,7 @@ class UserManagementController extends Controller
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
             'company_id' => 'nullable|exists:companies,id',
-            'roles' => 'required|array',
-            'roles.*' => 'exists:roles,name',
+            'role' => 'required|exists:roles,name',
             'is_active' => 'boolean',
         ]);
         
@@ -75,7 +73,7 @@ class UserManagementController extends Controller
             }
             
             $user->update($userData);
-            $user->syncRoles($validated['roles']);
+            $user->syncRoles([$validated['role']]);
             
             DB::commit();
             

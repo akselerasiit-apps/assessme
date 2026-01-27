@@ -196,17 +196,13 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label required">Roles</label>
-                        <div class="row">
+                        <label class="form-label required">Role</label>
+                        <select name="role" class="form-select" required>
+                            <option value="">Select Role</option>
                             @foreach($roles as $role)
-                                <div class="col-md-6">
-                                    <label class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="roles[]" value="{{ $role->name }}">
-                                        <span class="form-check-label">{{ $role->name }}</span>
-                                    </label>
-                                </div>
+                                <option value="{{ $role->name }}">{{ $role->name }}</option>
                             @endforeach
-                        </div>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -260,17 +256,13 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label required">Roles</label>
-                        <div class="row" id="edit_roles_container">
+                        <label class="form-label required">Role</label>
+                        <select name="role" id="edit_role" class="form-select" required>
+                            <option value="">Select Role</option>
                             @foreach($roles as $role)
-                                <div class="col-md-6">
-                                    <label class="form-check">
-                                        <input class="form-check-input edit-role-checkbox" type="checkbox" name="roles[]" value="{{ $role->name }}">
-                                        <span class="form-check-label">{{ $role->name }}</span>
-                                    </label>
-                                </div>
+                                <option value="{{ $role->name }}">{{ $role->name }}</option>
                             @endforeach
-                        </div>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-check form-switch">
@@ -299,18 +291,8 @@ function editUser(id, name, email, companyId, isActive, roles) {
     document.getElementById('edit_company_id').value = companyId || '';
     document.getElementById('edit_is_active').checked = isActive;
     
-    // Clear all role checkboxes
-    document.querySelectorAll('.edit-role-checkbox').forEach(checkbox => {
-        checkbox.checked = false;
-    });
-    
-    // Check user's roles
-    roles.forEach(role => {
-        const checkbox = document.querySelector(`.edit-role-checkbox[value="${role}"]`);
-        if (checkbox) {
-            checkbox.checked = true;
-        }
-    });
+    // Set role (assuming user has only one role)
+    document.getElementById('edit_role').value = roles.length > 0 ? roles[0] : '';
 }
 </script>
 @endsection
