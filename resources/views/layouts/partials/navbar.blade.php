@@ -71,38 +71,6 @@
                     </li>
                     @endcan
                     
-                    <!-- Review & Approval -->
-                    @role('Super Admin')
-                    <li class="nav-item dropdown {{ request()->is('review-approval*') ? 'active' : '' }}">
-                        <a class="nav-link dropdown-toggle" href="#navbar-review" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
-                            <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                <i class="ti ti-checklist"></i>
-                            </span>
-                            <span class="nav-link-title">Review & Approval</span>
-                        </a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item {{ request()->routeIs('review-approval.pending-review') ? 'active' : '' }}" href="{{ route('review-approval.pending-review') }}">
-                                <i class="ti ti-eye-check me-2"></i>Pending Review
-                                @php
-                                    $pendingReviewCount = \App\Models\Assessment::where('status', 'completed')->count();
-                                @endphp
-                                @if($pendingReviewCount > 0)
-                                    <span class="badge bg-orange ms-auto">{{ $pendingReviewCount }}</span>
-                                @endif
-                            </a>
-                            <a class="dropdown-item {{ request()->routeIs('review-approval.pending-approval') ? 'active' : '' }}" href="{{ route('review-approval.pending-approval') }}">
-                                <i class="ti ti-circle-check me-2"></i>Pending Approval
-                                @php
-                                    $pendingApprovalCount = \App\Models\Assessment::where('status', 'reviewed')->count();
-                                @endphp
-                                @if($pendingApprovalCount > 0)
-                                    <span class="badge bg-red ms-auto">{{ $pendingApprovalCount }}</span>
-                                @endif
-                            </a>
-                        </div>
-                    </li>
-                    @endrole
-                    
                     <!-- Administration -->
                     @role('Super Admin')
                     <li class="nav-item dropdown {{ request()->is('admin*') ? 'active' : '' }}">

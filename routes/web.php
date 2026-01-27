@@ -6,7 +6,6 @@ use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\AssessmentWebController;
 use App\Http\Controllers\Web\ReportWebController;
 use App\Http\Controllers\Web\QuestionWebController;
-use App\Http\Controllers\Web\ReviewApprovalController;
 use App\Http\Controllers\Web\BandingController;
 use App\Http\Controllers\Web\RecommendationWebController;
 use App\Http\Controllers\Web\ActionPlanWebController;
@@ -193,38 +192,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{assessment}/export-excel', [ReportWebController::class, 'exportExcel'])->name('export-excel');
     });
     
-    // Review & Approval Routes
-    Route::prefix('review-approval')->name('review-approval.')->group(function () {
-        // Pending Review (Admin/Manager)
-        Route::get('/pending-review', [ReviewApprovalController::class, 'pendingReview'])
-            ->name('pending-review')
-            ->middleware('role:Admin|Manager');
-        
-        // Pending Approval (Super Admin only)
-        Route::get('/pending-approval', [ReviewApprovalController::class, 'pendingApproval'])
-            ->name('pending-approval')
-            ->middleware('role:Super Admin');
-        
-        // Review Form & Submit
-        Route::get('/{assessment}/review', [ReviewApprovalController::class, 'showReviewForm'])
-            ->name('review')
-            ->middleware('role:Admin|Manager');
-        Route::post('/{assessment}/review', [ReviewApprovalController::class, 'submitReview'])
-            ->name('submit-review')
-            ->middleware('role:Admin|Manager');
-        
-        // Approval Form & Submit (Super Admin only)
-        Route::get('/{assessment}/approve', [ReviewApprovalController::class, 'showApprovalForm'])
-            ->name('approve')
-            ->middleware('role:Super Admin');
-        Route::post('/{assessment}/approve', [ReviewApprovalController::class, 'submitApproval'])
-            ->name('submit-approval')
-            ->middleware('role:Super Admin');
-        
-        // History
-        Route::get('/{assessment}/history', [ReviewApprovalController::class, 'history'])
-            ->name('history');
-    });
     
     // Banding/Appeal Approval Routes (Admin/Super Admin)
     Route::prefix('banding')->name('banding.')->group(function () {
