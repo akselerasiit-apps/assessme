@@ -417,6 +417,8 @@ class AssessmentTakingController extends Controller
             'translated_text' => $textId,
             'level' => $activity->maturity_level,
             'weight' => 1, // Default weight
+            'guidance' => $activity->guidance,
+            'document_requirements' => $activity->document_requirements,
             'evidence_count' => $evidenceCount,
             'answer' => $answer ? [
                 'capability_rating' => $answer->capability_rating,

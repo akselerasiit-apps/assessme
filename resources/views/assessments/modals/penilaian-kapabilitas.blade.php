@@ -50,6 +50,23 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Guidance & Document Requirements (if available) -->
+                    <div id="modal_guidance_section" style="display: none;">
+                        <div class="card mb-3 border-blue">
+                            <div class="card-body">
+                                <div id="modal_guidance_content"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="modal_doc_req_section" style="display: none;">
+                        <div class="card mb-3 border-green">
+                            <div class="card-body">
+                                <div id="modal_doc_req_content"></div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Rating Selection -->
                     <div class="mb-3">
@@ -217,6 +234,34 @@ function openAssessmentModal(activityId) {
             $('#modal_activity_level').text('Level ' + (activity.level || '-'));
             $('#modal_activity_weight').text(activity.weight || '1');
             $('#modal_evidence_count').text(activity.evidence_count || 0);
+            
+            // Show/hide and populate guidance section
+            if (activity.guidance) {
+                $('#modal_guidance_content').html(`
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="ti ti-info-circle me-2 text-blue"></i>
+                        <strong class="text-blue">Guidance / Penjelasan:</strong>
+                    </div>
+                    <div class="text-muted">${activity.guidance}</div>
+                `);
+                $('#modal_guidance_section').show();
+            } else {
+                $('#modal_guidance_section').hide();
+            }
+            
+            // Show/hide and populate document requirements section
+            if (activity.document_requirements) {
+                $('#modal_doc_req_content').html(`
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="ti ti-file-text me-2 text-green"></i>
+                        <strong class="text-green">Document Requirements / Kebutuhan Dokumen:</strong>
+                    </div>
+                    <div class="text-muted" style="white-space: pre-line;">${activity.document_requirements}</div>
+                `);
+                $('#modal_doc_req_section').show();
+            } else {
+                $('#modal_doc_req_section').hide();
+            }
             
             // Update button onclick with activity ID
             $('#btnLihatEvidence').off('click').on('click', function(e) {
