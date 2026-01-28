@@ -157,6 +157,28 @@
                 </div>
             </div>
             
+            <!-- Notifications -->
+            <div class="nav-item dropdown me-3">
+                <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" aria-label="Show notifications">
+                    <i class="ti ti-bell icon" style="font-size: 1.5rem;"></i>
+                    <span class="badge bg-red notification-badge" id="notification-count" style="display: none;"></span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow dropdown-menu-card" style="width: 400px; max-height: 500px; overflow-y: auto;">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="card-title mb-0">Notifications</h3>
+                            <a href="#" class="btn btn-sm btn-link" id="mark-all-read">Mark all as read</a>
+                        </div>
+                        <div class="list-group list-group-flush" id="notification-list">
+                            <div class="list-group-item text-center text-muted py-5">
+                                <i class="ti ti-bell-off icon mb-2" style="font-size: 3rem; opacity: 0.3;"></i>
+                                <p class="mb-0">No notifications</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <!-- User menu -->
             <div class="nav-item dropdown">
                 <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">

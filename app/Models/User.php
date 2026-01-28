@@ -135,4 +135,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserToken::class);
     }
+
+    /**
+     * Get notifications for this user
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
+    }
 }

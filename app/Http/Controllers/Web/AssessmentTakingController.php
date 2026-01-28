@@ -482,6 +482,19 @@ class AssessmentTakingController extends Controller
         // Auto-calculate GAMO score for this objective
         $this->updateGamoScore($assessment, $activity->gamo_objective_id);
 
+        // Send notification to assessee (company users) about rating update
+        \App\Services\NotificationService::notifyAssessmentUpdated(
+            $assessment,
+            'rating_updated',
+            auth()->user()->name . " memperbarui penilaian aktivitas '{$activity->question_text}' menjadi {$validated['capability_rating']}",
+            auth()->user(),
+            [
+                'activity_id' => $activity->id,
+                'activity_text' => $activity->question_text,
+                'rating' => $validated['capability_rating'],
+            ]
+        );
+
         return response()->json([
             'success' => true,
             'answer' => $answer,
@@ -793,6 +806,14 @@ class AssessmentTakingController extends Controller
             "Mengunggah evidence: {$validated['evidence_name']}",
             null,
             ['evidence_id' => $evidence->id]
+        );
+
+        // Send notification to assessor
+        \App\Services\NotificationService::notifyEvidenceUploaded(
+            $assessment,
+            $evidence->id,
+            $validated['evidence_name'],
+            auth()->user()
         );
 
         return response()->json([

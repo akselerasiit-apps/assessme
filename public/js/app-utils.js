@@ -227,5 +227,177 @@ style.textContent = `
     .empty-subtitle {
         font-size: 0.875rem;
     }
+    
+    .notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        font-size: 0.625rem;
+        padding: 0.25rem 0.4rem;
+        border-radius: 10px;
+    }
 `;
 document.head.appendChild(style);
+
+// ===== NOTIFICATIONS SYSTEM =====
+let notificationCheckInterval;
+
+// Initialize notifications when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    initializeNotifications();
+    
+    // Mark all as read handler
+    document.getElementById('mark-all-read')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        markAllNotificationsAsRead();
+    });
+});
+
+function initializeNotifications() {
+    // Load notifications initially
+    loadNotifications();
+    
+    // Check for new notifications every 30 seconds
+    notificationCheckInterval = setInterval(checkNotifications, 30000);
+}
+
+function checkNotifications() {
+    fetch('/api/notifications/unread-count', {
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        updateNotificationBadge(data.count);
+    })
+    .catch(error => console.error('Error checking notifications:', error));
+}
+
+function loadNotifications() {
+    fetch('/api/notifications?per_page=10', {
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        displayNotifications(data.data);
+        updateNotificationBadge(data.data.filter(n => !n.is_read).length);
+    })
+    .catch(error => console.error('Error loading notifications:', error));
+}
+
+function displayNotifications(notifications) {
+    const listContainer = document.getElementById('notification-list');
+    
+    if (!notifications || notifications.length === 0) {
+        listContainer.innerHTML = `
+            <div class="list-group-item text-center text-muted py-5">
+                <i class="ti ti-bell-off icon mb-2" style="font-size: 3rem; opacity: 0.3;"></i>
+                <p class="mb-0">No notifications</p>
+            </div>
+        `;
+        return;
+    }
+    
+    listContainer.innerHTML = notifications.map(notification => {
+        const unreadClass = notification.is_read ? '' : 'bg-light';
+        const timeAgo = formatTimeAgo(notification.created_at);
+        const assessmentLink = notification.assessment_id 
+            ? `/assessments/${notification.assessment_id}` 
+            : '#';
+        
+        return `
+            <a href="${assessmentLink}" class="list-group-item list-group-item-action ${unreadClass}" 
+               onclick="markNotificationAsRead(${notification.id}, event)">
+                <div class="d-flex align-items-start">
+                    <div class="flex-fill">
+                        <div class="fw-bold">${notification.title}</div>
+                        <div class="text-muted small mt-1">${notification.message}</div>
+                        <div class="text-muted small mt-1">
+                            <i class="ti ti-clock"></i> ${timeAgo}
+                        </div>
+                    </div>
+                    ${!notification.is_read ? '<span class="badge bg-blue ms-2">New</span>' : ''}
+                </div>
+            </a>
+        `;
+    }).join('');
+}
+
+function updateNotificationBadge(count) {
+    const badge = document.getElementById('notification-count');
+    if (count > 0) {
+        badge.textContent = count > 99 ? '99+' : count;
+        badge.style.display = 'block';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+function markNotificationAsRead(notificationId, event) {
+    fetch(`/api/notifications/${notificationId}/read`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(() => {
+        // Reload notifications to update UI
+        setTimeout(() => loadNotifications(), 100);
+    })
+    .catch(error => console.error('Error marking notification as read:', error));
+}
+
+function markAllNotificationsAsRead() {
+    fetch('/api/notifications/read-all', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(() => {
+        showToast('All notifications marked as read', 'success');
+        loadNotifications();
+    })
+    .catch(error => console.error('Error marking all as read:', error));
+}
+
+function formatTimeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+    
+    const intervals = {
+        year: 31536000,
+        month: 2592000,
+        week: 604800,
+        day: 86400,
+        hour: 3600,
+        minute: 60
+    };
+    
+    for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+        const interval = Math.floor(seconds / secondsInUnit);
+        if (interval >= 1) {
+            return interval === 1 ? `1 ${unit} ago` : `${interval} ${unit}s ago`;
+        }
+    }
+    
+    return 'Just now';
+}

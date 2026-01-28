@@ -252,7 +252,7 @@ use Illuminate\Support\Str;
                                                     default => 'bg-secondary'
                                                 };
                                             @endphp
-                                            <span class="badge {{ $statusBadge }}">
+                                            <span class="badge text-white {{ $statusBadge }}">
                                                 {{ ucfirst(str_replace('_', ' ', $assessment->status)) }}
                                             </span>
                                         </td>
@@ -264,7 +264,7 @@ use Illuminate\Support\Str;
                                         </td>
                                         <td>
                                             @if($assessment->overall_maturity_level)
-                                                <span class="badge bg-primary">
+                                                <span class="badge text-white bg-primary">
                                                     {{ number_format($assessment->overall_maturity_level, 1) }}
                                                 </span>
                                             @else
@@ -335,7 +335,7 @@ use Illuminate\Support\Str;
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="badge bg-primary">{{ $item->total }}</span>
+                                            <span class="badge text-white bg-primary">{{ $item->total }}</span>
                                         </td>
                                     </tr>
                                     @empty

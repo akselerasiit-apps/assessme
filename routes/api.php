@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\AnswerController;
 use App\Http\Controllers\Api\ScoringController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Web\CapabilityAssessmentController;
 use Illuminate\Support\Facades\Route;
 
@@ -117,6 +118,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/audit-logs/export', [AuditLogController::class, 'export']);
     Route::get('/audit-logs/users/{userId}/activities', [AuditLogController::class, 'userActivities']);
     Route::get('/audit-logs/{id}', [AuditLogController::class, 'show']);
+    
+    // Notification routes
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
     
     // Capability Assessment - Evidence Details
     Route::get('/assessments/{assessment}/answers/{answer}/evidence', [CapabilityAssessmentController::class, 'getEvidenceDetails']);
