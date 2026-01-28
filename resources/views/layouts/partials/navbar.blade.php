@@ -3,13 +3,8 @@
         <!-- Brand/Logo -->
         <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
             <a href="{{ route('dashboard') }}" class="d-flex align-items-center text-decoration-none">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary me-2">
-                    <rect x="3" y="3" width="7" height="7"></rect>
-                    <rect x="14" y="3" width="7" height="7"></rect>
-                    <rect x="14" y="14" width="7" height="7"></rect>
-                    <rect x="3" y="14" width="7" height="7"></rect>
-                </svg>
-                <span class="navbar-brand-text" style="font-size: 1.25rem; font-weight: 600; color: #206bc4;">COBIT Assessment</span>
+                <img src="https://meeta.jasatirta2.co.id/assets/img/PJT2.png" alt="AssessMe Logo" width="40" height="40" class="me-2">
+                <span class="navbar-brand-text" style="font-size: 1.25rem; font-weight: 600; color: #206bc4;">AssessMe</span>
             </a>
         </h1>
         
