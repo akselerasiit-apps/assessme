@@ -88,6 +88,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{assessment}/gamo/{gamo}/notes', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getNotesList'])->name('notes-list');
         Route::get('/{assessment}/gamo/{gamo}/summary', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getSummary'])->name('summary');
         Route::get('/{assessment}/summary-all-gamos', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getSummaryAllGamos'])->name('summary-all-gamos');
+        Route::get('/{assessment}/summary-all-gamos/export', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'exportSummaryAllGamos'])->name('summary-all-gamos-export');
         Route::get('/{assessment}/evidence-repository', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getEvidenceRepository'])->name('evidence-repository');
         Route::get('/{assessment}/gamo/{gamo}/pbc', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getPBCByLevel'])->name('pbc');
         Route::get('/{assessment}/activity/{activity}/evidence', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getEvidenceList'])->name('evidence-list');

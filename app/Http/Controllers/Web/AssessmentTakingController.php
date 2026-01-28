@@ -983,6 +983,174 @@ class AssessmentTakingController extends Controller
     }
 
     /**
+     * Export summary all GAMOs to Excel
+     */
+    public function exportSummaryAllGamos(Assessment $assessment)
+    {
+        $this->authorize('view', $assessment);
+
+        $gamos = $assessment->gamoObjectives()
+            ->withPivot('target_maturity_level')
+            ->with(['questions' => function($query) {
+                $query->where('is_active', true)
+                      ->where('maturity_level', '>=', 2);
+            }])->get();
+
+        // Get GAMO scores
+        $gamoScores = \App\Models\GamoScore::where('assessment_id', $assessment->id)
+            ->get()
+            ->keyBy('gamo_objective_id');
+
+        $summaryData = [];
+        foreach ($gamos as $gamo) {
+            $activities = $gamo->questions;
+            $total = $activities->count();
+
+            $answers = AssessmentAnswer::where('assessment_id', $assessment->id)
+                ->whereIn('question_id', $activities->pluck('id'))
+                ->whereNotNull('capability_rating')
+                ->get();
+
+            $assessedCount = $answers->count();
+            $progress = $total > 0 ? round(($assessedCount / $total) * 100) : 0;
+            
+            $gamoScore = $gamoScores->get($gamo->id);
+            $currentLevel = $gamoScore ? $gamoScore->capability_level : 0;
+            $targetLevel = $gamo->pivot->target_maturity_level ?? 3;
+            $gap = $targetLevel - $currentLevel;
+            
+            $status = 'Started';
+            if ($progress >= 100) {
+                $status = 'Complete';
+            } elseif ($progress > 0) {
+                $status = 'Started';
+            } else {
+                $status = 'Not Started';
+            }
+
+            $summaryData[] = [
+                'code' => $gamo->code,
+                'name' => $gamo->name,
+                'total_activities' => $total,
+                'assessed_count' => $assessedCount,
+                'progress' => $progress . '%',
+                'target_level' => $targetLevel,
+                'current_level' => $currentLevel,
+                'gap' => number_format($gap, 2),
+                'status' => $status,
+            ];
+        }
+
+        // Create Excel export
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Summary GAMO');
+
+        // Header
+        $sheet->setCellValue('A1', 'ASSESSMENT SUMMARY - ALL GAMO OBJECTIVES');
+        $sheet->mergeCells('A1:I1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        // Assessment Info
+        $sheet->setCellValue('A2', 'Assessment:');
+        $sheet->setCellValue('B2', $assessment->title);
+        $sheet->setCellValue('A3', 'Code:');
+        $sheet->setCellValue('B3', $assessment->code);
+        $sheet->setCellValue('A4', 'Company:');
+        $sheet->setCellValue('B4', $assessment->company->name);
+        $sheet->setCellValue('A5', 'Export Date:');
+        $sheet->setCellValue('B5', now()->format('d M Y H:i'));
+
+        // Column headers
+        $row = 7;
+        $headers = ['GAMO', 'NAME', 'TOTAL ACTIVITIES', 'DINILAI', 'PROGRESS', 'TARGET', 'CURRENT', 'GAP', 'STATUS'];
+        $col = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($col . $row, $header);
+            $sheet->getStyle($col . $row)->getFont()->setBold(true);
+            $sheet->getStyle($col . $row)->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setRGB('4299E1');
+            $sheet->getStyle($col . $row)->getFont()->getColor()->setRGB('FFFFFF');
+            $col++;
+        }
+
+        // Data
+        $row = 8;
+        foreach ($summaryData as $data) {
+            $sheet->setCellValue('A' . $row, $data['code']);
+            $sheet->setCellValue('B' . $row, $data['name']);
+            $sheet->setCellValue('C' . $row, $data['total_activities']);
+            $sheet->setCellValue('D' . $row, $data['assessed_count']);
+            $sheet->setCellValue('E' . $row, $data['progress']);
+            $sheet->setCellValue('F' . $row, $data['target_level']);
+            $sheet->setCellValue('G' . $row, $data['current_level']);
+            $sheet->setCellValue('H' . $row, $data['gap']);
+            $sheet->setCellValue('I' . $row, $data['status']);
+            
+            // Color code status
+            if ($data['status'] === 'Complete') {
+                $sheet->getStyle('I' . $row)->getFont()->getColor()->setRGB('10B981');
+            } elseif ($data['status'] === 'Started') {
+                $sheet->getStyle('I' . $row)->getFont()->getColor()->setRGB('F59E0B');
+            } else {
+                $sheet->getStyle('I' . $row)->getFont()->getColor()->setRGB('6B7280');
+            }
+            
+            $row++;
+        }
+
+        // Totals/Averages
+        $totalActivities = array_sum(array_column($summaryData, 'total_activities'));
+        $totalAssessed = array_sum(array_column($summaryData, 'assessed_count'));
+        $avgProgress = count($summaryData) > 0 ? round(($totalAssessed / $totalActivities) * 100) : 0;
+        $avgTarget = count($summaryData) > 0 ? round(array_sum(array_column($summaryData, 'target_level')) / count($summaryData), 2) : 0;
+        $avgCurrent = count($summaryData) > 0 ? round(array_sum(array_column($summaryData, 'current_level')) / count($summaryData), 2) : 0;
+        
+        $sheet->setCellValue('A' . $row, 'AVERAGE');
+        $sheet->setCellValue('B' . $row, '');
+        $sheet->setCellValue('C' . $row, $totalActivities);
+        $sheet->setCellValue('D' . $row, $totalAssessed);
+        $sheet->setCellValue('E' . $row, $avgProgress . '%');
+        $sheet->setCellValue('F' . $row, $avgTarget);
+        $sheet->setCellValue('G' . $row, $avgCurrent);
+        $sheet->setCellValue('H' . $row, number_format($avgTarget - $avgCurrent, 2));
+        $sheet->setCellValue('I' . $row, '');
+        $sheet->getStyle('A' . $row . ':I' . $row)->getFont()->setBold(true);
+        $sheet->getStyle('A' . $row . ':I' . $row)->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('F3F4F6');
+
+        // Auto size columns
+        foreach (range('A', 'I') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // Borders
+        $styleArray = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => 'CCCCCC'],
+                ],
+            ],
+        ];
+        $sheet->getStyle('A7:I' . $row)->applyFromArray($styleArray);
+
+        // Download
+        $filename = 'Summary_GAMO_' . $assessment->code . '_' . date('Ymd_His') . '.xlsx';
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        
+        $writer->save('php://output');
+        exit;
+    }
+
+    /**
      * Get evidence repository for entire assessment
      */
     public function getEvidenceRepository(Assessment $assessment, Request $request)

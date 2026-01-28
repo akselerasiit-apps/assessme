@@ -555,8 +555,16 @@ function renderCapabilityChart(data) {
 // Export summary
 function exportSummary() {
     const assessmentId = $('input[name="assessment_id"]').val();
-    const gamoId = $('#gamoSelector').val();
-    window.location.href = `/assessments/${assessmentId}/gamo/${gamoId}/export-summary`;
+    
+    // Check if we're in the summary penilaian tab (all GAMOs)
+    if ($('#summaryPenilaian').hasClass('active')) {
+        // Export all GAMOs summary
+        window.location.href = `/assessments/${assessmentId}/summary-all-gamos/export`;
+    } else {
+        // Export single GAMO (if implemented)
+        const gamoId = $('#gamoSelector').val();
+        window.location.href = `/assessments/${assessmentId}/gamo/${gamoId}/export-summary`;
+    }
 }
 
 // Load summary when tab is shown
