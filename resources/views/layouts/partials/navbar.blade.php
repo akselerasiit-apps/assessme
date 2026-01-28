@@ -131,33 +131,6 @@
         <!-- Right side items -->
         <div class="navbar-nav flex-row order-md-last">
             <!-- Notifications -->
-            <div class="nav-item dropdown d-none d-md-flex me-3">
-                <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="Show notifications">
-                    <i class="ti ti-bell"></i>
-                    <span class="badge bg-red"></span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Notifications</h3>
-                        </div>
-                        <div class="list-group list-group-flush list-group-hoverable">
-                            <div class="list-group-item">
-                                <div class="row align-items-center">
-                                    <div class="col text-truncate">
-                                        <div class="text-reset d-block">No new notifications</div>
-                                        <div class="d-block text-muted text-truncate mt-n1">
-                                            All caught up!
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Notifications -->
             <div class="nav-item dropdown me-3">
                 <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" aria-label="Show notifications">
                     <i class="ti ti-bell icon" style="font-size: 1.5rem;"></i>
