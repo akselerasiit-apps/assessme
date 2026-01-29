@@ -253,6 +253,13 @@ function renderSummaryPenilaian(data) {
             const gapFormatted = gap > 0 ? `+${gap.toFixed(2)}` : gap.toFixed(2);
             const gapClass = gap > 0 ? 'text-danger' : (gap < 0 ? 'text-success' : 'text-muted');
             
+            // Calculate Gap (Current - Target Level)
+            const targetLevel = gamo.target_level || 3;
+            const currentLevel = gamo.capability_level || 0;
+            const gap = currentLevel - targetLevel;
+            const gapFormatted = gap > 0 ? `+${gap.toFixed(2)}` : gap.toFixed(2);
+            const gapClass = gap > 0 ? 'text-success' : (gap < 0 ? 'text-danger' : 'text-muted');
+            
             // Badge color for current level
             const levelColors = {
                 0: 'bg-secondary',
@@ -714,10 +721,10 @@ function calculateGamoCapabilityLevel(gamoId, gamoCode, targetLevel, callback) {
                       .addClass('text-white ' + levelColors[achievedLevel]);
                 $badge.html('Level ' + achievedLevel);
                 
-                // Update gap
-                const gap = targetLevel - achievedLevel;
+                // Update gap (Current - Target)
+                const gap = achievedLevel - targetLevel;
                 const gapDisplay = gap > 0 ? '+' + gap.toFixed(2) : gap.toFixed(2);
-                const gapClass = gap > 0 ? 'text-danger' : (gap < 0 ? 'text-success' : 'text-muted');
+                const gapClass = gap > 0 ? 'text-success' : (gap < 0 ? 'text-danger' : 'text-muted');
                 $gap.removeClass('text-danger text-success text-muted').addClass(gapClass + ' fw-bold');
                 $gap.text(gapDisplay);
                 
@@ -769,12 +776,12 @@ function updateAverages() {
     const avgCurrent = count > 0 ? (totalLevel / count).toFixed(2) : '0.00';
     $('#avgCurrentLevel').text(avgCurrent);
     
-    // Calculate average gap
+    // Calculate average gap (Current - Target)
     const avgTarget = parseFloat($('#avgTargetLevel').text()) || 0;
     const avgCurrentNum = parseFloat(avgCurrent) || 0;
-    const avgGap = avgTarget - avgCurrentNum;
+    const avgGap = avgCurrentNum - avgTarget;
     const gapDisplay = avgGap > 0 ? '+' + avgGap.toFixed(2) : avgGap.toFixed(2);
-    const gapClass = avgGap > 0 ? 'text-danger' : (avgGap < 0 ? 'text-success' : 'text-muted');
+    const gapClass = avgGap > 0 ? 'text-success' : (avgGap < 0 ? 'text-danger' : 'text-muted');
     
     $('#avgGap').removeClass('text-danger text-success text-muted')
                 .addClass(gapClass + ' fw-bold')

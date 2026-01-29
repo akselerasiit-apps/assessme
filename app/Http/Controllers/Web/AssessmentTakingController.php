@@ -1017,7 +1017,7 @@ class AssessmentTakingController extends Controller
             $gamoScore = $gamoScores->get($gamo->id);
             $currentLevel = $gamoScore ? $gamoScore->capability_level : 0;
             $targetLevel = $gamo->pivot->target_maturity_level ?? 3;
-            $gap = $targetLevel - $currentLevel;
+            $gap = $currentLevel - $targetLevel;
             
             $status = 'Started';
             if ($progress >= 100) {
