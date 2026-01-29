@@ -31,6 +31,12 @@ class AssessmentTakingController extends Controller
         // Check if user can take this assessment
         $this->authorize('take-assessment', $assessment);
         
+        // Prevent answering completed assessments
+        if ($assessment->status === 'completed') {
+            return redirect()->route('assessments.show', $assessment)
+                ->with('error', 'Cannot edit a completed assessment.');
+        }
+        
         // Get selected GAMO objectives for this assessment with pivot data
         $gamoObjectives = $assessment->gamoSelections()
             ->where('is_selected', true)
@@ -144,6 +150,14 @@ class AssessmentTakingController extends Controller
     {
         // Check if user can answer questions
         $this->authorize('take-assessment', $assessment);
+        
+        // Prevent answering completed assessments
+        if ($assessment->status === 'completed') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot edit a completed assessment.'
+            ], 403);
+        }
 
         $validated = $request->validate([
             'answer_text' => 'nullable|string|max:5000',
@@ -756,6 +770,14 @@ class AssessmentTakingController extends Controller
     {
         // Check if user can upload evidence (Asesi can, Viewer cannot)
         $this->authorize('uploadEvidence', $assessment);
+        
+        // Prevent uploading evidence to completed assessments
+        if ($assessment->status === 'completed') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot upload evidence to a completed assessment.'
+            ], 403);
+        }
 
         $validated = $request->validate([
             'evidence_name' => 'required|string|max:255',

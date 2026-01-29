@@ -11,21 +11,25 @@
         <div class="col-auto ms-auto">
             <div class="btn-list">
                 @can('answer', $assessment)
-                <a href="{{ route('assessments.answer-new', $assessment) }}" class="btn btn-primary">
+                <a href="{{ route('assessments.answer-new', $assessment) }}" 
+                   class="btn btn-primary {{ $assessment->status == 'completed' ? 'disabled' : '' }}"
+                   {{ $assessment->status == 'completed' ? 'aria-disabled=true' : '' }}>
                     <i class="ti ti-clipboard-check me-1"></i>
                     Answer Assessment
                 </a>
                 @elsecan('take-assessment', $assessment)
-                <a href="{{ route('assessments.answer-new', $assessment) }}" class="btn btn-info">
+                <a href="{{ route('assessments.answer-new', $assessment) }}" 
+                   class="btn btn-info {{ $assessment->status == 'completed' ? 'disabled' : '' }}"
+                   {{ $assessment->status == 'completed' ? 'aria-disabled=true' : '' }}>
                     <i class="ti ti-eye me-1"></i>
                     View Details (Evidence, Summary, OFI)
                 </a>
                 @endcan
                 
                 @can('update', $assessment)
-                @if($assessment->status === 'in_progress')
+                @if($assessment->status != 'completed')
                 <button type="button" class="btn btn-success" onclick="markAsComplete()">
-                    <i class="ti ti-circle-check me-1"></i>
+                    <i class=\"ti ti-check me-2\"></i>
                     Mark as Complete
                 </button>
                 @endif
@@ -76,7 +80,7 @@
                 @elseif($assessment->status == 'in_progress')
                     Assessment is in progress. Continue answering questions.
                 @elseif($assessment->status == 'completed')
-                    Assessment is completed.
+                    Assessment is completed. Editing and answering questions are disabled.
                 @endif
             </div>
         </div>
@@ -401,6 +405,24 @@
                         </div>
                     </div>
                 </div>
+                
+                @if($assessment->status == 'completed' && $assessment->updated_at != $assessment->created_at)
+                <div class="list-group-item">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <span class="avatar bg-success-lt">
+                                <i class="ti ti-check"></i>
+                            </span>
+                        </div>
+                        <div class="col">
+                            <div class="text-truncate">
+                                <strong>Completed</strong>
+                            </div>
+                            <div class="text-muted small">{{ $assessment->updated_at->format('d M Y H:i') }}</div>
+                        </div>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -759,13 +781,15 @@ function markAsComplete() {
         return;
     }
     
-    fetch('/api/assessments/{{ $assessment->id }}/status', {
-        method: 'PUT',
+    fetch('{{ route('assessments.update-status', $assessment) }}', {
+        method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
         },
+        credentials: 'same-origin',
         body: JSON.stringify({
             status: 'completed'
         })

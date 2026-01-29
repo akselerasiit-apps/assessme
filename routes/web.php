@@ -65,6 +65,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{assessment}/export-pdf', [AssessmentWebController::class, 'exportPdf'])->name('export-pdf');
         Route::get('/{assessment}/edit', [AssessmentWebController::class, 'edit'])->name('edit');
         Route::put('/{assessment}', [AssessmentWebController::class, 'update'])->name('update');
+        Route::patch('/{assessment}/status', [AssessmentWebController::class, 'updateStatus'])->name('update-status');
         Route::delete('/{assessment}', [AssessmentWebController::class, 'destroy'])->name('destroy');
         
         // Progress tracking

@@ -780,5 +780,26 @@ class AssessmentWebController extends Controller
         
         return $achievedLevel;
     }
+
+    /**
+     * Update assessment status
+     */
+    public function updateStatus(Assessment $assessment, Request $request)
+    {
+        $this->authorize('update', $assessment);
+        
+        $request->validate([
+            'status' => 'required|in:draft,in_progress,completed,archived'
+        ]);
+        
+        $assessment->update([
+            'status' => $request->status
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Assessment status updated successfully'
+        ]);
+    }
 }
 
