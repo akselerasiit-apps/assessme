@@ -7,6 +7,7 @@ use App\Models\Assessment;
 use App\Models\Company;
 use App\Models\DesignFactor;
 use App\Models\GamoObjective;
+use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;

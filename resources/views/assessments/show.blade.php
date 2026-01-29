@@ -29,24 +29,23 @@
                     Mark as Complete
                 </button>
                 @endif
-                
-                <a href="{{ route('assessments.edit', $assessment) }}" class="btn btn-outline-primary">
-                    <i class="ti ti-edit me-1"></i>
-                    Edit
-                </a>
                 @endcan
-                
-                <a href="{{ route('assessments.export-pdf', $assessment) }}" class="btn btn-outline-primary" target="_blank">
-                    <i class="ti ti-file-type-pdf me-1"></i>
-                    Export PDF
-                </a>
                 
                 <div class="btn-group">
                     <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
                         <i class="ti ti-dots-vertical"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item" href="{{ route('assessments.export-pdf', $assessment) }}" target="_blank">
+                            <i class="ti ti-file-type-pdf me-2"></i>Export PDF
+                        </a>
+                        @can('update', $assessment)
+                        <a class="dropdown-item" href="{{ route('assessments.edit', $assessment) }}">
+                            <i class="ti ti-edit me-2"></i>Edit
+                        </a>
+                        @endcan
                         @can('delete', $assessment)
+                        <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); if(confirm('Delete this assessment?')) document.getElementById('delete-form').submit();">
                             <i class="ti ti-trash me-2"></i>Delete
                         </a>
