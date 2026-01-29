@@ -7,7 +7,7 @@ use App\Models\Assessment;
 use App\Models\Company;
 use App\Models\DesignFactor;
 use App\Models\GamoObjective;
-use App\Models\Question;
+use App\Models\GamoQuestion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -648,12 +648,18 @@ class AssessmentWebController extends Controller
         $totalGamoCount = $assessment->gamoObjectives->count();
         $progressPercentage = $totalGamoCount > 0 ? round(($answeredGamoCount / $totalGamoCount) * 100) : 0;
         
-        // Calculate average target and current levels
+        // Calculate average target level
         $avgTarget = $assessment->gamoObjectives->avg('pivot.target_maturity_level') ?? 0;
         
-        // Calculate average current level from GAMO scores
-        $gamoScores = $assessment->gamoScores;
-        $avgCurrent = $gamoScores->avg('capability_level') ?? 0;
+        // Calculate average current level using COBIT 2019 rules (same as frontend)
+        $totalCurrentLevel = 0;
+        $gamoCount = 0;
+        foreach ($assessment->gamoObjectives as $gamo) {
+            $currentLevel = $this->calculateCapabilityLevel($assessment, $gamo->id);
+            $totalCurrentLevel += $currentLevel;
+            $gamoCount++;
+        }
+        $avgCurrent = $gamoCount > 0 ? ($totalCurrentLevel / $gamoCount) : 0;
         
         // Calculate gap (Current - Target)
         $avgGap = $avgCurrent - $avgTarget;
@@ -662,9 +668,9 @@ class AssessmentWebController extends Controller
         $summaryData = collect();
         foreach ($assessment->gamoObjectives as $gamo) {
             // Count questions for this GAMO (levels 2-5, active only)
-            $questions = \App\Models\Question::where('gamo_objective_id', $gamo->id)
+            $questions = GamoQuestion::where('gamo_objective_id', $gamo->id)
                 ->where('is_active', true)
-                ->where('level', '>=', 2)
+                ->where('maturity_level', '>=', 2)
                 ->get();
             
             $total = $questions->count();
@@ -677,8 +683,8 @@ class AssessmentWebController extends Controller
             
             $progress = $total > 0 ? round(($assessedCount / $total) * 100) : 0;
             
-            $gamoScore = $gamoScores->firstWhere('gamo_objective_id', $gamo->id);
-            $currentLevel = $gamoScore ? $gamoScore->capability_level : 0;
+            // Calculate capability level using COBIT 2019 rules (same as frontend)
+            $currentLevel = $this->calculateCapabilityLevel($assessment, $gamo->id);
             $targetLevel = $gamo->pivot->target_maturity_level ?? 3;
             $gap = $currentLevel - $targetLevel;
             
@@ -714,6 +720,65 @@ class AssessmentWebController extends Controller
         $filename = 'Assessment_Report_' . $assessment->code . '_' . now()->format('Ymd_His') . '.pdf';
         
         return $pdf->stream($filename);
+    }
+
+    /**
+     * Calculate capability level for a GAMO using COBIT 2019 rules
+     * Same logic as frontend calculateGamoCapabilityLevel()
+     */
+    private function calculateCapabilityLevel(Assessment $assessment, int $gamoObjectiveId): int
+    {
+        $achievedLevel = 0;
+        
+        // Check each level sequentially from 2 to 5 (COBIT 2019)
+        for ($level = 2; $level <= 5; $level++) {
+            // Get all questions for this level
+            $questions = GamoQuestion::where('gamo_objective_id', $gamoObjectiveId)
+                ->where('is_active', true)
+                ->where('maturity_level', $level)
+                ->get();
+            
+            // Skip if no activities at this level
+            if ($questions->isEmpty()) {
+                continue;
+            }
+            
+            // Get answers for this level (only answered questions)
+            $answers = $assessment->answers()
+                ->where('gamo_objective_id', $gamoObjectiveId)
+                ->whereIn('question_id', $questions->pluck('id'))
+                ->whereNotNull('capability_score')
+                ->get();
+            
+            // Skip if no answers yet
+            if ($answers->isEmpty()) {
+                // If level has questions but no answers, stop here
+                break;
+            }
+            
+            // Calculate weighted average score
+            $totalWeight = 0;
+            $weightedScore = 0;
+            
+            foreach ($answers as $answer) {
+                $weight = 1; // Default weight
+                $totalWeight += $weight;
+                $weightedScore += $weight * ($answer->capability_score ?? 0);
+            }
+            
+            // Calculate compliance percentage
+            $compliance = $totalWeight > 0 ? (($weightedScore / $totalWeight) * 100) : 0;
+            
+            // Level achieved if compliance >= 85% (COBIT 2019)
+            if ($compliance >= 85) {
+                $achievedLevel = $level;
+            } else {
+                // Stop if level not achieved
+                break;
+            }
+        }
+        
+        return $achievedLevel;
     }
 }
 
