@@ -614,5 +614,105 @@ class AssessmentWebController extends Controller
         return redirect()->back()
             ->with('success', 'Assessment schedule updated successfully.');
     }
+
+    /**
+     * Export assessment report to PDF
+     */
+    public function exportPdf(Assessment $assessment)
+    {
+        $this->authorize('view', $assessment);
+        
+        $assessment->load([
+            'company',
+            'createdBy',
+            'designFactors',
+            'gamoObjectives' => function($query) {
+                $query->withPivot('target_maturity_level');
+            },
+            'answers.question',
+            'gamoScores.gamoObjective'
+        ]);
+        
+        // Get all GAMO objectives for comparison
+        $allGamos = \App\Models\GamoObjective::where('is_active', true)
+            ->orderBy('category')
+            ->orderBy('code')
+            ->get();
+        
+        // Get selected GAMO IDs
+        $selectedGamoIds = $assessment->gamoObjectives->pluck('id')->toArray();
+        
+        // Calculate progress
+        $answeredGamoCount = $assessment->answers->pluck('gamo_objective_id')->unique()->count();
+        $totalGamoCount = $assessment->gamoObjectives->count();
+        $progressPercentage = $totalGamoCount > 0 ? round(($answeredGamoCount / $totalGamoCount) * 100) : 0;
+        
+        // Calculate average target and current levels
+        $avgTarget = $assessment->gamoObjectives->avg('pivot.target_maturity_level') ?? 0;
+        
+        // Calculate average current level from GAMO scores
+        $gamoScores = $assessment->gamoScores;
+        $avgCurrent = $gamoScores->avg('capability_level') ?? 0;
+        
+        // Calculate gap (Current - Target)
+        $avgGap = $avgCurrent - $avgTarget;
+        
+        // Get summary data for each GAMO
+        $summaryData = collect();
+        foreach ($assessment->gamoObjectives as $gamo) {
+            // Count questions for this GAMO (levels 2-5, active only)
+            $questions = \App\Models\Question::where('gamo_objective_id', $gamo->id)
+                ->where('is_active', true)
+                ->where('level', '>=', 2)
+                ->get();
+            
+            $total = $questions->count();
+            
+            // Count assessed (answered) questions
+            $assessedCount = $assessment->answers()
+                ->where('gamo_objective_id', $gamo->id)
+                ->whereIn('question_id', $questions->pluck('id'))
+                ->count();
+            
+            $progress = $total > 0 ? round(($assessedCount / $total) * 100) : 0;
+            
+            $gamoScore = $gamoScores->firstWhere('gamo_objective_id', $gamo->id);
+            $currentLevel = $gamoScore ? $gamoScore->capability_level : 0;
+            $targetLevel = $gamo->pivot->target_maturity_level ?? 3;
+            $gap = $currentLevel - $targetLevel;
+            
+            $summaryData->push([
+                'code' => $gamo->code,
+                'name' => $gamo->name,
+                'total_activities' => $total,
+                'assessed_count' => $assessedCount,
+                'progress' => $progress,
+                'target_level' => $targetLevel,
+                'current_level' => $currentLevel,
+                'gap' => $gap,
+            ]);
+        }
+        
+        // Generate PDF
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('assessments.pdf-report', compact(
+            'assessment',
+            'allGamos',
+            'selectedGamoIds',
+            'progressPercentage',
+            'answeredGamoCount',
+            'totalGamoCount',
+            'avgTarget',
+            'avgCurrent',
+            'avgGap',
+            'summaryData'
+        ));
+        
+        $pdf->setPaper('A4', 'portrait');
+        
+        // Generate filename
+        $filename = 'Assessment_Report_' . $assessment->code . '_' . now()->format('Ymd_His') . '.pdf';
+        
+        return $pdf->stream($filename);
+    }
 }
 

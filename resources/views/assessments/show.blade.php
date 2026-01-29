@@ -36,6 +36,11 @@
                 </a>
                 @endcan
                 
+                <a href="{{ route('assessments.export-pdf', $assessment) }}" class="btn btn-outline-primary" target="_blank">
+                    <i class="ti ti-file-type-pdf me-1"></i>
+                    Export PDF
+                </a>
+                
                 <div class="btn-group">
                     <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
                         <i class="ti ti-dots-vertical"></i>

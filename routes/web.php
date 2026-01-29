@@ -62,6 +62,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [AssessmentWebController::class, 'store'])->name('store');
         Route::get('/my', [AssessmentWebController::class, 'myAssessments'])->name('my');
         Route::get('/{assessment}', [AssessmentWebController::class, 'show'])->name('show');
+        Route::get('/{assessment}/export-pdf', [AssessmentWebController::class, 'exportPdf'])->name('export-pdf');
         Route::get('/{assessment}/edit', [AssessmentWebController::class, 'edit'])->name('edit');
         Route::put('/{assessment}', [AssessmentWebController::class, 'update'])->name('update');
         Route::delete('/{assessment}', [AssessmentWebController::class, 'destroy'])->name('destroy');

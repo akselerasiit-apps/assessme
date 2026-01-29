@@ -247,11 +247,11 @@ function renderSummaryPenilaian(data) {
                                 '<span class="badge text-white bg-secondary">Started</span>';
             
             // Calculate Gap (Target - Current Level)
-            const targetLevel = gamo.target_level || 3;
-            const currentLevel = gamo.capability_level || 0;
-            const gap = targetLevel - currentLevel;
-            const gapFormatted = gap > 0 ? `+${gap.toFixed(2)}` : gap.toFixed(2);
-            const gapClass = gap > 0 ? 'text-danger' : (gap < 0 ? 'text-success' : 'text-muted');
+            // const targetLevel = gamo.target_level || 3;
+            // const currentLevel = gamo.capability_level || 0;
+            // const gap = targetLevel - currentLevel;
+            // const gapFormatted = gap > 0 ? `+${gap.toFixed(2)}` : gap.toFixed(2);
+            // const gapClass = gap > 0 ? 'text-danger' : (gap < 0 ? 'text-success' : 'text-muted');
             
             // Calculate Gap (Current - Target Level)
             const targetLevel = gamo.target_level || 3;
