@@ -231,6 +231,7 @@
 const assessmentId = {{ $assessment->id }};
 const canAnswer = {{ auth()->user()->can('answer', $assessment) ? 'true' : 'false' }};
 const canUploadEvidence = {{ auth()->user()->can('uploadEvidence', $assessment) ? 'true' : 'false' }};
+const isCompleted = {{ $assessment->status === 'completed' ? 'true' : 'false' }};
 let currentGamoId = {{ $gamoObjectives->first()->id ?? 'null' }};
 let currentLevel = 2;
 let allActivitiesByLevel = {};
@@ -267,11 +268,27 @@ $(document).ready(function() {
     if (!canAnswer) {
         $('input[name="capability_rating"]').attr('disabled', true);
         $('textarea[name="notes"]').attr('disabled', true);
+    }
+    
+    // If assessment is completed, disable all forms regardless of permissions
+    if (isCompleted) {
+        // Disable rating inputs in modal
+        $('input[name="capability_rating"]').attr('disabled', true);
+        $('textarea[name="notes"]').attr('disabled', true);
+        $('#submitActivityBtn').attr('disabled', true).text('Assessment Completed - Read Only');
+        $('#addOFIBtn').attr('disabled', true);
         
-        // Asesi can upload evidence, Viewer cannot
+        // Hide evidence upload forms completely
+        $('#evidenceUploadForm').hide();
+        $('#evidenceUploadFormModal').hide();
+        
+        // Add read-only notice to evidence section
+        $('.evidence-section').prepend('<div class="alert alert-info mb-2"><i class="ti ti-info-circle me-2"></i>Assessment completed - Evidence is view-only</div>');
+    } else {
+        // Show evidence forms if not completed
         if (!canUploadEvidence) {
-            $('#evidenceUploadForm input, #evidenceUploadForm select, #evidenceUploadForm button').attr('disabled', true);
-            $('#evidenceUploadFormModal input, #evidenceUploadFormModal select, #evidenceUploadFormModal button').attr('disabled', true);
+            $('#evidenceUploadForm').hide();
+            $('#evidenceUploadFormModal').hide();
         }
     }
 

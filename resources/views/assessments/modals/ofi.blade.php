@@ -339,6 +339,12 @@ function renderManualOFIs(ofis) {
 
 // Show Add OFI Form
 function showAddOFIForm() {
+    // Check if assessment is completed
+    if (typeof isCompleted !== 'undefined' && isCompleted) {
+        toastr.warning('Cannot add OFI - Assessment is completed');
+        return;
+    }
+    
     $('#ofiFormCard').slideDown();
     $('#ofiForm')[0].reset();
     $('#ofiId').val('');
@@ -356,6 +362,12 @@ function cancelOFIForm() {
 // Submit OFI Form
 $('#ofiForm').on('submit', function(e) {
     e.preventDefault();
+    
+    // Check if assessment is completed
+    if (typeof isCompleted !== 'undefined' && isCompleted) {
+        toastr.warning('Cannot save OFI - Assessment is completed');
+        return;
+    }
     
     // Get Quill content
     const description = quillEditor.root.innerHTML;
@@ -388,6 +400,12 @@ $('#ofiForm').on('submit', function(e) {
 
 // Edit OFI
 function editOFI(ofiId) {
+    // Check if assessment is completed
+    if (typeof isCompleted !== 'undefined' && isCompleted) {
+        toastr.warning('Cannot edit OFI - Assessment is completed');
+        return;
+    }
+    
     $.ajax({
         url: `/assessments/${assessmentId}/ofi/${ofiId}`,
         method: 'GET',
@@ -413,6 +431,12 @@ function editOFI(ofiId) {
 
 // Delete OFI
 function deleteOFI(ofiId) {
+    // Check if assessment is completed
+    if (typeof isCompleted !== 'undefined' && isCompleted) {
+        toastr.warning('Cannot delete OFI - Assessment is completed');
+        return;
+    }
+    
     if (!confirm('Apakah Anda yakin ingin menghapus OFI ini?')) return;
     
     $.ajax({
@@ -433,6 +457,12 @@ function deleteOFI(ofiId) {
 
 // Generate Auto OFI
 function generateAutoOFI() {
+    // Check if assessment is completed
+    if (typeof isCompleted !== 'undefined' && isCompleted) {
+        toastr.warning('Cannot generate OFI - Assessment is completed');
+        return;
+    }
+    
     const gamoId = $('#ofiGamoId').val();
     
     if (!gamoId) {

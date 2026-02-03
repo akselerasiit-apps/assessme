@@ -282,6 +282,17 @@ function openAssessmentModal(activityId) {
                 $('textarea[name="notes"]').val('');
             }
             
+            // Disable form inputs if assessment is completed
+            if (typeof isCompleted !== 'undefined' && isCompleted) {
+                $('#penilaianModal input[name="capability_rating"]').attr('disabled', true);
+                $('#penilaianModal textarea[name="notes"]').attr('disabled', true);
+                $('#penilaianModal .btn-primary').hide();
+            } else {
+                $('#penilaianModal input[name="capability_rating"]').attr('disabled', false);
+                $('#penilaianModal textarea[name="notes"]').attr('disabled', false);
+                $('#penilaianModal .btn-primary').show();
+            }
+            
             // Show modal
             $('#penilaianModal').modal('show');
         },
@@ -293,6 +304,12 @@ function openAssessmentModal(activityId) {
 
 // Save assessment
 function savePenilaian() {
+    // Check if assessment is completed
+    if (typeof isCompleted !== 'undefined' && isCompleted) {
+        toastr.warning('Cannot save - Assessment is completed');
+        return;
+    }
+    
     const form = $('#penilaianForm');
     
     if (!form[0].checkValidity()) {

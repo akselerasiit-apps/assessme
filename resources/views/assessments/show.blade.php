@@ -11,16 +11,12 @@
         <div class="col-auto ms-auto">
             <div class="btn-list">
                 @can('answer', $assessment)
-                <a href="{{ route('assessments.answer-new', $assessment) }}" 
-                   class="btn btn-primary {{ $assessment->status == 'completed' ? 'disabled' : '' }}"
-                   {{ $assessment->status == 'completed' ? 'aria-disabled=true' : '' }}>
+                <a href="{{ route('assessments.answer-new', $assessment) }}" class="btn btn-primary">
                     <i class="ti ti-clipboard-check me-1"></i>
                     Answer Assessment
                 </a>
                 @elsecan('take-assessment', $assessment)
-                <a href="{{ route('assessments.answer-new', $assessment) }}" 
-                   class="btn btn-info {{ $assessment->status == 'completed' ? 'disabled' : '' }}"
-                   {{ $assessment->status == 'completed' ? 'aria-disabled=true' : '' }}>
+                <a href="{{ route('assessments.answer-new', $assessment) }}" class="btn btn-info">
                     <i class="ti ti-eye me-1"></i>
                     View Details (Evidence, Summary, OFI)
                 </a>
@@ -31,6 +27,11 @@
                 <button type="button" class="btn btn-success" onclick="markAsComplete()">
                     <i class=\"ti ti-check me-2\"></i>
                     Mark as Complete
+                </button>
+                @else
+                <button type="button" class="btn btn-warning" onclick="revertToInProgress()">
+                    <i class=\"ti ti-arrow-back me-2\"></i>
+                    Revert to In Progress
                 </button>
                 @endif
                 @endcan
@@ -804,6 +805,37 @@ function markAsComplete() {
     .catch(error => {
         console.error('Error:', error);
         alert('Failed to update status. Please try again.');
+    });
+}
+
+function revertToInProgress() {
+    if (!confirm('Are you sure you want to revert this assessment back to In Progress? This will allow editing answers and uploading evidence again.')) {
+        return;
+    }
+    
+    fetch('{{ route('assessments.update-status', $assessment) }}', {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+            status: 'in_progress'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+            window.location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to revert status. Please try again.');
     });
 }
 </script>

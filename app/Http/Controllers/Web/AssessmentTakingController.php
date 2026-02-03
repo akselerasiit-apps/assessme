@@ -31,11 +31,8 @@ class AssessmentTakingController extends Controller
         // Check if user can take this assessment
         $this->authorize('take-assessment', $assessment);
         
-        // Prevent answering completed assessments
-        if ($assessment->status === 'completed') {
-            return redirect()->route('assessments.show', $assessment)
-                ->with('error', 'Cannot edit a completed assessment.');
-        }
+        // Allow viewing completed assessments (read-only mode)
+        // Form elements will be disabled in the view
         
         // Get selected GAMO objectives for this assessment with pivot data
         $gamoObjectives = $assessment->gamoSelections()
