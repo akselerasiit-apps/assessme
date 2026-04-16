@@ -52,6 +52,20 @@
             </div>
         @endif
 
+        @if(session('error_file_url'))
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                    <div>
+                        <strong>Import memiliki baris gagal.</strong> Unduh file error untuk perbaikan lalu import ulang.
+                    </div>
+                    <a href="{{ session('error_file_url') }}" class="btn btn-sm btn-warning" target="_blank" rel="noopener">
+                        <i class="ti ti-download me-1"></i>Download Error CSV
+                    </a>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
         <div class="row g-3 mb-3">
             <!-- Stats Cards -->
             <div class="col-md-3">
@@ -295,24 +309,29 @@
                     <i class="ti ti-file-import me-2"></i>Bulk Import Questions
                 </h5>
             </div>
-            <form action="{{ route('api.questions.bulk-import') }}" method="POST" enctype="multipart/form-data" id="bulkImportForm">
+            <form action="{{ route('master-data.questions.import') }}" method="POST" enctype="multipart/form-data" id="bulkImportForm">
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Select CSV File <span class="text-danger">*</span></label>
+                        <label class="form-label">Select Excel/CSV File <span class="text-danger">*</span></label>
                         <div class="form-file">
-                            <input type="file" name="file" class="form-control" accept=".csv" required id="csvFile">
+                            <input type="file" name="file" class="form-control" accept=".xlsx,.xls,.csv" required id="csvFile">
                             <small class="form-hint d-block mt-2">
-                                Maximum 10MB. Format: CSV with columns: code, gamo_objective_id, question_text, question_type, maturity_level, guidance, evidence_requirement, required, is_active, question_order
+                                Maximum 10MB. Kolom wajib: No, GAMO Objective, Kode, Aktifitas, Terjemahan, Penjelasan, Kebutuhan Dokumen dan Level.
                             </small>
                         </div>
                     </div>
 
+                    <div class="mb-3">
+                        <a href="{{ route('master-data.questions.import-template') }}" class="btn btn-sm btn-outline-primary">
+                            <i class="ti ti-file-download me-1"></i>Download Template Excel
+                        </a>
+                    </div>
+
                     <div class="alert alert-info mb-0">
-                        <strong>CSV Format Example:</strong>
-                        <pre style="font-size: 0.7rem; margin-top: 0.5rem; overflow-x: auto;"><code>code,gamo_objective_id,question_text,question_type,maturity_level,guidance,required,is_active
-EDM01-L1-001,1,Governance structure?,text,1,Describe org hierarchy,1,1
-EDM01-L1-002,1,Is governance documented?,yes_no,1,Check documentation,1,1</code></pre>
+                        <strong>Format Header yang didukung:</strong>
+                        <pre style="font-size: 0.7rem; margin-top: 0.5rem; overflow-x: auto;"><code>No,GAMO Objective,Kode,Aktifitas,Terjemahan,Penjelasan Detail,Kebutuhan Dokumen,Level
+1,EDM01,EDM01.01,Analyze and identify...,Analisis dan identifikasi...,Detail penjelasan...,Dokumen pendukung...,2</code></pre>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -341,6 +360,11 @@ EDM01-L1-002,1,Is governance documented?,yes_no,1,Check documentation,1,1</code>
                 </div>
                 <p class="text-muted mb-2">Processing your file...</p>
                 <p id="importStatus" class="text-muted small" style="min-height: 20px;">Initializing import...</p>
+                <div id="importErrorDownloadContainer" class="mt-2" style="display:none;">
+                    <a id="importErrorDownloadLink" href="#" target="_blank" rel="noopener" class="btn btn-sm btn-warning">
+                        <i class="ti ti-download me-1"></i>Download Error CSV
+                    </a>
+                </div>
                 <div class="progress mt-3" style="height: 6px;">
                     <div id="importProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
                 </div>
@@ -356,17 +380,29 @@ document.getElementById('submitImportBtn').addEventListener('click', function(e)
     
     const form = document.getElementById('bulkImportForm');
     const fileInput = document.getElementById('csvFile');
+    const statusEl = document.getElementById('importStatus');
+    const progressBarEl = document.getElementById('importProgressBar');
+    const errorContainerEl = document.getElementById('importErrorDownloadContainer');
+    const errorLinkEl = document.getElementById('importErrorDownloadLink');
+
+    errorContainerEl.style.display = 'none';
+    errorLinkEl.href = '#';
     
     if (!fileInput.files.length) {
-        alert('Please select a CSV file');
+        alert('Please select an Excel/CSV file');
         return;
     }
     
-    const bulkModal = bootstrap.Modal.getInstance(document.getElementById('bulkImportModal'));
-    const progressModal = new bootstrap.Modal(document.getElementById('importProgressModal'));
-    
-    bulkModal.hide();
-    setTimeout(() => progressModal.show(), 200);
+    const hasBootstrapModal = typeof window.bootstrap !== 'undefined' && typeof window.bootstrap.Modal !== 'undefined';
+    const bulkModalEl = document.getElementById('bulkImportModal');
+    const progressModalEl = document.getElementById('importProgressModal');
+    const bulkModal = hasBootstrapModal ? window.bootstrap.Modal.getOrCreateInstance(bulkModalEl) : null;
+    const progressModal = hasBootstrapModal ? window.bootstrap.Modal.getOrCreateInstance(progressModalEl) : null;
+
+    if (bulkModal && progressModal) {
+        bulkModal.hide();
+        setTimeout(() => progressModal.show(), 200);
+    }
     
     const formData = new FormData(form);
     
@@ -377,24 +413,41 @@ document.getElementById('submitImportBtn').addEventListener('click', function(e)
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(response => response.json())
+    .then(async response => {
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.message || 'Import failed');
+        }
+        return data;
+    })
     .then(data => {
-        document.getElementById('importStatus').textContent = data.message || 'Import completed successfully!';
-        document.getElementById('importProgressBar').style.width = '100%';
-        
+        statusEl.textContent = data.message || 'Import completed successfully!';
+        progressBarEl.style.width = '100%';
+
+        if (data.error_file_url) {
+            errorLinkEl.href = data.error_file_url;
+            errorContainerEl.style.display = 'block';
+            statusEl.textContent += ' Silakan download error CSV.';
+            return;
+        }
+
         setTimeout(() => {
-            progressModal.hide();
+            if (progressModal) {
+                progressModal.hide();
+            }
             location.reload();
         }, 1500);
     })
     .catch(error => {
-        document.getElementById('importStatus').textContent = 'Error: ' + (error.message || 'Import failed');
-        document.getElementById('importProgressBar').classList.remove('progress-bar-striped', 'progress-bar-animated');
-        document.getElementById('importProgressBar').style.width = '100%';
-        document.getElementById('importProgressBar').classList.add('bg-danger');
+        statusEl.textContent = 'Error: ' + (error.message || 'Import failed');
+        progressBarEl.classList.remove('progress-bar-striped', 'progress-bar-animated');
+        progressBarEl.style.width = '100%';
+        progressBarEl.classList.add('bg-danger');
         
         setTimeout(() => {
-            progressModal.hide();
+            if (progressModal) {
+                progressModal.hide();
+            }
         }, 3000);
     });
 });

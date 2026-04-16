@@ -14,6 +14,7 @@ class GamoQuestion extends Model
         'code',
         'gamo_objective_id',
         'question_text',
+        'document_requirements',
         'guidance',
         'evidence_requirement',
         'question_type',

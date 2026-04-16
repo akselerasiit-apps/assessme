@@ -2,19 +2,59 @@
 
 @section('title', 'Sign In')
 
-@section('content')
-<div class="text-center mb-4">
-    <a href="." class="navbar-brand navbar-brand-autodark">
-        <img src="https://via.placeholder.com/110x32/206bc4/ffffff?text=COBIT" height="32" alt="">
-    </a>
-</div>
+@push('styles')
+<style>
+    .login-brand {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
 
+    .login-brand img {
+        max-width: 220px;
+        width: 100%;
+        height: auto;
+    }
+
+    .login-footer {
+        margin-top: 1.25rem;
+        padding-top: 1.1rem;
+        border-top: 1px solid rgba(98, 105, 118, 0.16);
+        text-align: center;
+    }
+
+    .login-footer-title {
+        margin-bottom: 0.35rem;
+        font-size: 0.98rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        line-height: 1.45;
+        color: var(--tblr-body-color);
+    }
+
+    .login-footer-text {
+        max-width: 280px;
+        margin: 0 auto 0.2rem;
+        font-size: 0.84rem;
+        line-height: 1.5;
+        color: var(--tblr-muted);
+    }
+
+    .login-footer-text:last-child {
+        margin-bottom: 0;
+    }
+</style>
+@endpush
+
+@section('content')
 <div class="card card-md">
     <div class="card-body">
-        <h2 class="h2 text-center mb-4">Login to your account</h2>
+        <div class="login-brand">
+            <img src="{{ asset('build/assets/asssessme_logo_full.png') }}" alt="AssessMe Logo" width="100">
+        </div>
+        {{-- <h2 class="h2 text-center mb-4">Login to your account</h2> --}}
         
         <!-- Test Credentials Info -->
-        <div class="alert alert-info alert-important" role="alert">
+        <div class="alert alert-info alert-important" role="alert" style="display: none">
             <div class="d-flex">
                 <div>
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 9h.01" /><path d="M11 12h1v4h1" /></svg>
@@ -96,11 +136,19 @@
                 <button type="submit" class="btn btn-primary w-100">Sign in</button>
             </div>
         </form>
+
+        <div class="login-footer">
+            {{-- <div class="login-footer-title">COBIT 2019 Self Assessment System</div> --}}
+            <div class="login-footer-text">Platform untuk asesmen tata kelola dan kapabilitas TI berbasis COBIT 2019</div><br>
+
+            <div class="login-footer-text"><b>&copy; {{ date('Y') }}. Developed by TIK PJT II</b></div>
+            {{-- <div class="login-footer-text">&copy; {{ date('Y') }} All rights reserved</div> --}}
+        </div>
     </div>
 </div>
 
 <div class="text-center text-muted mt-3">
-    Don't have account yet? <a href="{{ route('register') }}" tabindex="-1">Sign up</a>
+    {{-- Don't have account yet? <a href="{{ route('register') }}" tabindex="-1">Sign up</a> --}}
 </div>
 @endsection
 

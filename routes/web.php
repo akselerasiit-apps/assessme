@@ -5,7 +5,6 @@ use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\AssessmentWebController;
 use App\Http\Controllers\Web\ReportWebController;
-use App\Http\Controllers\Web\QuestionWebController;
 use App\Http\Controllers\Web\BandingController;
 use App\Http\Controllers\Web\RecommendationWebController;
 use App\Http\Controllers\Web\ActionPlanWebController;
@@ -262,7 +261,9 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('questions')->name('questions.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Web\QuestionWebController::class, 'index'])->name('index');
             Route::get('/create', [\App\Http\Controllers\Web\QuestionWebController::class, 'create'])->name('create');
+            Route::get('/import-template', [\App\Http\Controllers\Web\QuestionWebController::class, 'downloadImportTemplate'])->name('import-template');
             Route::post('/', [\App\Http\Controllers\Web\QuestionWebController::class, 'store'])->name('store');
+            Route::post('/import', [\App\Http\Controllers\Web\QuestionWebController::class, 'import'])->name('import');
             Route::get('/{question}', [\App\Http\Controllers\Web\QuestionWebController::class, 'show'])->name('show');
             Route::get('/{question}/edit', [\App\Http\Controllers\Web\QuestionWebController::class, 'edit'])->name('edit');
             Route::put('/{question}', [\App\Http\Controllers\Web\QuestionWebController::class, 'update'])->name('update');

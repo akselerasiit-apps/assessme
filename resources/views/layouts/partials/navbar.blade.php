@@ -3,8 +3,9 @@
         <!-- Brand/Logo -->
         <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
             <a href="{{ route('dashboard') }}" class="d-flex align-items-center text-decoration-none">
-                <img src="https://meeta.jasatirta2.co.id/assets/img/PJT2.png" alt="AssessMe Logo" width="40" height="40" class="me-2">
-                <span class="navbar-brand-text" style="font-size: 1.25rem; font-weight: 600; color: #206bc4;">AssessMe</span>
+                {{-- <img src="https://meeta.jasatirta2.co.id/assets/img/PJT2.png" alt="PJTII Logo" width="40" height="40" class="me-2"> --}}
+                <img src="{{ asset('build/assets/asssessme_logo.png') }}" alt="AssessMe Logo" width="40" class="me-2">
+                {{-- <span class="navbar-brand-text" style="font-size: 1.25rem; font-weight: 600; color: #206bc4;">AssessMe</span> --}}
             </a>
         </h1>
         

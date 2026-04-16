@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Book AssessMe</title>
+    <style>
+        :root {
+            --ink: #16202a;
+            --muted: #5d6b78;
+            --line: #d8e0e7;
+            --panel: #ffffff;
+            --soft: #f4f7fa;
+            --accent: #0e7490;
+            --accent-2: #155e75;
+            --accent-soft: #e0f2f1;
+            --cyan-soft: #ecfeff;
+            --indigo: #3949ab;
+            --indigo-soft: #eef2ff;
+            --emerald: #0f766e;
+            --emerald-soft: #ecfdf5;
+            --amber: #b45309;
+            --amber-soft: #fff7ed;
+            --rose: #be185d;
+            --rose-soft: #fff1f2;
+            --warning: #b45309;
+            --warning-soft: #fffbeb;
+            --success: #166534;
+            --success-soft: #f0fdf4;
+            --shadow: 0 18px 40px rgba(17, 24, 39, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(14, 116, 144, 0.16), transparent 26%),
+                radial-gradient(circle at top right, rgba(57, 73, 171, 0.11), transparent 22%),
+                linear-gradient(180deg, #f8fbfd 0%, #edf4f8 100%);
+            line-height: 1.65;
+        }
+
+        .shell {
+            display: grid;
+            grid-template-columns: 300px minmax(0, 1fr);
+            gap: 28px;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .toc {
+            position: sticky;
+            top: 24px;
+            align-self: start;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 251, 253, 0.96));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(216, 224, 231, 0.9);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .toc h1 {
+            margin: 0 0 8px;
+            font-size: 1.6rem;
+            line-height: 1.2;
+        }
+
+        .toc p {
+            margin: 0 0 18px;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .toc .meta {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 18px;
+            padding: 14px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--indigo-soft), var(--cyan-soft));
+            font-size: 0.9rem;
+        }
+
+        .toc nav a {
+            display: block;
+            padding: 8px 0;
+            color: var(--ink);
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(216, 224, 231, 0.95);
+            font-size: 0.95rem;
+        }
+
+        .toc nav a:hover {
+            color: var(--accent);
+        }
+
+        .toc nav a::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            margin-right: 10px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, var(--accent), var(--indigo));
+            vertical-align: middle;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: 0;
+            border-radius: 999px;
+            padding: 11px 16px;
+            font: inherit;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: var(--soft);
+            color: var(--ink);
+            border: 1px solid var(--line);
+        }
+
+        .content {
+            min-width: 0;
+        }
+
+        .hero,
+        .section {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(216, 224, 231, 0.9);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero {
+            padding: 40px;
+            overflow: hidden;
+            position: relative;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(244, 250, 252, 0.98));
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            right: -80px;
+            top: -80px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(14, 116, 144, 0.15), rgba(14, 116, 144, 0));
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            left: -60px;
+            bottom: -100px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(57, 73, 171, 0.13), rgba(57, 73, 171, 0));
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent-2);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .hero h2 {
+            margin: 18px 0 12px;
+            font-size: clamp(2.1rem, 4vw, 3.6rem);
+            line-height: 1.06;
+            max-width: 10ch;
+        }
+
+        .hero p {
+            max-width: 72ch;
+            color: var(--muted);
+            margin: 0;
+            font-size: 1.02rem;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin-top: 28px;
+        }
+
+        .hero-card {
+            padding: 18px;
+            border-radius: 20px;
+            background: linear-gradient(180deg, #fff, #f5f9fb);
+            border: 1px solid var(--line);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 5px;
+            background: linear-gradient(180deg, var(--accent), var(--indigo));
+        }
+
+        .hero-card strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .hero-card span {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .section {
+            padding: 34px;
+            margin-top: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 8px;
+            background: linear-gradient(90deg, var(--accent), var(--indigo));
+        }
+
+        .section.theme-cyan::before {
+            background: linear-gradient(90deg, var(--accent), var(--indigo));
+        }
+
+        .section.theme-indigo::before {
+            background: linear-gradient(90deg, var(--indigo), #64748b);
+        }
+
+        .section.theme-amber::before {
+            background: linear-gradient(90deg, var(--amber), #d97706);
+        }
+
+        .section.theme-emerald::before {
+            background: linear-gradient(90deg, var(--emerald), #10b981);
+        }
+
+        .section.theme-rose::before {
+            background: linear-gradient(90deg, var(--rose), #e11d48);
+        }
+
+        .section h2 {
+            margin: 0 0 18px;
+            font-size: 1.8rem;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 8px;
+        }
+
+        .section h2::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 72px;
+            height: 4px;
+            border-radius: 999px;
+            background: currentColor;
+            opacity: 0.18;
+        }
+
+        .section h3 {
+            margin: 28px 0 10px;
+            font-size: 1.18rem;
+        }
+
+        .section p,
+        .section li,
+        .section td,
+        .section th {
+            font-size: 0.98rem;
+        }
+
+        .lead {
+            color: var(--muted);
+            margin-top: 0;
+        }
+
+        .callout {
+            border-left: 4px solid var(--accent);
+            background: linear-gradient(135deg, #f7fbfc, var(--soft));
+            padding: 16px 18px;
+            border-radius: 16px;
+            margin: 18px 0;
+        }
+
+        .warning {
+            border-left-color: var(--warning);
+            background: var(--warning-soft);
+        }
+
+        .success {
+            border-left-color: var(--success);
+            background: var(--success-soft);
+        }
+
+        .grid-2,
+        .grid-3 {
+            display: grid;
+            gap: 18px;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 18px;
+            background: #fff;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.03);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 4px;
+            background: linear-gradient(90deg, rgba(14, 116, 144, 0.7), rgba(57, 73, 171, 0.5));
+        }
+
+        .card h4 {
+            margin: 0 0 8px;
+            font-size: 1rem;
+        }
+
+        .card p,
+        .card li {
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .mini-label {
+            display: inline-block;
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent-2);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--line);
+            padding: 12px 14px;
+            vertical-align: top;
+            text-align: left;
+        }
+
+        th {
+            background: #eff5f8;
+            font-weight: 700;
+        }
+
+        ol,
+        ul {
+            margin: 10px 0 0 20px;
+            padding: 0;
+        }
+
+        .flow {
+            display: grid;
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .step {
+            display: grid;
+            grid-template-columns: 56px minmax(0, 1fr);
+            gap: 16px;
+            align-items: start;
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            background: #fff;
+        }
+
+        .step-index {
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, var(--accent), var(--accent-2));
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .step p {
+            margin: 6px 0 0;
+            color: var(--muted);
+        }
+
+        .shot {
+            margin-top: 16px;
+            border: 1px dashed #8fb8c2;
+            border-radius: 20px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f5fbfd, #eef7fb);
+        }
+
+        .shot-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 14px 16px;
+            border-bottom: 1px dashed #8fb8c2;
+            background: linear-gradient(90deg, rgba(14, 116, 144, 0.1), rgba(57, 73, 171, 0.08));
+        }
+
+        .shot-head strong {
+            font-size: 0.96rem;
+        }
+
+        .shot-head span {
+            color: var(--muted);
+            font-size: 0.86rem;
+        }
+
+        .shot-body {
+            min-height: 240px;
+            display: grid;
+            place-items: center;
+            padding: 22px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .shot-body.large {
+            min-height: 340px;
+        }
+
+        .kbd {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            background: #fff;
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+
+        .footer-note {
+            margin-top: 24px;
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        @media (max-width: 1080px) {
+            .shell {
+                grid-template-columns: 1fr;
+            }
+
+            .toc {
+                position: static;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .shell,
+            .hero,
+            .section {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+
+            .grid-2,
+            .grid-3,
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .step {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+            body {
+                background: #fff;
+            }
+
+            .shell {
+                display: block;
+                max-width: none;
+                padding: 0;
+            }
+
+            .toc {
+                position: static;
+                box-shadow: none;
+                margin-bottom: 20px;
+            }
+
+            .hero,
+            .section {
+                box-shadow: none;
+                page-break-inside: avoid;
+            }
+
+            .toolbar {
+                display: none;
+            }
+
+            a {
+                color: inherit;
+                text-decoration: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <aside class="toc">
+            <h1>Manual Book AssessMe</h1>
+            <p>Panduan operasional aplikasi COBIT Assessment untuk pengguna umum, assessor, admin, dan super admin.</p>
+
+            <div class="meta">
+                <div><strong>Format:</strong> HTML siap print ke PDF</div>
+                <div><strong>Versi:</strong> 1.0</div>
+                <div><strong>Tanggal:</strong> 10 April 2026</div>
+                <div><strong>Status:</strong> Draft operasional</div>
+            </div>
+
+            <nav>
+                <a href="#pendahuluan">1. Pendahuluan</a>
+                <a href="#akses">2. Panduan Akses Aplikasi</a>
+                <a href="#navigasi">3. Navigasi dan Hak Akses</a>
+                <a href="#penggunaan">4. Panduan Penggunaan Aplikasi</a>
+                <a href="#admin">5. Panduan Admin dan Super Admin</a>
+                <a href="#troubleshooting">6. Troubleshooting</a>
+                <a href="#lampiran">7. Lampiran Screenshot</a>
+            </nav>
+
+            <div class="toolbar">
+                <button class="btn btn-primary" onclick="window.print()">Print / Save as PDF</button>
+                <a class="btn btn-secondary" href="#lampiran">Lihat Checklist Screenshot</a>
+            </div>
+        </aside>
+
+        <main class="content">
+            <section class="hero">
+                <span class="eyebrow">AssessMe User Guide</span>
+                <h2>Panduan penggunaan aplikasi AssessMe</h2>
+                <p>
+                    Dokumen ini disusun untuk membantu pengguna memahami alur kerja utama di aplikasi AssessMe, mulai dari masuk ke sistem,
+                    membuat assessment, mengisi penilaian, mengelola evidence, melihat laporan, sampai aktivitas administrasi. Struktur manual ini
+                    sengaja dibuat ringkas di level penjelasan, tetapi operasional di level langkah.
+                </p>
+
+                <div class="hero-grid">
+                    <div class="hero-card">
+                        <strong>Cocok untuk</strong>
+                        <span>Assessor, Manager, Admin, Super Admin, dan Viewer dengan penyesuaian hak akses.</span>
+                    </div>
+                    <div class="hero-card">
+                        <strong>Output manual</strong>
+                        <span>Dapat dipakai langsung sebagai HTML internal atau dicetak menjadi PDF formal.</span>
+                    </div>
+                    <div class="hero-card">
+                        <strong>Catatan screenshot</strong>
+                        <span>Template screenshot sudah disiapkan di setiap bagian agar mudah diganti dengan capture aplikasi final.</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section theme-cyan" id="pendahuluan">
+                <h2>1. Pendahuluan</h2>
+                <p class="lead">
+                    Bagian ini menjelaskan konteks penggunaan aplikasi, tujuan manual, gambaran umum modul, serta pembagian hak akses pengguna.
+                </p>
+
+                <h3>1.1 Latar Belakang dan Tujuan</h3>
+                <p>
+                    AssessMe digunakan untuk mendukung proses assessment berbasis COBIT 2019 secara lebih terstruktur, terdokumentasi, dan mudah ditelusuri.
+                    Aplikasi membantu tim assessment dalam menyusun objek assessment, memilih GAMO Objective, menetapkan target level, mengisi penilaian,
+                    mengunggah evidence, dan menghasilkan laporan yang siap ditinjau.
+                </p>
+                <p>
+                    Manual ini bertujuan agar pengguna dapat menjalankan fungsi aplikasi secara konsisten tanpa harus membaca struktur teknis sistem.
+                    Fokus manual adalah penggunaan harian dari sudut pandang user.
+                </p>
+
+                <h3>1.2 Deskripsi Singkat Aplikasi</h3>
+                <div class="grid-3">
+                    <div class="card">
+                        <span class="mini-label">Core Module</span>
+                        <h4>Assessment Management</h4>
+                        <p>Mengelola daftar assessment, detail assessment, wizard pembuatan assessment, dan status pengerjaan.</p>
+                    </div>
+                    <div class="card">
+                        <span class="mini-label">Core Module</span>
+                        <h4>Assessment Execution</h4>
+                        <p>Mengisi penilaian per GAMO, melihat target dan current level, menambahkan OFI, serta menyimpan evidence.</p>
+                    </div>
+                    <div class="card">
+                        <span class="mini-label">Core Module</span>
+                        <h4>Reporting</h4>
+                        <p>Menampilkan preview laporan, maturity report, gap analysis, summary report, dan ekspor PDF atau Excel.</p>
+                    </div>
+                </div>
+
+                <h3>1.3 Hak Akses Pengguna</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Peran</th>
+                            <th>Fungsi Utama</th>
+                            <th>Cakupan Umum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Viewer</td>
+                            <td>Melihat dashboard, daftar assessment, detail assessment, dan laporan sesuai otorisasi.</td>
+                            <td>Tidak dapat mengisi jawaban atau mengubah data.</td>
+                        </tr>
+                        <tr>
+                            <td>Assessor</td>
+                            <td>Membuat assessment, mengisi jawaban, mengunggah evidence, dan melengkapi aktivitas assessment.</td>
+                            <td>Fokus pada pelaksanaan assessment.</td>
+                        </tr>
+                        <tr>
+                            <td>Manager</td>
+                            <td>Memantau assessment, membantu review operasional, dan melihat laporan sesuai kewenangan.</td>
+                            <td>Biasanya pada ruang lingkup perusahaan sendiri.</td>
+                        </tr>
+                        <tr>
+                            <td>Admin</td>
+                            <td>Mengelola user, role tertentu, proses approval tertentu, dan akses administratif.</td>
+                            <td>Bergantung konfigurasi permission pada aplikasi.</td>
+                        </tr>
+                        <tr>
+                            <td>Super Admin</td>
+                            <td>Akses penuh ke administrasi, master data, pengaturan sistem, audit log, dan modul strategis lainnya.</td>
+                            <td>Cakupan lintas seluruh data dan seluruh menu.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout">
+                    Tampilnya menu pada sidebar dan hak mengubah data sangat dipengaruhi oleh role dan permission. Karena itu, dua pengguna dapat melihat menu yang berbeda walaupun memakai aplikasi yang sama.
+                </div>
+
+                <div class="shot">
+                    <div class="shot-head">
+                        <strong>Screenshot SS-01: Halaman Login / Cover Manual</strong>
+                        <span>Gunakan screenshot halaman login atau dashboard utama sebagai visual pembuka manual.</span>
+                    </div>
+                    <div class="shot-body large">
+                        Tempel screenshot di sini.<br>
+                        Rekomendasi: crop penuh area halaman, tampilkan logo, form login, dan alert credential bila diperlukan.
+                    </div>
+                </div>
+            </section>
+
+            <section class="section theme-indigo" id="akses">
+                <h2>2. Panduan Akses Aplikasi</h2>
+                <p class="lead">
+                    Bagian ini menjelaskan kebutuhan minimum sisi pengguna, cara mengakses aplikasi, dan langkah masuk ke sistem.
+                </p>
+
+                <h3>2.1 Spesifikasi Minimum Pengguna</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Komponen</th>
+                            <th>Rekomendasi Minimum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Perangkat</td>
+                            <td>Laptop atau desktop dengan RAM 4 GB atau lebih.</td>
+                        </tr>
+                        <tr>
+                            <td>Browser</td>
+                            <td>Google Chrome, Microsoft Edge, atau Mozilla Firefox versi terbaru.</td>
+                        </tr>
+                        <tr>
+                            <td>Resolusi layar</td>
+                            <td>Minimal 1366 x 768 agar tabel dan wizard tampil nyaman.</td>
+                        </tr>
+                        <tr>
+                            <td>Koneksi</td>
+                            <td>Koneksi jaringan stabil, terutama saat upload evidence dan export laporan.</td>
+                        </tr>
+                        <tr>
+                            <td>Pendukung file</td>
+                            <td>PDF viewer dan aplikasi office jika hasil export perlu ditinjau offline.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>2.2 Akses URL Aplikasi</h3>
+                <p>
+                    Buka browser, lalu masukkan URL aplikasi sesuai environment yang dipakai organisasi. Untuk deployment internal, alamat aplikasi dapat berbeda antara server development, staging, dan production.
+                </p>
+                <div class="callout success">
+                    Contoh format URL: <span class="kbd">http://alamat-server-anda:port</span>
+                </div>
+
+                <h3>2.3 Langkah Login</h3>
+                <div class="flow">
+                    <div class="step">
+                        <div class="step-index">1</div>
+                        <div>
+                            <strong>Buka halaman login</strong>
+                            <p>Pastikan halaman menampilkan field email, password, dan tombol <em>Sign in</em>.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-index">2</div>
+                        <div>
+                            <strong>Masukkan email dan password</strong>
+                            <p>Gunakan akun yang diberikan administrator. Jika browser mendukung, pengguna dapat memakai opsi <em>Remember me</em>.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-index">3</div>
+                        <div>
+                            <strong>Klik tombol Sign in</strong>
+                            <p>Setelah berhasil, sistem akan mengarahkan pengguna ke halaman dashboard.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-index">4</div>
+                        <div>
+                            <strong>Gunakan fitur lupa password jika diperlukan</strong>
+                            <p>Jika pengguna lupa password, gunakan tautan <em>Forgot password?</em> pada form login.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shot">
+                    <div class="shot-head">
+                        <strong>Screenshot SS-02: Halaman Login</strong>
+                        <span>Tampilkan form email, password, tombol Sign in, dan area informasi pengguna bila ada.</span>
+                    </div>
+                    <div class="shot-body">
+                        Tempel screenshot halaman login di sini.
+                    </div>
+                </div>
+            </section>
+
+            <section class="section theme-amber" id="navigasi">
+                <h2>3. Navigasi dan Hak Akses</h2>
+                <p class="lead">
+                    Berdasarkan implementasi saat ini, menu utama aplikasi berpusat pada Dashboard, Assessments, Reports, Profile, serta Administration atau Master Data untuk role tertentu.
+                </p>
+
+                <h3>3.1 Menu Utama</h3>
+                <div class="grid-2">
+                    <div class="card">
+                        <span class="mini-label">Menu</span>
+                        <h4>Dashboard</h4>
+                        <p>Menampilkan ringkasan KPI, distribusi status assessment, maturity level distribution, tren penyelesaian, dan recent assessments.</p>
+                    </div>
+                    <div class="card">
+                        <span class="mini-label">Menu</span>
+                        <h4>Assessments</h4>
+                        <p>Berisi daftar seluruh assessment, pembuatan assessment baru, daftar assessment milik pengguna, serta akses ke detail dan pengisian.</p>
+                    </div>
+                    <div class="card">
+                        <span class="mini-label">Menu</span>
+                        <h4>Reports</h4>
+                        <p>Menampilkan daftar assessment yang sudah selesai atau siap dilaporkan, serta fitur preview dan export laporan.</p>
+                    </div>
+                    <div class="card">
+                        <span class="mini-label">Menu</span>
+                        <h4>Profile</h4>
+                        <p>Digunakan untuk melihat profil, mengganti password, melihat aktivitas, dan mengatur preferensi user.</p>
+                    </div>
+                    <div class="card">
+                        <span class="mini-label">Role Based</span>
+                        <h4>Administration</h4>
+                        <p>Digunakan untuk user management, roles and permissions, audit logs, dan settings sistem sesuai hak akses.</p>
+                    </div>
+                    <div class="card">
+                        <span class="mini-label">Role Based</span>
+                        <h4>Master Data</h4>
+                        <p>Digunakan untuk mengelola company, design factors, GAMO objectives, dan questions pada level super admin.</p>
+                    </div>
+                </div>
+
+                <h3>3.2 Prinsip Akses</h3>
+                <ul>
+                    <li>Menu hanya terlihat jika user memiliki role atau permission yang sesuai.</li>
+                    <li>Halaman detail assessment dapat bersifat penuh, terbatas, atau read-only sesuai kebijakan otorisasi.</li>
+                    <li>Viewer biasanya hanya dapat melihat data dan laporan, tanpa hak menjawab assessment.</li>
+                    <li>Assessor dan role di atasnya dapat mengisi jawaban serta mengelola evidence, selama assessment belum ditandai selesai.</li>
+                </ul>
+
+                <div class="shot">
+                    <div class="shot-head">
+                        <strong>Screenshot SS-03: Sidebar / Navigasi Utama</strong>
+                        <span>Tampilkan menu Dashboard, Assessments, Reports, dan menu tambahan sesuai role yang digunakan.</span>
+                    </div>
+                    <div class="shot-body">
+                        Tempel screenshot sidebar di sini.
+                    </div>
+                </div>
+            </section>
+
+            <section class="section theme-emerald" id="penggunaan">
+                <h2>4. Panduan Penggunaan Aplikasi</h2>
+                <p class="lead">
+                    Bagian ini adalah inti manual. Susunan alurnya mengikuti perjalanan user: dari dashboard, membuat assessment, mengisi penilaian, sampai melihat hasil dan tindak lanjutnya.
+                </p>
+
+                <h3>4.1 Dashboard</h3>
+                <p>
+                    Setelah login, pengguna diarahkan ke Dashboard. Halaman ini menampilkan statistik seperti total assessment, jumlah assessment in progress,
+                    assessment completed, dan rata-rata maturity level. Selain itu tersedia grafik distribusi status, distribusi level, distribusi kategori GAMO,
+                    tren penyelesaian, serta tabel recent assessments.
+                </p>
+                <div class="callout">
+                    Untuk pengguna yang memiliki hak membuat assessment, tombol <strong>New Assessment</strong> tersedia di kanan atas dashboard.
+                </div>
+
+                <div class="shot">
+                    <div class="shot-head">
+                        <strong>Screenshot SS-04: Dashboard</strong>
+                        <span>Disarankan menampilkan KPI card dan tabel Recent Assessments dalam satu layar.</span>
+                    </div>
+                    <div class="shot-body large">
+                        Tempel screenshot dashboard di sini.
+                    </div>
+                </div>
+
+                <h3>4.2 Membuat Assessment Baru</h3>
+                <p>
+                    Pembuatan assessment dilakukan melalui wizard lima langkah. Tujuannya agar data assessment tersusun rapi sejak awal dan target penilaian per GAMO dapat ditetapkan dengan jelas.
+                </p>
+                <div class="flow">
+                    <div class="step">
+                        <div class="step-index">1</div>
+                        <div>
+                            <strong>Isi Basic Information</strong>
+                            <p>Masukkan judul assessment, company, deskripsi, dan periode assessment.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-index">2</div>
+                        <div>
+                            <strong>Pilih Design Factors</strong>
+                            <p>Centang design factor yang relevan dengan konteks organisasi agar assessment lebih terarah.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-index">3</div>
+                        <div>
+                            <strong>Pilih GAMO Objectives</strong>
+                            <p>Pilih objective yang akan dinilai berdasarkan kategori EDM, APO, BAI, DSS, atau MEA.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-index">4</div>
+                        <div>
+                            <strong>Tetapkan Target Levels</strong>
+                            <p>Tentukan target maturity atau capability level untuk tiap objective yang dipilih.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-index">5</div>
+                        <div>
+                            <strong>Review dan Create</strong>
+                            <p>Periksa kembali seluruh input, lalu simpan untuk membentuk assessment baru.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shot">
+                    <div class="shot-head">
+                        <strong>Screenshot SS-05: Wizard Create Assessment</strong>
+                        <span>Utamakan tampilan step wizard di bagian atas dan form pada step aktif.</span>
+                    </div>
+                    <div class="shot-body large">
+                        Tempel screenshot wizard create assessment di sini.
+                    </div>
+                </div>
+
+                <h3>4.3 Melihat Detail Assessment</h3>
+                <p>
+                    Setelah assessment dibuat, pengguna dapat membuka halaman detail assessment. Di halaman ini tersedia ringkasan informasi dasar,
+                    daftar design factors, daftar GAMO objective yang dipilih, target level, hasil assessment per objective, serta action button seperti
+                    <strong>Answer Assessment</strong>, <strong>Export PDF</strong>, <strong>Edit</strong>, atau <strong>Mark as Complete</strong> sesuai hak akses.
+                </p>
+
+                <div class="shot">
+                    <div class="shot-head">
+                        <strong>Screenshot SS-06: Detail Assessment</strong>
+                        <span>Tampilkan status assessment, basic information, dan action button di kanan atas.</span>
+                    </div>
+                    <div class="shot-body large">
+                        Tempel screenshot detail assessment di sini.
+                    </div>
+                </div>
+
+                <h3>4.4 Mengisi Assessment</h3>
+                <p>
+                    Pengisian assessment dilakukan melalui halaman <strong>Answer Assessment</strong>. Halaman ini menggunakan selector GAMO di bagian atas,
+                    informasi target dan current level, tombol OFI, dan tab utama untuk aktivitas penilaian.
+                </p>
+
+                <h3>4.4.1 Memilih GAMO Objective</h3>
+                <ul>
+                    <li>Pilih objective dari dropdown selector di bagian atas halaman.</li>
+                    <li>Perhatikan nilai <strong>Target</strong> dan <strong>Current</strong> yang ditampilkan.</li>
+                    <li>Gunakan tombol <strong>Lihat OFI</strong> untuk melihat area perbaikan atau catatan OFI.</li>
+                </ul>
+
+                <h3>4.4.2 Tab Level</h3>
+                <p>
+                    Tab Level adalah area utama untuk penilaian. Pada area ini user melakukan penilaian aktivitas per level capability, membuka modal penilaian,
+                    memberi rating, menambah catatan, dan memantau riwayat perubahan. Jika user tidak memiliki permission menjawab, maka halaman tampil dalam mode read-only.
+                </p>
+                <ul>
+                    <li>Pilih level yang ingin dinilai.</li>
+                    <li>Buka aktivitas yang tersedia.</li>
+                    <li>Masukkan rating sesuai hasil assessment.</li>
+                    <li>Lengkapi notes bila dibutuhkan.</li>
+                    <li>Simpan perubahan.</li>
+                </ul>
+
+                <h3>4.4.3 Tab Repository</h3>
+                <p>
+                    Tab Repository digunakan untuk mengelola evidence yang mendukung penilaian. Evidence dapat berupa file atau tautan, tergantung fitur yang diaktifkan pada assessment terkait.
+                </p>
+                <ul>
+                    <li>Tambahkan evidence untuk aktivitas yang relevan.</li>
+                    <li>Gunakan download bila ingin memeriksa ulang dokumen yang sudah tersimpan.</li>
+                    <li>Pastikan nama evidence jelas dan konsisten agar mudah direview.</li>
+                </ul>
+
+                <h3>4.4.4 Tab Summary All GAMO Objectives</h3>
+                <p>
+                    Tab Summary menampilkan ringkasan lintas objective, sehingga pengguna dapat meninjau progres secara menyeluruh tanpa membuka satu per satu objective.
+                </p>
+
+                <div class="callout warning">
+                    Jika assessment sudah berstatus <strong>completed</strong>, sistem dapat membatasi perubahan jawaban. Pastikan semua evidence dan penilaian telah diperiksa sebelum menandai assessment selesai.
+                </div>
+
+                <div class="shot">
+                    <div class="shot-head">
+                        <strong>Screenshot SS-07: Halaman Answer Assessment</strong>
+                        <span>Tampilkan selector GAMO, target/current level, tombol OFI, dan tab navigasi utama.</span>
+                    </div>
+                    <div class="shot-body large">
+                        Tempel screenshot halaman answer assessment di sini.
+                    </div>
+                </div>
+
+                <div class="shot">
+                    <div class="shot-head">
+                        <strong>Screenshot SS-08: Modal Penilaian atau Tab Level</strong>
+                        <span>Gunakan screenshot yang memperlihatkan proses pemberian rating dan catatan.</span>
+                    </div>
+                    <div class="shot-body">
+                        Tempel screenshot modal penilaian atau detail aktivitas di sini.
+                    </div>
+                </div>
+
+                <div class="shot">
+                    <div class="shot-head">
+                        <strong>Screenshot SS-09: Repository Evidence</strong>
+                        <span>Tampilkan daftar evidence atau form upload evidence.</span>
+                    </div>
+                    <div class="shot-body">
+                        Tempel screenshot repository evidence di sini.
+                    </div>
+                </div>
+
+                <h3>4.5 Menyelesaikan Assessment</h3>
+                <p>
+                    Setelah seluruh aktivitas terisi dan evidence telah diunggah, pengguna yang berwenang dapat menandai assessment sebagai selesai melalui tombol <strong>Mark as Complete</strong> pada halaman detail assessment.
+                </p>
+                <ul>
+                    <li>Pastikan seluruh objective yang dipilih telah memiliki jawaban yang memadai.</li>
+                    <li>Pastikan evidence utama telah terunggah.</li>
+                    <li>Pastikan ringkasan summary menunjukkan progres yang sesuai.</li>
+                    <li>Baru setelah itu lakukan finalisasi status.</li>
+                </ul>
+
+                <h3>4.6 Melihat dan Mengekspor Laporan</h3>
+                <p>
+                    Menu Reports menampilkan daftar assessment yang statusnya sudah layak dilaporkan. Pengguna dapat melakukan pencarian, filter perusahaan,
+                    preview report, dan export ke format PDF atau Excel.
+                </p>
+                <div class="grid-2">
+                    <div class="card">
+                        <span class="mini-label">Available Reports</span>
+                        <h4>Jenis Laporan</h4>
+                        <p>Summary Report, Maturity Report, Gap Analysis, Executive Summary, dan Full Report Excel.</p>
+                    </div>
+                    <div class="card">
+                        <span class="mini-label">Export</span>
+                        <h4>Format Keluaran</h4>
+                        <p>PDF untuk distribusi formal, dan Excel untuk analisis detail atau pengolahan lanjutan.</p>
+                    </div>
+                </div>
+
+                <div class="shot">
+                    <div class="shot-head">
+                        <strong>Screenshot SS-10: Halaman Reports</strong>
+                        <span>Tampilkan filter pencarian, tabel completed assessments, dan dropdown export.</span>
+                    </div>
+                    <div class="shot-body large">
+                        Tempel screenshot halaman reports di sini.
+                    </div>
+                </div>
+
+                <h3>4.7 Recommendations dan Action Plans</h3>
+                <p>
+                    Setelah assessment selesai, organisasi dapat memanfaatkan modul Recommendations dan Action Plans untuk menindaklanjuti gap yang ditemukan.
+                    Recommendations dapat dibuat manual atau dihasilkan otomatis, kemudian diteruskan ke action plan untuk pelacakan progres.
+                </p>
+                <ul>
+                    <li>Buka halaman Recommendations dari assessment terkait.</li>
+                    <li>Gunakan tombol <strong>Auto-Generate</strong> bila ingin menghasilkan rekomendasi berbasis gap analysis.</li>
+                    <li>Tentukan prioritas, penanggung jawab, target date, dan status progres.</li>
+                    <li>Gunakan Action Plan Dashboard, Timeline View, atau Progress Tracking untuk monitoring pelaksanaan.</li>
+                </ul>
+
+                <div class="shot">
+                    <div class="shot-head">
+                        <strong>Screenshot SS-11: Recommendations atau Action Plan Dashboard</strong>
+                        <span>Tampilkan statistik rekomendasi dan tabel tindak lanjut.</span>
+                    </div>
+                    <div class="shot-body large">
+                        Tempel screenshot modul recommendations atau action plans di sini.
+                    </div>
+                </div>
+
+                <h3>4.8 Profil Pengguna</h3>
+                <p>
+                    Menu profile digunakan untuk melihat identitas user, email, role, statistik aktivitas singkat, company, serta shortcut ke edit profile,
+                    change password, activity log, dan settings personal.
+                </p>
+
+                <div class="shot">
+                    <div class="shot-head">
+                        <strong>Screenshot SS-12: My Profile</strong>
+                        <span>Tampilkan kartu profil, role badge, dan area recent activities.</span>
+                    </div>
+                    <div class="shot-body">
+                        Tempel screenshot halaman profile di sini.
+                    </div>
+                </div>
+            </section>
+
+            <section class="section theme-rose" id="admin">
+                <h2>5. Panduan Admin dan Super Admin</h2>
+                <p class="lead">
+                    Bagian ini dapat dipakai sebagai bab terpisah untuk pengguna administratif. Beberapa menu hanya muncul untuk role tertentu.
+                </p>
+
+                <h3>5.1 User Management</h3>
+                <p>
+                    Admin atau Super Admin dapat mengelola data pengguna, termasuk membuat user baru, mengubah data user, menonaktifkan akun,
+                    dan menyesuaikan role sesuai kebutuhan operasional organisasi.
+                </p>
+
+                <h3>5.2 Roles and Permissions</h3>
+                <p>
+                    Menu ini dipakai untuk mengatur model hak akses. Pastikan perubahan permission mengikuti kebijakan organisasi, karena perubahan di sini akan berdampak langsung pada menu yang terlihat dan aksi yang diizinkan di aplikasi.
+                </p>
+
+                <h3>5.3 Audit Logs</h3>
+                <p>
+                    Audit log membantu administrator menelusuri aktivitas sistem. Modul ini bermanfaat untuk monitoring perubahan, penelusuran kejadian, dan kebutuhan audit internal.
+                </p>
+
+                <h3>5.4 System Settings</h3>
+                <p>
+                    Gunakan menu settings untuk pengaturan global aplikasi bila modul tersebut diaktifkan untuk role Anda. Perubahan di area ini sebaiknya dibatasi pada petugas yang memahami dampak konfigurasi sistem.
+                </p>
+
+                <h3>5.5 Master Data</h3>
+                <p>
+                    Pada level super admin, master data digunakan untuk menjaga kualitas referensi sistem, seperti daftar company, design factor, GAMO objective, dan question atau activity yang menjadi dasar assessment.
+                </p>
+
+                <div class="callout">
+                    Sebelum mengubah master data, disarankan memastikan bahwa perubahan tidak mengganggu assessment yang sedang berjalan, terutama jika terkait objective, question, atau struktur referensi yang sudah dipakai pada assessment aktif.
+                </div>
+
+                <div class="shot">
+                    <div class="shot-head">
+                        <strong>Screenshot SS-13: Administration / Users / Roles</strong>
+                        <span>Pilih salah satu halaman administrasi yang paling representatif untuk role admin.</span>
+                    </div>
+                    <div class="shot-body">
+                        Tempel screenshot modul administrasi di sini.
+                    </div>
+                </div>
+            </section>
+
+            <section class="section theme-amber" id="troubleshooting">
+                <h2>6. Troubleshooting</h2>
+                <p class="lead">
+                    Daftar masalah umum berikut dapat dimasukkan ke manual agar tim pengguna tidak selalu harus menghubungi admin untuk masalah dasar.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Masalah</th>
+                            <th>Penyebab Umum</th>
+                            <th>Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Tidak bisa login</td>
+                            <td>Email atau password salah, atau akun belum aktif.</td>
+                            <td>Periksa credential, gunakan fitur lupa password, atau hubungi admin.</td>
+                        </tr>
+                        <tr>
+                            <td>Menu tertentu tidak muncul</td>
+                            <td>Role atau permission tidak sesuai.</td>
+                            <td>Pastikan user telah diberi role yang benar oleh admin.</td>
+                        </tr>
+                        <tr>
+                            <td>Tidak bisa mengubah assessment</td>
+                            <td>Assessment berstatus completed atau user berada dalam mode read-only.</td>
+                            <td>Periksa status assessment dan hak akses user.</td>
+                        </tr>
+                        <tr>
+                            <td>Evidence gagal terunggah</td>
+                            <td>Koneksi tidak stabil, file terlalu besar, atau format file tidak sesuai.</td>
+                            <td>Ulangi upload dengan koneksi stabil dan gunakan file yang sesuai kebijakan organisasi.</td>
+                        </tr>
+                        <tr>
+                            <td>Export report tidak keluar</td>
+                            <td>Assessment belum siap dilaporkan atau browser memblokir download.</td>
+                            <td>Pastikan assessment memenuhi syarat pelaporan dan cek pengaturan download browser.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Kontak Dukungan Internal</h3>
+                <p>
+                    Tambahkan informasi PIC atau helpdesk organisasi pada bagian ini sebelum manual didistribusikan secara resmi.
+                </p>
+                <div class="callout warning">
+                    Contoh: Helpdesk TI, admin aplikasi, nomor ekstensi, email support, atau SLA penanganan insiden.
+                </div>
+            </section>
+
+            <section class="section theme-indigo" id="lampiran">
+                <h2>7. Lampiran Screenshot</h2>
+                <p class="lead">
+                    Bagian ini berfungsi sebagai checklist agar penyusunan manual final lebih cepat. Anda bisa menggunakan tabel berikut untuk mengumpulkan screenshot final dari aplikasi produksi atau staging.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Kode</th>
+                            <th>Judul Screenshot</th>
+                            <th>Fungsi</th>
+                            <th>Status Isi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SS-01</td>
+                            <td>Login atau Cover Manual</td>
+                            <td>Pembuka dokumen</td>
+                            <td>Belum diisi</td>
+                        </tr>
+                        <tr>
+                            <td>SS-02</td>
+                            <td>Form Login</td>
+                            <td>Bab akses aplikasi</td>
+                            <td>Belum diisi</td>
+                        </tr>
+                        <tr>
+                            <td>SS-03</td>
+                            <td>Sidebar / Navigasi</td>
+                            <td>Bab navigasi utama</td>
+                            <td>Belum diisi</td>
+                        </tr>
+                        <tr>
+                            <td>SS-04</td>
+                            <td>Dashboard</td>
+                            <td>Bab dashboard</td>
+                            <td>Belum diisi</td>
+                        </tr>
+                        <tr>
+                            <td>SS-05</td>
+                            <td>Create Assessment Wizard</td>
+                            <td>Bab pembuatan assessment</td>
+                            <td>Belum diisi</td>
+                        </tr>
+                        <tr>
+                            <td>SS-06</td>
+                            <td>Detail Assessment</td>
+                            <td>Bab detail assessment</td>
+                            <td>Belum diisi</td>
+                        </tr>
+                        <tr>
+                            <td>SS-07</td>
+                            <td>Answer Assessment</td>
+                            <td>Bab pengisian assessment</td>
+                            <td>Belum diisi</td>
+                        </tr>
+                        <tr>
+                            <td>SS-08</td>
+                            <td>Modal Penilaian</td>
+                            <td>Bab rating aktivitas</td>
+                            <td>Belum diisi</td>
+                        </tr>
+                        <tr>
+                            <td>SS-09</td>
+                            <td>Repository Evidence</td>
+                            <td>Bab evidence</td>
+                            <td>Belum diisi</td>
+                        </tr>
+                        <tr>
+                            <td>SS-10</td>
+                            <td>Reports</td>
+                            <td>Bab laporan</td>
+                            <td>Belum diisi</td>
+                        </tr>
+                        <tr>
+                            <td>SS-11</td>
+                            <td>Recommendations / Action Plans</td>
+                            <td>Bab tindak lanjut</td>
+                            <td>Belum diisi</td>
+                        </tr>
+                        <tr>
+                            <td>SS-12</td>
+                            <td>My Profile</td>
+                            <td>Bab profil</td>
+                            <td>Belum diisi</td>
+                        </tr>
+                        <tr>
+                            <td>SS-13</td>
+                            <td>Administration / Master Data</td>
+                            <td>Bab admin</td>
+                            <td>Belum diisi</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Saran Penyempurnaan Manual Final</h3>
+                <ol>
+                    <li>Ganti seluruh placeholder screenshot dengan capture dari environment yang benar.</li>
+                    <li>Tambahkan logo resmi organisasi pada cover.</li>
+                    <li>Tambahkan URL final aplikasi dan kontak support internal.</li>
+                    <li>Jika diperlukan, pisahkan versi manual untuk user umum dan admin agar dokumen lebih ringkas.</li>
+                </ol>
+
+                <p class="footer-note">
+                    Dokumen ini disusun berdasarkan implementasi aplikasi yang terkonfirmasi dari route dan tampilan Blade saat ini. Jika alur UI berubah,
+                    perbarui screenshot dan langkah operasional pada bab yang relevan.
+                </p>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

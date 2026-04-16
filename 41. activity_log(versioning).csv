@@ -1,0 +1,115 @@
+4dae0df,COBIT Assessment Team,admin@cobit.com,2026-02-03 08:17:22 +0700,fix: properly disable forms and hide evidence uploads when assessment completed
+24a0e3c,COBIT Assessment Team,admin@cobit.com,2026-01-29 14:44:20 +0700,feat: implement completed assessment restrictions and timeline
+e95a51d,COBIT Assessment Team,admin@cobit.com,2026-01-29 09:29:23 +0700,fix: sync PDF export capability level calculation with frontend logic
+f4ac802,COBIT Assessment Team,admin@cobit.com,2026-01-29 08:58:19 +0700,fix: resolve PDF export error and improve UI layout
+3f0a8b8,COBIT Assessment Team,admin@cobit.com,2026-01-29 08:54:47 +0700,feat: implement PDF export for assessment detail report
+193e112,COBIT Assessment Team,admin@cobit.com,2026-01-29 08:41:41 +0700,fix: correct GAP calculation to Current - Target
+6f560ed,COBIT Assessment Team,admin@cobit.com,2026-01-28 16:30:08 +0700,feat: implement export summary all GAMOs to Excel
+399bf0d,COBIT Assessment Team,admin@cobit.com,2026-01-28 14:36:08 +0700,feat: change application logo and name to AssessMe
+ba06959,COBIT Assessment Team,admin@cobit.com,2026-01-28 14:33:31 +0700,fix: remove duplicate notification icon in navbar
+7821a29,COBIT Assessment Team,admin@cobit.com,2026-01-28 07:22:45 +0700,feat: implement notification system
+3951a8d,COBIT Assessment Team,admin@cobit.com,2026-01-28 06:23:32 +0700,fix: resolve infinite loop in GAMO score calculation
+b2922f5,COBIT Assessment Team,admin@cobit.com,2026-01-27 20:31:53 +0700,feat: make company read-only and hide assessment/scope type in edit form
+fddacf6,COBIT Assessment Team,admin@cobit.com,2026-01-27 20:16:23 +0700,fix: remove reviewedBy/approvedBy from eager loading in controllers
+6bd1412,COBIT Assessment Team,admin@cobit.com,2026-01-27 20:03:57 +0700,fix: remove remaining reviewedBy/approvedBy references from reports
+89b7293,COBIT Assessment Team,admin@cobit.com,2026-01-27 20:00:06 +0700,feat: clean up assessment status (remove reviewed/approved) & add mark as complete button
+8cc9d43,COBIT Assessment Team,admin@cobit.com,2026-01-27 19:41:08 +0700,feat: enhance password security & restructure menu navigation
+fda7abf,COBIT Assessment Team,admin@cobit.com,2026-01-27 16:22:51 +0700,Remove reviewed and approved stats cards from profile view
+840fd68,COBIT Assessment Team,admin@cobit.com,2026-01-27 16:20:28 +0700,Remove reviewedAssessments and approvedAssessments stats from profile
+e3914a5,COBIT Assessment Team,admin@cobit.com,2026-01-27 16:16:55 +0700,Remove reviewed_by and approved_by relationships from models
+a34316f,COBIT Assessment Team,admin@cobit.com,2026-01-27 16:12:30 +0700,Remove Review & Approval workflow - simplify to draft, in_progress, completed only
+836ccb9,COBIT Assessment Team,admin@cobit.com,2026-01-27 15:44:22 +0700,Change user role selection from checkbox to dropdown - one role per user
+f8f9f47,COBIT Assessment Team,admin@cobit.com,2026-01-27 15:36:43 +0700,Fix edit user button - add data-bs-toggle and data-bs-target attributes
+f3483e5,COBIT Assessment Team,admin@cobit.com,2026-01-27 14:05:33 +0700,Change timezone to Asia/Jakarta (WIB)
+7172b04,COBIT Assessment Team,admin@cobit.com,2026-01-27 14:02:35 +0700,Fix audit logging - prevent errors in AJAX requests and background processes
+fc9adcd,COBIT Assessment Team,admin@cobit.com,2026-01-27 13:36:26 +0700,Add comprehensive audit logging system with observers and middleware
+0eb8db3,COBIT Assessment Team,admin@cobit.com,2026-01-27 11:29:29 +0700,Fix radar chart realization data - use same API structure as capability cards
+a522653,COBIT Assessment Team,admin@cobit.com,2026-01-27 10:44:14 +0700,fix: Swap radar chart colors to match card colors and improve data visibility
+487d9a1,COBIT Assessment Team,admin@cobit.com,2026-01-27 10:20:29 +0700,feat: Display guidance and document requirements in activity detail modal
+45591a1,COBIT Assessment Team,admin@cobit.com,2026-01-27 10:12:24 +0700,feat: Add expandable rows for activity guidance and document requirements
+eafb249,COBIT Assessment Team,admin@cobit.com,2026-01-27 06:55:06 +0700,fix: Preserve target level selections when navigating between steps
+3673950,COBIT Assessment Team,admin@cobit.com,2026-01-27 06:47:43 +0700,feat: Add Asesi role and improve assessment creation
+7d8f41d,COBIT Assessment Team,admin@cobit.com,2026-01-26 06:13:51 +0700,Enable Viewer read-only access to Evidence, Repository, Summary, and OFI
+8045e17,COBIT Assessment Team,admin@cobit.com,2026-01-26 06:07:54 +0700,Fix: Viewer can now view all assessments from their company (read-only access)
+b346719,COBIT Assessment Team,admin@cobit.com,2026-01-26 06:01:11 +0700,Fix: Viewer role can now see all assessments from their company
+bdb7631,COBIT Assessment Team,admin@cobit.com,2026-01-25 23:57:23 +0700,Complete OFI feature: fix save error, hide category/target date, add copy button to manual tab
+1c9e730,COBIT Assessment Team,admin@cobit.com,2026-01-25 23:44:26 +0700,Fix OFI: remove Level 1, fix target display, add Generate button for auto OFI
+9733cfa,COBIT Assessment Team,admin@cobit.com,2026-01-25 23:30:38 +0700,Fix OFI modal: don't override global assessmentId and currentGamoId variables
+3247196,COBIT Assessment Team,admin@cobit.com,2026-01-25 23:18:32 +0700,Fix OFI modal: add gamo object to API response
+a7773e8,COBIT Assessment Team,admin@cobit.com,2026-01-25 22:54:43 +0700,Fix errors: remove non-existent CSS, fix duplicate variable, improve card proportions
+026fdce,COBIT Assessment Team,admin@cobit.com,2026-01-25 22:23:49 +0700,Hide Priority and Status fields from OFI modal UI
+57f9c50,COBIT Assessment Team,admin@cobit.com,2026-01-25 21:56:21 +0700,Add OFI feature - controller methods, routes, and UI integration
+0316f7b,COBIT Assessment Team,admin@cobit.com,2026-01-25 20:39:33 +0700,WIP: Add OFI feature - migration, model, and modal UI with Quill.js
+ab8c669,COBIT Assessment Team,admin@cobit.com,2026-01-25 19:44:24 +0700,Fix getNotesList: use answered_by instead of user relation
+3a10de8,COBIT Assessment Team,admin@cobit.com,2026-01-25 19:40:16 +0700,Fix getNotesList to return proper notes format with statistics
+dc02732,COBIT Assessment Team,admin@cobit.com,2026-01-25 19:09:52 +0700,Fix status comparison to be case-insensitive
+b4443a7,COBIT Assessment Team,admin@cobit.com,2026-01-25 19:04:27 +0700,Refactor Questions to Aktifitas and fix progress calculation
+a9855c4,COBIT Assessment Team,admin@cobit.com,2026-01-25 16:39:57 +0700,Filter Level 1 activities from backend API endpoints
+4eb02fa,COBIT Assessment Team,admin@cobit.com,2026-01-25 15:21:48 +0700,fix: Align all level references to COBIT 2019 standard (Level 2-5)
+d67dfd6,COBIT Assessment Team,admin@cobit.com,2026-01-25 15:14:42 +0700,fix: Resolve activity count inconsistency and loading spinner issue
+61b6f3e,COBIT Assessment Team,admin@cobit.com,2026-01-25 15:10:30 +0700,feat: Redesign Progress Kapabilitas sub-tab with activity breakdown
+c4d1166,COBIT Assessment Team,admin@cobit.com,2026-01-25 14:54:49 +0700,fix: Update progress calculation to use GAMO-based metric
+c508409,COBIT Assessment Team,admin@cobit.com,2026-01-25 14:42:50 +0700,feat: Implement COBIT 2019 capability level calculation and enhance UI
+85c0572,COBIT Assessment Team,admin@cobit.com,2026-01-25 07:52:25 +0700,feat: Implement evidence modal with AJAX upload and fix UI issues
+05bfd20,COBIT Assessment Team,admin@cobit.com,2025-12-23 08:53:32 +0700,Update navbar Assessment menu - use role-based checks for consistency
+3e3d220,COBIT Assessment Team,admin@cobit.com,2025-12-20 14:31:25 +0700,Fix assessment attachment inserts - missing selected_at for GAMO, remove updated_at
+68a5a4e,COBIT Assessment Team,admin@cobit.com,2025-12-20 14:20:10 +0700,fix: Fix form submission and redirect issues in assessment creation
+e2eb35f,COBIT Assessment Team,admin@cobit.com,2025-12-20 14:09:07 +0700,fix: Fix permission check in assessment creation - use role-based instead of capability-based
+dec72c6,COBIT Assessment Team,admin@cobit.com,2025-12-20 06:46:51 +0700,fix: Fix 9 validation and submission issues in assessment creation wizard
+a2cc33d,COBIT Assessment Team,admin@cobit.com,2025-12-19 16:25:56 +0700,fix: Fix Activity Log query in ProfileController
+c7c3d27,COBIT Assessment Team,admin@cobit.com,2025-12-19 16:22:53 +0700,fix: Fix Activity Log query issue in RecommendationWebController
+c17c252,COBIT Assessment Team,admin@cobit.com,2025-12-19 16:16:06 +0700,docs: Add QUICK_REVIEW.md for fast reference
+415806f,COBIT Assessment Team,admin@cobit.com,2025-12-19 16:15:25 +0700,docs: Add comprehensive APPLICATION_REVIEW.md
+bf1eb55,COBIT Assessment Team,admin@cobit.com,2025-12-19 15:43:50 +0700,feat(phase15): Add Reports & Export with PDF and Excel functionality
+1936151,COBIT Assessment Team,admin@cobit.com,2025-12-19 15:14:04 +0700,feat(phase14.3): Add Performance Dashboard with Maturity Heatmap and Analytics
+96df254,COBIT Assessment Team,admin@cobit.com,2025-12-19 15:11:25 +0700,feat(phase14.2): Add Assessment Progress Dashboard with advanced filtering and tracking
+0c8b9f7,COBIT Assessment Team,admin@cobit.com,2025-12-19 15:08:32 +0700,feat(phase14.1): Add professional Executive Dashboard with ApexCharts and 7 KPI metrics
+45ea100,COBIT Assessment Team,admin@cobit.com,2025-12-16 14:01:49 +0700,docs: Add comprehensive development summary for Phase 11-13
+b8d7152,COBIT Assessment Team,admin@cobit.com,2025-12-16 14:00:58 +0700,feat(phase13): Add Assessment Taking & Answering interface with paginated questions, auto-save, and progress tracking
+35dced4,COBIT Assessment Team,admin@cobit.com,2025-12-16 13:54:51 +0700,feat(ui): Phase 12.1 - Enhance Questions Management UI with stats cards, improved filters, and better table styling
+b6e1cd1,COBIT Assessment Team,admin@cobit.com,2025-12-16 13:48:08 +0700,feat: Add bulk import feature to Questions management with CSV upload and progress tracking
+9b944d4,COBIT Assessment Team,admin@cobit.com,2025-12-16 13:40:32 +0700,Fix: Step numbers turn blue when active, Design Factors use card styling (only individual card highlights, not full page)
+5aa2baa,COBIT Assessment Team,admin@cobit.com,2025-12-16 10:37:10 +0700,Fix assessment creation wizard bugs: active tab color, checkbox selection, and GAMO design improvements
+22a634d,COBIT Assessment Team,admin@cobit.com,2025-12-16 10:26:10 +0700,fix: Use paginate() instead of get() in DesignFactorWebController
+1189246,COBIT Assessment Team,admin@cobit.com,2025-12-16 10:22:43 +0700,ui: Improve table layouts for master data and questions
+737e57c,COBIT Assessment Team,admin@cobit.com,2025-12-16 10:19:19 +0700,fix: Update toggle route names for master data
+2146b2b,COBIT Assessment Team,admin@cobit.com,2025-12-16 10:12:52 +0700,fix: Change Storage::url() to asset() in profile views
+4d20733,COBIT Assessment Team,admin@cobit.com,2025-12-16 10:11:29 +0700,fix: Update profile and settings route references in navbar and sidebar
+0d58297,COBIT Assessment Team,admin@cobit.com,2025-12-16 10:08:50 +0700,fix: Add ProfileController import to routes/web.php
+907c501,COBIT Assessment Team,admin@cobit.com,2025-12-16 09:19:06 +0700,docs: Update roadmap - Phase 11 complete (74/119 views, 62.2%)
+c184ce0,COBIT Assessment Team,admin@cobit.com,2025-12-16 09:17:20 +0700,feat: Phase 11 - User Profile & Settings Management
+4d301ba,COBIT Assessment Team,admin@cobit.com,2025-12-16 07:09:50 +0700,docs: Update Roadmap - 58% Complete (69/119 views)
+27430bf,COBIT Assessment Team,admin@cobit.com,2025-12-16 07:03:19 +0700,feat: Add Evidence Detail Modal in Capability Assessment
+918f428,COBIT Assessment Team,admin@cobit.com,2025-12-16 06:57:17 +0700,feat: Phase 8 - Capability Assessment Interface
+79c1179,COBIT Assessment Team,admin@cobit.com,2025-12-16 06:47:21 +0700,feat: Phase 2 - Assessment Team & Schedule Management
+beb69fa,COBIT Assessment Team,admin@cobit.com,2025-12-16 06:20:50 +0700,feat: Phase 9 - Recommendations & Action Plans
+e26cd51,COBIT Assessment Team,admin@cobit.com,2025-12-16 05:46:11 +0700,feat: Complete Phase 7 - Banding/Appeal Process
+816349f,COBIT Assessment Team,admin@cobit.com,2025-12-16 05:38:50 +0700,feat: Complete Phase 6 - Review & Approval Workflow
+076ddc3,COBIT Assessment Team,admin@cobit.com,2025-12-15 16:44:37 +0700,fix: Register Spatie permission middleware aliases
+53617dd,COBIT Assessment Team,admin@cobit.com,2025-12-15 16:36:53 +0700,feat: Complete Phase 5 - Scoring & Maturity Calculation
+2c70644,COBIT Assessment Team,admin@cobit.com,2025-12-15 16:14:24 +0700,feat: Add Phase 3 - Assessment Progress Tracking
+bf8ccee,COBIT Assessment Team,admin@cobit.com,2025-12-15 16:09:39 +0700,feat: Complete Phase 4 - Evidence Management module
+f022e37,COBIT Assessment Team,admin@cobit.com,2025-12-15 15:59:00 +0700,docs: Update roadmap - Phase 1 complete
+37378ea,COBIT Assessment Team,admin@cobit.com,2025-12-15 15:58:03 +0700,feat: Complete Phase 1 - Question Management module
+315e336,COBIT Assessment Team,admin@cobit.com,2025-12-15 15:48:35 +0700,docs: Add complete implementation roadmap
+c6aded3,COBIT Assessment Team,admin@cobit.com,2025-12-15 15:43:19 +0700,docs: Add comprehensive views analysis report
+389c6a6,COBIT Assessment Team,admin@cobit.com,2025-12-15 15:26:53 +0700,feat: Add 'Create Assessment' button to Companies and pre-select company
+c06725f,COBIT Assessment Team,admin@cobit.com,2025-12-15 15:23:51 +0700,docs: Add complete implementation summary for Master Data feature
+453e868,COBIT Assessment Team,admin@cobit.com,2025-12-15 15:21:40 +0700,docs: Add comprehensive Master Data views documentation
+4f118b0,COBIT Assessment Team,admin@cobit.com,2025-12-15 15:19:44 +0700,feat: Add complete Blade views for Master Data management
+b164126,COBIT Assessment Team,admin@cobit.com,2025-12-15 15:11:48 +0700,Add Master Data menu for Super Admin: Companies, Design Factors, GAMO Objectives management
+2a4565d,COBIT Assessment Team,admin@cobit.com,2025-12-15 14:57:01 +0700,Fix logout BadMethodCallException: use web guard instead of RequestGuard
+a120d11,COBIT Assessment Team,admin@cobit.com,2025-12-15 14:04:30 +0700,Fix database-model inconsistencies: remove is_active from Company queries, align model fillable with migration schema
+80ec432,COBIT Assessment Team,admin@cobit.com,2025-12-15 13:39:18 +0700,Fix missing User and Company imports in DashboardController
+4dec9ab,COBIT Assessment Team,admin@cobit.com,2025-12-15 13:15:07 +0700,Add test credentials info to login page for easy testing
+6ae2fee,COBIT Assessment Team,admin@cobit.com,2025-12-15 11:37:55 +0700,Add UI/UX polish: JavaScript utilities and update project status to 95% complete
+93f6ff5,COBIT Assessment Team,admin@cobit.com,2025-12-15 11:33:16 +0700,Fix test failures: Add relationship aliases and correct PDF view names
+b803d8c,COBIT Assessment Team,admin@cobit.com,2025-12-15 11:27:53 +0700,Add complete Admin pages (Users, Roles, Audit Logs, Settings) with full CRUD functionality
+efffde1,COBIT Assessment Team,admin@cobit.com,2025-12-15 10:26:54 +0700,Add complete Report pages (Maturity, Gap Analysis, Summary) with Chart.js visualizations
+4d04a4a,COBIT Assessment Team,admin@cobit.com,2025-12-15 10:19:21 +0700,Update Boilerplate.md to match actual implementation (assessment_period_start/end, scope_type, approved status)
+f9c5e7b,COBIT Assessment Team,admin@cobit.com,2025-12-15 10:10:40 +0700,Add complete Assessment Management pages (Answer, Edit, My Assessments) with proper company_id relationship
+da52c2b,COBIT Assessment Team,admin@cobit.com,2025-12-15 09:57:37 +0700,feat: Add Assessment Show/Detail page
+ad9b996,COBIT Assessment Team,admin@cobit.com,2025-12-15 09:39:13 +0700,feat: Add Create Assessment Wizard (multi-step)
+c48634e,COBIT Assessment Team,admin@cobit.com,2025-12-15 09:37:05 +0700,feat: Add Assessment List page with filters and actions
+436941a,COBIT Assessment Team,admin@cobit.com,2025-12-15 09:07:11 +0700,feat: Change layout to horizontal navigation menu
+e2a739f,COBIT Assessment Team,admin@cobit.com,2025-12-09 23:41:40 +0700,Initial commit: COBIT 2019 Assessment Application with Tabler Admin Dashboard

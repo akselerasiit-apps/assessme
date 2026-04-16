@@ -56,8 +56,8 @@
                             <div class="mb-3">
                                 <label class="form-label required">Kode Aktifitas</label>
                                 <input type="text" name="code" id="questionCodeInput" class="form-control @error('code') is-invalid @enderror" 
-                                       value="{{ old('code', $question->code) }}" required>
-                                <small class="form-hint">Based on GAMO Objective and Level</small>
+                                       value="{{ old('code', $question->gamoObjective->code . '.XX') }}" required readonly>
+                                <small class="form-hint">Format WEB: GAMO.XX. Jika GAMO berubah, sequence akan diambil otomatis dari database saat simpan.</small>
                                 @error('code')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -202,28 +202,22 @@
 $(document).ready(function() {
     const gamoSelect = $('#gamoObjectiveSelect');
     const codeInput = $('#questionCodeInput');
-    const levelSelect = $('#maturityLevelSelect');
     
-    // Auto-update question code when GAMO or Level changes
+    // Preview WEB format: GAMO.XX
     function updateQuestionCode() {
         const gamoCode = gamoSelect.find(':selected').data('code');
-        const level = levelSelect.val();
-        
-        if (gamoCode && level) {
-            const currentValue = codeInput.val();
-            const currentParts = currentValue.split('.');
-            
-            // Format: EDM01.02.001 (GAMO.Level.Sequence)
-            if (currentParts.length >= 3) {
-                // Keep the sequence number
-                const newCode = gamoCode + '.' + String(level).padStart(2, '0') + '.' + currentParts[2];
-                codeInput.val(newCode);
-            }
+
+        if (!gamoCode) {
+            codeInput.val('');
+            return;
         }
+
+        codeInput.val(gamoCode + '.XX');
     }
-    
+
     gamoSelect.on('change', updateQuestionCode);
-    levelSelect.on('change', updateQuestionCode);
+    
+    updateQuestionCode();
 });
 </script>
 @endpush
