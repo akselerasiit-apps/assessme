@@ -1,12 +1,12 @@
 <!-- Summary Sub-tabs -->
-<ul class="nav nav-tabs mb-3" role="tablist">
+<ul class="nav nav-tabs mb-3" id="summary-subtabs" role="tablist">
     <li class="nav-item">
-        <a class="nav-link active" data-bs-toggle="tab" href="#summaryPenilaian" role="tab">
+        <a class="nav-link active" data-bs-toggle="tab" data-bs-target="#summary-penilaian-pane" href="#summary-penilaian-pane" role="tab" aria-controls="summary-penilaian-pane" aria-selected="true">
             <i class="ti ti-clipboard-check me-2"></i>Penilaian
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" href="#summaryProgress" role="tab">
+        <a class="nav-link" data-bs-toggle="tab" data-bs-target="#summary-progress-pane" href="#summary-progress-pane" role="tab" aria-controls="summary-progress-pane" aria-selected="false">
             <i class="ti ti-trending-up me-2"></i>Progress Kapabilitas
         </a>
     </li>
@@ -14,7 +14,7 @@
 
 <div class="tab-content">
     <!-- Tab Penilaian -->
-    <div class="tab-pane active show" id="summaryPenilaian" role="tabpanel">
+    <div class="tab-pane fade active show" id="summary-penilaian-pane" role="tabpanel">
         <!-- Statistics Cards -->
         <div class="row row-cards mb-3">
             <div class="col-md-3">
@@ -107,22 +107,10 @@
                 </table>
             </div>
         </div>
-                            {{-- <td class="text-center" id="totalNotAssessed">0</td>
-                            <td class="text-center" id="totalNA">0</td>
-                            <td class="text-center" id="totalN">0</td>
-                            <td class="text-center" id="totalP">0</td>
-                            <td class="text-center" id="totalL">0</td>
-                            <td class="text-center" id="totalF">0</td>
-                            <td class="text-end" id="totalCompliance">0.00</td> --}}
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
     </div>
 
     <!-- Tab Progress Kapabilitas -->
-    <div class="tab-pane" id="summaryProgress" role="tabpanel">
+    <div class="tab-pane fade" id="summary-progress-pane" role="tabpanel">
         <div class="mb-3">
             <h3 class="mb-1">Summary Progress Kapabilitas</h3>
             <p class="text-muted">Rekapitulasi dari Activites Kapabilitas Asesment</p>
@@ -564,7 +552,7 @@ function exportSummary() {
     const assessmentId = $('input[name="assessment_id"]').val();
     
     // Check if we're in the summary penilaian tab (all GAMOs)
-    if ($('#summaryPenilaian').hasClass('active')) {
+    if ($('#summary-penilaian-pane').hasClass('active')) {
         // Export all GAMOs summary
         window.location.href = `/assessments/${assessmentId}/summary-all-gamos/export`;
     } else {
@@ -580,13 +568,13 @@ $(document).on('shown.bs.tab', 'a[href="#tab-summary"]', function() {
 });
 
 // Load summary when sub-tab Penilaian is shown
-$(document).on('shown.bs.tab', 'a[href="#summaryPenilaian"]', function() {
+$(document).on('shown.bs.tab', '#summary-subtabs a[data-bs-target="#summary-penilaian-pane"]', function() {
     loadSummaryPenilaian();
 });
 
 // Load progress when sub-tab is shown
-$(document).on('shown.bs.tab', 'a[href="#summaryProgress"]', function() {
-    loadProgressCapabilitas();
+$(document).on('shown.bs.tab', '#summary-subtabs a[data-bs-target="#summary-progress-pane"]', function() {
+    loadProgressKapabilitasData();
 });
 
 // Check if summary tab is active on page load
@@ -617,12 +605,12 @@ $(document).ready(function() {
         loadSummaryPenilaian();
     }
     // Also check if summaryPenilaian sub-tab is active
-    if ($('#summaryPenilaian').hasClass('active') && $('#tab-summary').hasClass('active')) {
+    if ($('#summary-penilaian-pane').hasClass('active') && $('#tab-summary').hasClass('active')) {
         loadSummaryPenilaian();
     }
     
     // Handle Progress Kapabilitas tab click
-    $('a[href="#summaryProgress"]').on('shown.bs.tab', function() {
+    $('#summary-subtabs a[data-bs-target="#summary-progress-pane"]').on('shown.bs.tab', function() {
         loadProgressKapabilitasData();
     });
     

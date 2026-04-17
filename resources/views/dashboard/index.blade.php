@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 @section('content')
 <div class="page-wrapper">
     <!-- Page header -->
-    <div class="page-header d-print-none sticky-top bg-white">
+    <div class="page-header d-print-none sticky-top">
         <div class="container-xl">
             <div class="row align-items-center">
                 <div class="col">

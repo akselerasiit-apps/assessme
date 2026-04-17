@@ -99,6 +99,7 @@ Route::middleware(['auth'])->group(function () {
         // OFI (Opportunity for Improvement) Routes
         Route::get('/{assessment}/gamo/{gamo}/ofi', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'getOFIData'])->name('ofi-data');
         Route::post('/{assessment}/gamo/{gamo}/ofi/generate', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'generateAutoOFI'])->name('ofi-generate');
+        Route::post('/{assessment}/gamo/{gamo}/ofi/generate-ai', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'generateAiOFI'])->name('ofi-generate-ai');
         Route::post('/{assessment}/gamo/{gamo}/ofi', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'storeOFI'])->name('ofi-store');
         Route::put('/{assessment}/ofi/{ofi}', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'updateOFI'])->name('ofi-update');
         Route::delete('/{assessment}/ofi/{ofi}', [\App\Http\Controllers\Web\AssessmentTakingController::class, 'deleteOFI'])->name('ofi-delete');

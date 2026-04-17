@@ -8,14 +8,15 @@ use App\Models\AssessmentAnswer;
 use App\Models\AssessmentAuditLog;
 use App\Models\AssessmentEvidence;
 use App\Models\AssessmentGamoSelection;
-use App\Models\AssessmentNote;
 use App\Models\AssessmentOfi;
 use App\Models\GamoObjective;
 use App\Models\GamoQuestion;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Services\Ofi\Exceptions\OfiAiException;
+use App\Services\Ofi\OfiAiGenerationService;
+use App\Services\Ofi\OfiTemplateGenerationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -756,8 +757,8 @@ class AssessmentTakingController extends Controller
         }
 
         $fileName = basename($evidence->file_path);
-        
-        return Storage::disk('private')->download($evidence->file_path, $fileName);
+
+        return response()->download(Storage::disk('private')->path($evidence->file_path), $fileName);
     }
 
     /**
@@ -1353,96 +1354,64 @@ class AssessmentTakingController extends Controller
     {
         $this->authorize('take-assessment', $assessment);
 
-        // Get current and target levels
-        $selection = AssessmentGamoSelection::where('assessment_id', $assessment->id)
-            ->where('gamo_objective_id', $gamo->id)
-            ->first();
+        try {
+            $result = app(OfiTemplateGenerationService::class)->generate($assessment, $gamo, Auth::id());
 
-        if (!$selection) {
-            return response()->json(['error' => 'GAMO not selected'], 404);
+            return response()->json([
+                'success' => true,
+                'message' => $result['message'],
+                'recommendations_count' => $result['recommendations_count'],
+                'generation_source' => 'template',
+            ]);
+        } catch (\Throwable $exception) {
+            Log::error('Failed to generate template OFI', [
+                'assessment_id' => $assessment->id,
+                'gamo_id' => $gamo->id,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to generate template OFI',
+            ], 500);
         }
+    }
 
-        $targetLevel = $selection->target_maturity_level;
-        $currentLevel = $this->calculateCurrentLevel($assessment, $gamo);
+    /**
+     * Generate AI OFI recommendations
+     */
+    public function generateAiOFI(Assessment $assessment, GamoObjective $gamo)
+    {
+        $this->authorize('take-assessment', $assessment);
 
-        // Delete existing auto OFIs
-        AssessmentOfi::where('assessment_id', $assessment->id)
-            ->where('gamo_objective_id', $gamo->id)
-            ->where('type', 'auto')
-            ->delete();
+        try {
+            $result = app(OfiAiGenerationService::class)->generate($assessment, $gamo, Auth::id());
 
-        $recommendations = [];
+            return response()->json([
+                'success' => true,
+                'message' => $result['message'],
+                'recommendations_count' => $result['recommendations_count'],
+                'generation_source' => 'ai',
+                'generation_provider' => $result['generation_provider'],
+                'generation_model' => $result['generation_model'],
+            ]);
+        } catch (OfiAiException $exception) {
+            return response()->json([
+                'success' => false,
+                'error' => $exception->getMessage(),
+            ], 422);
+        } catch (\Throwable $exception) {
+            Log::error('Failed to generate AI OFI', [
+                'assessment_id' => $assessment->id,
+                'gamo_id' => $gamo->id,
+                'error' => $exception->getMessage(),
+            ]);
 
-        // Generate recommendations for gap levels
-        if ($currentLevel < $targetLevel) {
-            // Get activities for levels between current+1 and target
-            for ($level = $currentLevel + 1; $level <= $targetLevel; $level++) {
-                $activities = GamoQuestion::where('gamo_objective_id', $gamo->id)
-                    ->where('maturity_level', $level)
-                    ->get();
-
-                foreach ($activities as $activity) {
-                    // Get answer for this activity
-                    $answer = AssessmentAnswer::where('assessment_id', $assessment->id)
-                        ->where('question_id', $activity->id)
-                        ->first();
-
-                    $compliance = $answer ? $answer->compliance_percentage : 0;
-
-                    // Recommend if not fully achieved (< 85%)
-                    if ($compliance < 85) {
-                        $parts = explode(' | ', $activity->question_text);
-                        $activityNameId = $parts[1] ?? $parts[0];
-
-                        $recommendations[] = [
-                            'level' => $level,
-                            'activity_code' => $activity->code,
-                            'activity_name' => $activityNameId,
-                            'current_compliance' => $compliance,
-                        ];
-                    }
-                }
-            }
-
-            // Create summary OFI record
-            if (!empty($recommendations)) {
-                $description = "<p><strong>Kesenjangan Kapabilitas: Level {$currentLevel} → Level {$targetLevel}</strong></p>";
-                $description .= "<p>Untuk mencapai target level, disarankan untuk meningkatkan aktivitas berikut:</p>";
-                $description .= "<ul>";
-                
-                foreach ($recommendations as $rec) {
-                    $description .= "<li>";
-                    $description .= "<strong>[{$rec['activity_code']}]</strong> {$rec['activity_name']} ";
-                    $description .= "(Level {$rec['level']}, Kepatuhan saat ini: {$rec['current_compliance']}%)";
-                    $description .= "</li>";
-                }
-                
-                $description .= "</ul>";
-
-                $gapScore = $targetLevel - $currentLevel;
-                
-                AssessmentOfi::create([
-                    'assessment_id' => $assessment->id,
-                    'gamo_objective_id' => $gamo->id,
-                    'title' => "Rekomendasi Peningkatan Level {$currentLevel} ke Level {$targetLevel}",
-                    'description' => $description,
-                    'type' => 'auto',
-                    'priority' => $gapScore >= 2 ? 'high' : 'medium',
-                    'status' => 'open',
-                    'category' => 'Process',
-                    'current_level' => $currentLevel,
-                    'target_level' => $targetLevel,
-                    'gap_score' => $gapScore,
-                    'created_by' => Auth::id(),
-                ]);
-            }
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to generate AI OFI',
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Auto OFI generated successfully',
-            'recommendations_count' => count($recommendations),
-        ]);
     }
 
     /**

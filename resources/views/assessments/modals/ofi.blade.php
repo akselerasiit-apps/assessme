@@ -1,4 +1,14 @@
 <!-- Modal OFI (Opportunity for Improvement) -->
+@php
+    $ofiAiProvider = config('services.ofi_ai.default_provider', 'local');
+    $ofiAiModel = match ($ofiAiProvider) {
+        'local' => config('services.ofi_ai_local.model'),
+        'openai' => config('services.openai.model'),
+        'anthropic' => config('services.anthropic.model'),
+        'gemini' => config('services.gemini.model'),
+        default => '-',
+    };
+@endphp
 <div class="modal modal-blur fade" id="ofiModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
         <div class="modal-content">
@@ -51,17 +61,33 @@
                 <div class="tab-content">
                     <!-- Auto-Generated Tab -->
                     <div class="tab-pane active show" id="ofiAutoTab" role="tabpanel">
+                        <div class="alert alert-blue-lt border-0 mb-3 py-2 px-3">
+                            <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+                                <div class="small text-muted">
+                                    Mode AI aktif akan memakai <strong>{{ strtoupper($ofiAiProvider) }}</strong>
+                                    @if($ofiAiModel)
+                                        dengan model <strong>{{ $ofiAiModel }}</strong>
+                                    @endif
+                                </div>
+                                <div class="small text-muted">
+                                    Template tetap tersedia sebagai fallback manual jika AI lambat atau gagal.
+                                </div>
+                            </div>
+                        </div>
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div>
                                 <p class="text-muted mb-0">
                                     <i class="ti ti-info-circle me-1"></i>
-                                    Rekomendasi aktivitas yang dapat dilakukan untuk mencapai tingkat kematangan target
+                                    Rekomendasi aktivitas yang dapat dilakukan untuk mencapai tingkat kematangan target. Gunakan template untuk hasil cepat, atau AI untuk rekomendasi yang lebih kontekstual.
                                 </p>
                             </div>
                             <div class="btn-group">
                                 @can('answer', $assessment)
-                                <button class="btn btn-primary btn-sm" onclick="generateAutoOFI()">
-                                    <i class="ti ti-sparkles me-1"></i>Generate
+                                <button class="btn btn-primary btn-sm" onclick="generateTemplateOFI()">
+                                    <i class="ti ti-template me-1"></i>Generate Template
+                                </button>
+                                <button class="btn btn-info btn-sm" onclick="generateAiOFI()">
+                                    <i class="ti ti-sparkles me-1"></i>Generate AI
                                 </button>
                                 @endcan
                                 <button class="btn btn-outline-primary btn-sm" onclick="copyAutoOFI()">
@@ -241,7 +267,7 @@ function renderAutoOFIs(ofis) {
                     <i class="ti ti-info-circle me-2" style="font-size: 1.5rem;"></i>
                     <div>
                         <strong>Belum ada rekomendasi otomatis</strong>
-                        <p class="mb-0 mt-1">Klik tombol "Generate" untuk membuat rekomendasi berdasarkan gap analysis antara current level dan target level.</p>
+                        <p class="mb-0 mt-1">Klik tombol "Generate Template" untuk rekomendasi cepat berbasis aturan, atau "Generate AI" untuk rekomendasi yang lebih kontekstual.</p>
                     </div>
                 </div>
             </div>
@@ -252,6 +278,12 @@ function renderAutoOFIs(ofis) {
     let html = '<div class="list-group list-group-flush">';
     
     ofis.forEach((ofi, index) => {
+        const source = ofi.generation_source || 'template';
+        const sourceClass = source === 'ai' ? 'bg-azure-lt text-azure' : 'bg-primary-lt text-primary';
+        const sourceLabel = source === 'ai' ? 'AI' : 'Template';
+        const promptId = `ofi-prompt-${ofi.id || index}`;
+        const escapedPrompt = escapeHtml(ofi.generation_prompt || 'Prompt tidak tersedia untuk record ini.');
+
         html += `
             <div class="list-group-item">
                 <div class="d-flex align-items-start">
@@ -261,7 +293,20 @@ function renderAutoOFIs(ofis) {
                         </span>
                     </div>
                     <div class="flex-fill">
+                        <div class="mb-2">
+                            <span class="badge ${sourceClass}">${sourceLabel}</span>
+                            ${ofi.generation_provider ? `<span class="badge bg-secondary-lt text-secondary ms-1">${ofi.generation_provider}</span>` : ''}
+                            ${ofi.generation_model ? `<span class="badge bg-secondary-lt text-secondary ms-1">${ofi.generation_model}</span>` : ''}
+                            ${ofi.prompt_version ? `<span class="badge bg-secondary-lt text-secondary ms-1">${ofi.prompt_version}</span>` : ''}
+                        </div>
                         ${ofi.description}
+                        ${source === 'ai' ? `
+                            <details class="mt-3 border rounded p-2 bg-light-subtle">
+                                <summary class="fw-semibold text-muted cursor-pointer">Lihat Prompt AI</summary>
+                                <div class="small text-muted mt-2 mb-2">Prompt ini adalah konteks yang dikirim ke model saat OFI ini digenerate.</div>
+                                <pre id="${promptId}" class="small mb-0 p-3 rounded bg-dark text-light" style="white-space: pre-wrap; max-height: 260px; overflow:auto;">${escapedPrompt}</pre>
+                            </details>
+                        ` : ''}
                     </div>
                 </div>
             </div>
@@ -270,6 +315,15 @@ function renderAutoOFIs(ofis) {
     
     html += '</div>';
     $('#ofiAutoContent').html(html);
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 // Render Manual OFIs
@@ -455,8 +509,8 @@ function deleteOFI(ofiId) {
     });
 }
 
-// Generate Auto OFI
-function generateAutoOFI() {
+// Generate template OFI
+function generateTemplateOFI() {
     // Check if assessment is completed
     if (typeof isCompleted !== 'undefined' && isCompleted) {
         toastr.warning('Cannot generate OFI - Assessment is completed');
@@ -474,7 +528,7 @@ function generateAutoOFI() {
     $('#ofiAutoContent').html(`
         <div class="text-center py-5 text-muted">
             <div class="spinner-border spinner-border-sm mb-2" role="status"></div>
-            <div>Generating recommendations...</div>
+            <div>Generating template recommendations...</div>
         </div>
     `);
     
@@ -485,14 +539,56 @@ function generateAutoOFI() {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
         success: function(response) {
-            toastr.success(response.message || 'Auto OFI generated successfully');
+            toastr.success(response.message || 'Template OFI generated successfully');
             // Reload OFI data to show new auto-generated OFIs
             loadOFIData(gamoId);
         },
         error: function(xhr) {
-            toastr.error('Error generating auto OFI');
+            const message = xhr.responseJSON?.error || 'Error generating template OFI';
+            toastr.error(message);
             console.error(xhr);
             // Show empty state
+            renderAutoOFIs([]);
+        }
+    });
+}
+
+// Generate AI OFI
+function generateAiOFI() {
+    if (typeof isCompleted !== 'undefined' && isCompleted) {
+        toastr.warning('Cannot generate OFI - Assessment is completed');
+        return;
+    }
+
+    const gamoId = $('#ofiGamoId').val();
+
+    if (!gamoId) {
+        toastr.error('GAMO ID not found');
+        return;
+    }
+
+    $('#ofiAutoContent').html(`
+        <div class="text-center py-5 text-muted">
+            <div class="spinner-border spinner-border-sm mb-2" role="status"></div>
+            <div>Generating AI recommendations...</div>
+            <div class="small mt-2">Model {{ strtoupper($ofiAiProvider) }}: {{ $ofiAiModel }} sedang memproses konteks assessment.</div>
+        </div>
+    `);
+
+    $.ajax({
+        url: `/assessments/${assessmentId}/gamo/${gamoId}/ofi/generate-ai`,
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            toastr.success(response.message || 'AI OFI generated successfully');
+            loadOFIData(gamoId);
+        },
+        error: function(xhr) {
+            const message = xhr.responseJSON?.error || 'Error generating AI OFI';
+            toastr.error(message);
+            console.error(xhr);
             renderAutoOFIs([]);
         }
     });

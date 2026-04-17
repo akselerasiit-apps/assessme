@@ -21,6 +21,12 @@ class AssessmentOfi extends Model
         'current_level',
         'target_level',
         'gap_score',
+        'generation_source',
+        'generation_provider',
+        'generation_model',
+        'generation_prompt',
+        'prompt_version',
+        'fallback_used',
         'created_by',
         'updated_by',
     ];
@@ -28,6 +34,7 @@ class AssessmentOfi extends Model
     protected $casts = [
         'target_date' => 'date',
         'gap_score' => 'decimal:2',
+        'fallback_used' => 'boolean',
     ];
 
     /**

@@ -351,11 +351,11 @@
                                     </div>
                                 </div>
                                 <div class="mt-3">
-                                    <div class="text-muted small mb-1">Selected Design Factors:</div>
+                                    <div class="text-muted small mb-1"><b>Selected Design Factors:</b></div>
                                     <div id="review-df-list" class="text-muted small"></div>
                                 </div>
                                 <div class="mt-3">
-                                    <div class="text-muted small mb-1">Selected GAMO Objectives:</div>
+                                    <div class="text-muted small mb-1"><b>Selected GAMO Objectives:</b></div>
                                     <div id="review-gamo-list" class="text-muted small"></div>
                                 </div>
                             </div>
